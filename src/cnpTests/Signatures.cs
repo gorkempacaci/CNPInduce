@@ -8,7 +8,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
     /// In valence lookups ProgramSignatures are used as a key so it's important they have consistent hashcodes.
     /// </summary>
     [TestClass]
-    public class ProgramSignatures
+    public class Signatures
     {
         [TestMethod]
         public void IdenticalSignatures_SameHashcode()
