@@ -3,8 +3,7 @@ using CNP.Language;
 using CNP.Parsing;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace Tests
-{
+
     /// <summary>
     /// In valence lookups ProgramSignatures are used as a key so it's important they have consistent hashcodes.
     /// </summary>
@@ -38,5 +37,3 @@ namespace Tests
         }
 
     }
-}
-

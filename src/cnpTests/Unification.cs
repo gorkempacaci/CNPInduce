@@ -4,8 +4,7 @@ using CNP.Helper;
 using System.Diagnostics;
 using System;
 
-namespace Tests
-{
+
 
     [TestClass]
     public class Unification : TestBase
@@ -80,4 +79,3 @@ namespace Tests
 
     }
 
-}

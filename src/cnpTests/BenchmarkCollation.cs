@@ -3,8 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text;
 
-namespace Tests
-{
+
     public class BenchmarkCollation
     {
         Dictionary<string, BenchmarkEntry> benchmarks = new Dictionary<string, BenchmarkEntry>();
@@ -27,7 +26,7 @@ namespace Tests
             sb.AppendLine("--- | --- | ---: | ---:");
             foreach(BenchmarkEntry en in benchmarks.Values)
             {
-                sb.AppendLine(string.Format("{0} | {1} | {2:F2} | {3:F2}", en.ProgramName.Replace("|", "\\|"), en.ProgramCNPString.Replace("|","\\|"), en.MinTime, en.MaxTime));
+                sb.AppendLine(string.Format("{0} | {1} | {2:F4}s | {3:F4}s", en.ProgramName.Replace("|", "\\|"), en.ProgramCNPString.Replace("|","\\|"), en.MinTime, en.MaxTime));
             }
             return sb.ToString();
         }
@@ -100,4 +99,4 @@ namespace Tests
             _target.CollateNewTime(programName, programCNPString, td);
         }
     }
-}
+

@@ -9,7 +9,7 @@ using CNP.Parsing;
 using CNP.Language;
 using CNP.Search;
 
-namespace Tests.Synthesis
+namespace Synthesis
 {
     [TestClass]
     public class Elementary : TestBase

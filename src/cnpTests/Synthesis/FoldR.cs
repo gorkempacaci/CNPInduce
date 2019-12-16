@@ -3,7 +3,7 @@ using CNP;
 using CNP.Language;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace Tests.Synthesis
+namespace Synthesis
 {
     [TestClass]
     public class FoldR : TestBase

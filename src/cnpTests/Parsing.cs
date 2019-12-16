@@ -6,8 +6,7 @@ using CNP.Language;
 using CNP.Parsing;
 using System.Collections.Generic;
 
-namespace Tests
-{
+
     [TestClass]
     public class Parsing : TestBase
     {
@@ -150,4 +149,3 @@ namespace Tests
             Assert.AreEqual(strOfNested, strOfList);
         }
     }
-}

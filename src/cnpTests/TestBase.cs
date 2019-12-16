@@ -9,8 +9,7 @@ using CNP.Search;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.IO;
 
-namespace Tests
-{
+
     [SuppressMessage("Style", "IDE1006:Naming Styles", Justification = "Convenience")]
     [TestClass]
     public class TestBase
@@ -99,4 +98,3 @@ namespace Tests
             benchmark.WriteToFile(fn);
         }
     }
-}
