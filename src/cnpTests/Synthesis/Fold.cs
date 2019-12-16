@@ -6,7 +6,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 namespace Synthesis
 {
     [TestClass]
-    public class FoldR : TestBase
+    public class Fold : TestBase
     {
         [TestMethod]
         public void Append()
@@ -55,22 +55,5 @@ namespace Synthesis
         }
     }
 
-    [TestClass]
-    public class FoldL : TestBase
-    {
-        [TestMethod]
-        public void Reverse3()
-        {
-            try
-            {
-                string sigStr = "{a0:in, as:in, b:out}";
-                string atusStr = "{{a0:[], as:[1,2,3], b:[3,2,1]}}";
-                assertSingleResultFor(sigStr, atusStr, foldl(cons, id), "reverse3");
-            }
-            catch (Exception e)
-            {
-                throw e;
-            }
-        }
-    }
+
 }

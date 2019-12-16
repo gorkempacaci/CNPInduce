@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
@@ -26,5 +26,6 @@
     <Compile Remove="Helper\ReferenceEqualityComparer.cs" />
     <Compile Remove="Helper\ReferenceEqualityComparer.cs" />
     <Compile Remove="Helper\OrderlyBlockingQueue.cs" />
+    <Compile Remove="Language\Elementary\True.cs" />
   </ItemGroup>
 </Project>
