@@ -95,7 +95,7 @@ namespace Tests
         public static void WriteBenchmarksToFile()
         {
             string dt = DateTime.Now.ToString("yyyyMMddT_HHmmss");
-            string fn = Path.Combine(Directory.GetCurrentDirectory(), "../../../benchmarks_"+dt+".md");
+            string fn = Path.Combine(Directory.GetCurrentDirectory(), "../../../../benchmarks/run_"+dt+".md");
             benchmark.WriteToFile(fn);
         }
     }
