@@ -7,6 +7,14 @@ namespace CNP.Helper.EagerLinq
 {
     public static class Enumerable
     {
+        public static bool Any<TSource>(this IEnumerable<TSource> source)
+        {
+            return Lazy.Any(source);
+        }
+        public static bool Any<TSource>(this IEnumerable<TSource> source, Func<TSource, bool> predicate)
+        {
+            return Lazy.Any(source, predicate);
+        }
         public static IEnumerable<TSource> Where<TSource>(this IEnumerable<TSource> source, Func<TSource, bool> predicate)
         {
             return Lazy.ToList(Lazy.Where(source, predicate));

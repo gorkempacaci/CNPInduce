@@ -10,11 +10,7 @@ namespace CNP.Language
         public static readonly Cons ConsProgram = new Cons();
         private Cons() { }
         private static readonly ISet<string> consArgNames = new HashSet<string>() { "a", "b", "ab" };
-        private static readonly IEnumerable<Signature> consModes = new List<Signature>
-        {
-            new Signature( ("a", ArgumentMode.In), ("b", ArgumentMode.In), ("ab", ArgumentMode.Out) ),
-            new Signature( ("a", ArgumentMode.Out), ("b", ArgumentMode.Out), ("ab", ArgumentMode.In) )
-        };
+
         public override ISet<string> ArgumentNames => consArgNames;
         public override string ToString()
         {
@@ -23,7 +19,7 @@ namespace CNP.Language
         public static Cons FromObservation(ObservedProgram op)
         {
 
-            if (!op.ArgumentNames.SetEquals(consArgNames) || !consModes.Contains(op.Signature))
+            if (!op.ArgumentNames.SetEquals(consArgNames) || !Valences.Cons.Contains(op.Signature))
             {
                 return null;
             }

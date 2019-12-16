@@ -7,12 +7,11 @@ namespace CNP.Language
 
     public class Const : ElementaryProgram
     {
-        private readonly ISet<string> constArgNames;
-
-        public override ISet<string> ArgumentNames => constArgNames;
-
         public Term Value { get; private set; }
-
+        
+        private readonly ISet<string> constArgNames;
+        public override ISet<string> ArgumentNames => constArgNames;
+        
         public Const(string argName, Term groundTerm)
         {
             if (!groundTerm.IsGround())
@@ -25,7 +24,7 @@ namespace CNP.Language
 
         public static Const FromObservation(ObservedProgram op)
         {
-            if (op.ArgumentNames.Count() != 1 || op.Observables.Count() <= 0)
+            if (op.ArgumentNames.Count() != 1 || !op.Observables.Any())
             {
                 return null;
             }

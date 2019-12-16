@@ -12,15 +12,8 @@ namespace CNP.Language
     {
         public static readonly Id IdProgram = new Id();
         private Id() { }
-        private static readonly ISet<string> idArgNames = new HashSet<string>() { "a", "b" };
-        private static readonly IEnumerable<Signature> idModes = new List<Signature>
-        {
-            new Signature(("a", ArgumentMode.In), ("b", ArgumentMode.Out)),
-            new Signature(("a", ArgumentMode.Out), ("b", ArgumentMode.In)),
-            new Signature(("a", ArgumentMode.In), ("b", ArgumentMode.In))
-        };
-        
-        public override ISet<string> ArgumentNames => idArgNames;
+        private static readonly ISet<string> IdArgNames = new HashSet<string>() {"a", "b"};
+        public override ISet<string> ArgumentNames => IdArgNames;
 
         public override string ToString()
         {
@@ -29,7 +22,7 @@ namespace CNP.Language
 
         public static Id FromObservation(ObservedProgram obs)
         {
-            if (!idArgNames.SetEquals(obs.ArgumentNames) || !idModes.Contains(obs.Signature))
+            if (!IdArgNames.SetEquals(obs.ArgumentNames) || !Valences.Id.Contains(obs.Signature))
                 return null;
 
             if (obs.Observables.All(at => Term.UnifyInPlace(at.Terms["a"], at.Terms["b"])))
