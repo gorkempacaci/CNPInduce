@@ -1,0 +1,30 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+  </PropertyGroup>
+
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <LangVersion>7.0</LangVersion>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <LangVersion>Default</LangVersion>
+    <NoStdLib></NoStdLib>
+    <LangVersion>7.0</LangVersion>
+    <NoStdLib>true</NoStdLib>
+  </PropertyGroup>
+  <ItemGroup>
+    <Folder Include="Search\" />
+    <Folder Include="Parsing\" />
+    <Folder Include="Helper\EagerLinq\" />
+    <Folder Include="Language\Terms\" />
+    <Folder Include="Language\Operators\" />
+    <Folder Include="Language\Elementary\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Remove="Helper\ReferenceEqualityComparer.cs" />
+    <Compile Remove="Helper\ReferenceEqualityComparer.cs" />
+    <Compile Remove="Helper\OrderlyBlockingQueue.cs" />
+  </ItemGroup>
+</Project>
