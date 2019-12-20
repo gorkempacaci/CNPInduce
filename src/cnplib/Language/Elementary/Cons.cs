@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using CNP.Helper.EagerLinq;
+using  CNP.Helper;
 
 namespace CNP.Language
 {
@@ -16,16 +17,15 @@ namespace CNP.Language
         {
             return "cons";
         }
-        public static Cons FromObservation(ObservedProgram op)
+        public static IEnumerable<Cons> FromObservation(ObservedProgram op)
         {
 
             if (!op.ArgumentNames.SetEquals(consArgNames) || !Valences.Cons.Contains(op.Signature))
-            {
-                return null;
-            }
+                return Iterators.Empty<Cons>();
+
             if (op.Observables.All(at => Term.UnifyInPlace(at["ab"], new TermList(at["a"], at["b"]))))
-                return ConsProgram;
-            else return null;
+                return Iterators.Singleton(ConsProgram);
+            else return Iterators.Empty<Cons>();
         }
 
     }

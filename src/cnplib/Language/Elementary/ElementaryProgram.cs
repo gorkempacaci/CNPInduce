@@ -12,7 +12,7 @@ namespace CNP.Language
         {
             IsClosed = true;
         }
-        public override Program CloneAndGrind(ObservedProgram oldComponent, Program newComponent, FreeDictionary plannedParenthood)
+        public override Program CloneAndReplace(ObservedProgram oldComponent, Program newComponent, FreeDictionary plannedParenthood)
         {
             return this;
         }

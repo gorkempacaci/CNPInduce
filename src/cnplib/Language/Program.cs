@@ -18,7 +18,7 @@ namespace CNP.Language
         /// <returns></returns>
         public Program Clone()
         {
-            return CloneAndGrind(null, null, new FreeDictionary());
+            return CloneAndReplace(null, null, new FreeDictionary());
         }
 
         /// <summary>
@@ -27,7 +27,7 @@ namespace CNP.Language
         /// <param name="oldComponent"></param>
         /// <param name="newComponent"></param>
         /// <returns></returns>
-        public abstract Program CloneAndGrind(ObservedProgram oldComponent, Program newComponent, FreeDictionary plannedParenthood);
+        public abstract Program CloneAndReplace(ObservedProgram oldComponent, Program newComponent, FreeDictionary plannedParenthood);
         /// <summary>
         /// Returns the first non-ground program (ObservedProgram) in the subtree, first as in in-order, LNR search.
         /// If there is no hole, returns null.

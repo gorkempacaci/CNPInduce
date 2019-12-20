@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using CNP.Helper.EagerLinq;
+using CNP.Language;
+
 
 namespace CNP.Helper
 {
@@ -57,6 +59,25 @@ namespace CNP.Helper
             }
         }
 
+        public static IEnumerable<TSource> Clone<TSource>(this IEnumerable<TSource> source, FreeDictionary plannedParenthood) where TSource:IFreeContainer
+        {
+            return source.Select(e => (TSource)e.Clone(plannedParenthood));
+        }
+        
+        public static (TSource, TSource) ToValueTuple2<TSource>(this IEnumerable<TSource> source)
+        {
+            var vals = Enumerable.ToArray(source);
+            if (vals.Length!=2)
+                throw  new Exception("ToValueTuple2: IEnumerable has more than 2 elements.");
+            return ValueTuple.Create(vals[0], vals[1]);
+        }
+        public static (TSource, TSource, TSource) ToValueTuple3<TSource>(this IEnumerable<TSource> source)
+        {
+            var vals = Enumerable.ToArray(source);
+            if (vals.Length!=3)
+                throw  new Exception("ToValueTuple3: IEnumerable has more than 3 elements.");
+            return ValueTuple.Create(vals[0], vals[1], vals[2]);
+        }
         public static List<TResult> Generate<TResult>(int count, Func<TResult> generator)
         {
             List<TResult> list = new List<TResult>(count);
@@ -65,6 +86,11 @@ namespace CNP.Helper
                 list.Add(generator());
             }
             return list;
+        }
+
+        public static HashSet<TSource> ToHashSet<TSource>(this IEnumerable<TSource> source)
+        {
+            return new HashSet<TSource>(source);
         }
 
         public static IEnumerable<TResult> HeadAndTail<TResult>(TResult obj, IEnumerable<TResult> tail)

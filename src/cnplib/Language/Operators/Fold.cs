@@ -32,7 +32,7 @@ namespace CNP.Language
         }
         public override int GetHashCode()
         {
-            return base.GetHashCode();
+            return Recursive.GetHashCode() * 27 + Base.GetHashCode() * 31;
         }
     }
 

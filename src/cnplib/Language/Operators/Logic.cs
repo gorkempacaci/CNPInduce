@@ -37,18 +37,18 @@ namespace CNP.Language
     {
         public And(IEnumerable<Program> ps) : base(ps) { }
 
-        public override Program CloneAndGrind(ObservedProgram oldComponent, Program newComponent, FreeDictionary plannedParenthood)
+        public override Program CloneAndReplace(ObservedProgram oldComponent, Program newComponent, FreeDictionary plannedParenthood)
         {
-            return new And(Operands.Select(p => p.CloneAndGrind(oldComponent, newComponent, plannedParenthood)));
+            return new And(Operands.Select(p => p.CloneAndReplace(oldComponent, newComponent, plannedParenthood)));
         }
     }
 
     public class Or : LogicOperator
     {
         public Or(IEnumerable<Program> ps) : base(ps) { }
-        public override Program CloneAndGrind(ObservedProgram oldComponent, Program newComponent, FreeDictionary plannedParenthood)
+        public override Program CloneAndReplace(ObservedProgram oldComponent, Program newComponent, FreeDictionary plannedParenthood)
         {
-            return new Or(Operands.Select(p => p.CloneAndGrind(oldComponent, newComponent, plannedParenthood)));
+            return new Or(Operands.Select(p => p.CloneAndReplace(oldComponent, newComponent, plannedParenthood)));
         }
     }
 }

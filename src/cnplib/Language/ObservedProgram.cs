@@ -30,7 +30,7 @@ namespace CNP.Language
         /// <summary>
         /// Replaces itself if it is the oldComponent.
         /// </summary>
-        public override Program CloneAndGrind(ObservedProgram oldComponent, Program newComponent, FreeDictionary plannedParenthood)
+        public override Program CloneAndReplace(ObservedProgram oldComponent, Program newComponent, FreeDictionary plannedParenthood)
         {
             // If this is the oldComponent they're looking for
             if (object.ReferenceEquals(this, oldComponent))
@@ -50,8 +50,8 @@ namespace CNP.Language
 
         private static ISet<string> FindArgNames(IEnumerable<AlphaTuple> ats)
         {
-            if (ats.Count() == 0)
-                throw new Exception("ArgumentNamesFrom: List of tuples is empty.");
+            if (!ats.Any())
+                throw new Exception("FindArgNames: List of tuples is empty.");
             var allKeys = ats.Select(at => at.Terms.Keys);
             var first = allKeys.First();
             if (allKeys.All(ks => ks.SequenceEqual(first)))
@@ -61,7 +61,7 @@ namespace CNP.Language
             }
             else
             {
-                throw new Exception("ArgumentNamesFrom: Keys in a list of tuples are not the same: " + ats.ToString());
+                throw new Exception("FindArgNames: Keys in a list of tuples are not the same: " + ats.ToString());
             }
         }
     }

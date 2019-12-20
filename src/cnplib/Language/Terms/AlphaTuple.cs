@@ -41,6 +41,10 @@ namespace CNP.Language
         {
             return new AlphaTuple(_terms.Select(e => new KeyValuePair<string, Term>(e.Key, e.Value.Clone(plannedParenthood))));
         }
+        IFreeContainer IFreeContainer.Clone(FreeDictionary plannedParenthood)
+        {
+            return this.Clone(plannedParenthood);
+        }
 
         public IEnumerator<KeyValuePair<string, Term>> GetEnumerator()
         {

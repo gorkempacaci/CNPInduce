@@ -16,26 +16,30 @@ namespace CNP.Language
         {
             return Base.FindFirstHole() ?? Recursive.FindFirstHole();
         }
-        public override Program CloneAndGrind(ObservedProgram oldComponent, Program newComponent, FreeDictionary plannedParenthood)
+        public override Program CloneAndReplace(ObservedProgram oldComponent, Program newComponent, FreeDictionary plannedParenthood)
         {
-            return new FoldR(Base.CloneAndGrind(oldComponent, newComponent, plannedParenthood),
-                                Recursive.CloneAndGrind(oldComponent, newComponent, plannedParenthood));
+            return new FoldR(Base.CloneAndReplace(oldComponent, newComponent, plannedParenthood),
+                                Recursive.CloneAndReplace(oldComponent, newComponent, plannedParenthood));
         }
-        public static FoldR FromObservation(ObservedProgram obs)
+        public static IEnumerable<FoldR> FromObservation(ObservedProgram obs)
         {
             if (!obs.ArgumentNames.SetEquals(foldArgumentNames) ||
-                !Valences.Fold.TryGetValue(obs.Signature, out (Signature, Signature) pqSignatures))
+                !Valences.Fold.TryGetValue(obs.Signature, out IEnumerable<OperatorCombinedSignature> pqSignatures))
             {
-                return null;
+                return Iterators.Empty<FoldR>();
             }
             List<AlphaTuple> pObs = new List<AlphaTuple>(), qObs = new List<AlphaTuple>();
             foreach (AlphaTuple at in obs.Observables)
                 foldRtoPQ(at["a0"], at["as"], pObs, qObs, at["b"]);
-            if (pObs.Count() == 0 || qObs.Count() == 0)
-                return null;
-            ObservedProgram p = new ObservedProgram(pObs, pqSignatures.Item1);
-            ObservedProgram q = new ObservedProgram(qObs, pqSignatures.Item2);
-            return new FoldR(p, q);
+            if (!pObs.Any() || !qObs.Any())
+                return Iterators.Empty<FoldR>();
+            var newFolds = pqSignatures.Select(op =>
+            {
+                FreeDictionary fd = new FreeDictionary();
+                return new FoldR(new ObservedProgram(pObs.Clone(fd), op.LeftOperandSignature),
+                    new ObservedProgram(qObs.Clone(fd), op.RightOperandSignature));
+            });
+            return newFolds;
         }
         // foldr(P,Q)(A0,[],B) :- Q(A0,B).
         // foldr(P,Q)(A0,[A|At],B) :- foldr(P,Q)(A0,At,Acc), P(A,Acc,B).

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using CNP.Helper;
 using CNP.Language;
 
 namespace CNP.Search
@@ -15,6 +16,7 @@ namespace CNP.Search
         int programCountLimit;
         ProgramSearch search;
 
+        
         ConcurrentQueue<Program> programs = new ConcurrentQueue<Program>();
 
         public SynthesisJob(ObservedProgram initialObservation, int programCount = int.MaxValue, int maxHeight = DEFAULT_MAX_HEIGHT)
@@ -30,7 +32,8 @@ namespace CNP.Search
         {
             search.Start();
             search.WaitUntilDone();
-            return programs;
+            var set = programs.ToHashSet(); // don't repeat same program twice. 
+            return set;
         }
 
         public bool FoundNewProgram(Program p)

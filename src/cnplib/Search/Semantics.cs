@@ -12,8 +12,8 @@ namespace CNP.Search
         /// </summary>
         public static IEnumerable<Program> AlternateOnFirstHole(Program open, ref int searchCounter)
         {
-            List<Program> programs = new List<Program>(5);
-            var fillers = new List<Func<ObservedProgram, Program>>
+            List<Program> programs = new List<Program>();
+            var fillers = new List<Func<ObservedProgram, IEnumerable<Program>>>
             {
                 Id.FromObservation,
                 Cons.FromObservation,
@@ -26,10 +26,10 @@ namespace CNP.Search
                 Interlocked.Increment(ref searchCounter);
                 Program cloneProgram = open.Clone();
                 ObservedProgram hole = cloneProgram.FindFirstHole();
-                Program newSubTree = filler(hole);
-                if (newSubTree != null)
+                IEnumerable<Program> newSubTrees = filler(hole);
+                foreach (Program subTree in newSubTrees)
                 {
-                    Program newProgram = cloneProgram.CloneAndGrind(hole, newSubTree, new FreeDictionary());
+                    Program newProgram = cloneProgram.CloneAndReplace(hole, subTree, new FreeDictionary());
                     programs.Add(newProgram);
                 }
             }

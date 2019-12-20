@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Reflection;
 using System.Text;
 using Lazy = System.Linq.Enumerable;
 
@@ -15,6 +16,14 @@ namespace CNP.Helper.EagerLinq
         {
             return Lazy.Any(source, predicate);
         }
+        public static TSource ElementAt<TSource>(this IEnumerable<TSource> source, int index)
+        {
+            return Lazy.ElementAt(source, index);
+        }
+        public static TSource ElementAtOrDefault<TSource>(this IEnumerable<TSource> source, int index)
+        {
+            return Lazy.ElementAtOrDefault(source, index);
+        }        
         public static IEnumerable<TSource> Where<TSource>(this IEnumerable<TSource> source, Func<TSource, bool> predicate)
         {
             return Lazy.ToList(Lazy.Where(source, predicate));
@@ -51,6 +60,12 @@ namespace CNP.Helper.EagerLinq
         {
             return Lazy.Count(source, predicate);
         }
+
+        public static IEnumerable<System.Linq.IGrouping<TKey, TSource>> GroupBy<TKey, TSource>(this IEnumerable<TSource> source,
+            Func<TSource, TKey> condition)
+        {
+            return Lazy.ToList(Lazy.GroupBy(source, condition));
+        }
         public static IEnumerable<int> Range(int start, int count)
         {
             return Lazy.ToList(Lazy.Range(start, count));
@@ -70,6 +85,10 @@ namespace CNP.Helper.EagerLinq
         public static IEnumerable<TSource> Take<TSource>(this IEnumerable<TSource> source, int count)
         {
             return Lazy.ToList(Lazy.Take(source, count));
+        }
+        public static TSource[] ToArray<TSource>(this IEnumerable<TSource> source)
+        {
+            return Lazy.ToArray(source);
         }
         public static IEnumerable<TSource> Skip<TSource>(this IEnumerable<TSource> source, int count)
         {

@@ -16,26 +16,30 @@ namespace CNP.Language
         {
             return Recursive.FindFirstHole() ?? Base.FindFirstHole();
         }
-        public override Program CloneAndGrind(ObservedProgram oldComponent, Program newComponent, FreeDictionary plannedParenthood)
+        public override Program CloneAndReplace(ObservedProgram oldComponent, Program newComponent, FreeDictionary plannedParenthood)
         {
-            return new FoldL(Base.CloneAndGrind(oldComponent, newComponent, plannedParenthood),
-                             Recursive.CloneAndGrind(oldComponent, newComponent, plannedParenthood));
+            return new FoldL(Base.CloneAndReplace(oldComponent, newComponent, plannedParenthood),
+                             Recursive.CloneAndReplace(oldComponent, newComponent, plannedParenthood));
         }
-        public static FoldL FromObservation(ObservedProgram obs)
+        public static IEnumerable<FoldL> FromObservation(ObservedProgram obs)
         {
             if (!obs.ArgumentNames.SetEquals(foldArgumentNames) ||
-                !Valences.Fold.TryGetValue(obs.Signature, out (Signature, Signature) pqSignatures))
+                !Valences.Fold.TryGetValue(obs.Signature, out IEnumerable<OperatorCombinedSignature> pqSignatures))
             {
-                return null;
+                return Iterators.Empty<FoldL>();
             }
             List<AlphaTuple> pObs = new List<AlphaTuple>(), qObs = new List<AlphaTuple>();
             foreach (AlphaTuple at in obs.Observables)
-                foldLtoPQ(@as: at["as"], b: at["b"], atusP: pObs, atusQ: qObs, acc: at["a0"]);
-            if (pObs.Count() == 0 || qObs.Count() == 0)
-                return null;
-            ObservedProgram p = new ObservedProgram(pObs, pqSignatures.Item1);
-            ObservedProgram q = new ObservedProgram(qObs, pqSignatures.Item2);
-            return new FoldL(p, q);
+                foldLtoPQ(at["a0"], at["as"], pObs, qObs, at["b"]);
+            if (pObs.Any() || qObs.Any())
+                return Iterators.Empty<FoldL>();
+            var newFolds = pqSignatures.Select(op =>
+            {
+                FreeDictionary fd = new FreeDictionary();
+                return new FoldL(new ObservedProgram(pObs.Clone(fd), op.LeftOperandSignature),
+                    new ObservedProgram(qObs.Clone(fd), op.RightOperandSignature));
+            });
+            return newFolds;
         }
         // foldl(P,Q)(A0,nil,B) :- Q(A0,B).
         // foldl(P,Q)(A0,[A|At],B) :- P(A,A0,Acc), foldl(P,Q)(Acc,At,B).

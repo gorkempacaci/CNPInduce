@@ -7,6 +7,7 @@ namespace CNP.Language
     public interface IFreeContainer
     {
         void SubstituteFreeInPlace(Free oldTerm, Term newTerm);
+        IFreeContainer Clone(FreeDictionary plannedParenthood);
     }
     public class Free : Term
     {

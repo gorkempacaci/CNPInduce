@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using CNP.Helper.EagerLinq;
+using CNP.Helper;
 
 namespace CNP.Language
 {
@@ -11,7 +12,11 @@ namespace CNP.Language
     public class Id : ElementaryProgram
     {
         public static readonly Id IdProgram = new Id();
-        private Id() { }
+
+        private Id()
+        {
+        }
+
         private static readonly ISet<string> IdArgNames = new HashSet<string>() {"a", "b"};
         public override ISet<string> ArgumentNames => IdArgNames;
 
@@ -20,21 +25,15 @@ namespace CNP.Language
             return "id";
         }
 
-        public static Id FromObservation(ObservedProgram obs)
+        public static IEnumerable<Id> FromObservation(ObservedProgram obs)
         {
             if (!IdArgNames.SetEquals(obs.ArgumentNames) || !Valences.Id.Contains(obs.Signature))
-                return null;
+                return Iterators.Empty<Id>();
 
             if (obs.Observables.All(at => Term.UnifyInPlace(at.Terms["a"], at.Terms["b"])))
-            {
-                return IdProgram;
-            }
-            else
-            {
-                return null;
-            }
-            
-        }
+                return Iterators.Singleton(IdProgram);
+            else return Iterators.Empty<Id>();
 
+        }
     }
 }

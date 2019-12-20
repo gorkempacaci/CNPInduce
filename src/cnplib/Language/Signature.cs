@@ -64,7 +64,32 @@ namespace CNP.Language
         }
 
         public override int GetHashCode() => hashcode;
+    }
 
+    public struct OperatorCombinedSignature
+    {
+        public readonly Signature OperatorSignature;
+        public readonly Signature LeftOperandSignature;
+        public readonly Signature RightOperandSignature;
+        public OperatorCombinedSignature(Signature operatorSig, Signature leftSig, Signature rightSig)
+        {
+            OperatorSignature = operatorSig;
+            LeftOperandSignature = leftSig;
+            RightOperandSignature = rightSig;
+        }
 
+        public override bool Equals(object obj)
+        {
+            if (!(obj is OperatorCombinedSignature other))
+                return false;
+            return OperatorSignature.Equals(other.OperatorSignature) &&
+                   LeftOperandSignature.Equals(other.LeftOperandSignature) &&
+                   RightOperandSignature.Equals(other.RightOperandSignature);
+        }
+        
+        public override int GetHashCode()
+        {
+            return OperatorSignature.GetHashCode();
+        }
     }
 }

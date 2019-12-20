@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using CNP.Helper;
 using CNP.Helper.EagerLinq;
 
 namespace CNP.Language
@@ -22,26 +23,20 @@ namespace CNP.Language
             Value = groundTerm;
         }
 
-        public static Const FromObservation(ObservedProgram op)
+        public static IEnumerable<Const> FromObservation(ObservedProgram op)
         {
             if (op.ArgumentNames.Count() != 1 || !op.Observables.Any())
-            {
-                return null;
-            }
+                return Iterators.Empty<Const>();
             Free candidateConstant = new Free();
             string argName = op.ArgumentNames.First();
             var allTups = Enumerable.ToList(op.Observables);
             int count = allTups.Count();
             for (int i = 1; i < count; i++)
-            {
                 if (!Term.UnifyInPlace(allTups[0].Terms[argName], allTups[i].Terms[argName]))
-                {
-                    return null;
-                }
-            }
+                    return Iterators.Empty<Const>();
             if (!allTups[0].Terms[argName].IsGround())
-                return null;
-            return new Const(argName, allTups[0].Terms[argName]);
+                return Iterators.Empty<Const>();
+            return Iterators.Singleton(new Const(argName, allTups[0].Terms[argName]));
         }
 
         public override bool Equals(object obj)
