@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.Design;
 using CNP.Helper;
 using CNP.Helper.EagerLinq;
 
@@ -7,6 +8,8 @@ namespace CNP.Language
 {
     public class FoldR : Fold
     {
+        public override ISet<string> ArgumentNames => foldrArgumentNames;
+        protected static readonly HashSet<string> foldrArgumentNames = new HashSet<string>(new string[] { "b0", "as", "b" });
         public FoldR(Program recursiveCase, Program baseCase) : base(recursiveCase, baseCase) { }
         public override string ToString()
         {
@@ -28,14 +31,14 @@ namespace CNP.Language
         // }
         public static IEnumerable<FoldR> FromObservation(ObservedProgram obs)
         {
-            if (!obs.ArgumentNames.SetEquals(foldArgumentNames) ||
-                !Valences.Fold.TryGetValue(obs.Signature, out IEnumerable<OperatorCombinedSignature> pqSignatures))
+            if (!obs.ArgumentNames.SetEquals(foldrArgumentNames) ||
+                !Valences.FoldR.TryGetValue(obs.Signature, out IEnumerable<OperatorCombinedSignature> pqSignatures))
             {
                 return Iterators.Empty<FoldR>();
             }
             List<AlphaTuple> pObs = new List<AlphaTuple>(), qObs = new List<AlphaTuple>();
             foreach (AlphaTuple at in obs.Observables)
-                foldRtoPQ(at["a0"], at["as"], pObs, qObs, at["b"]);
+                foldRtoPQ(at["b0"], at["as"], at["b"], pObs, qObs);
             if (!pObs.Any() || !qObs.Any())
                 return Iterators.Empty<FoldR>();
             var newFolds = pqSignatures.Select(op =>
@@ -46,22 +49,24 @@ namespace CNP.Language
             });
             return newFolds;
         }
+
         // foldr(P,Q)(A0,[],B) :- Q(A0,B).
         // foldr(P,Q)(A0,[A|At],B) :- foldr(P,Q)(A0,At,Acc), P(A,Acc,B).
-        //
-        // foldr p q ([], [1,2,3], B) :- q([], B1) , p(3, B1, B2) , p(2, B2, B3), p(1, B3, B).
-        static void foldRtoPQ(Term a0, Term @as, List<AlphaTuple> atusP, List<AlphaTuple> atusQ, Term acc)
+        static void foldRtoPQ(Term b0, Term @as, Term b, List<AlphaTuple> atusP, List<AlphaTuple> atusQ, Term acc = null)
         {
+            if (acc == null)
+            {
+                acc = b;
+            }
             if (@as is TermList li)
             {
-                Free newAcc = new Free();
-                atusP.Add(new AlphaTuple(("a", li.Head), ("b", newAcc), ("ab", acc)));
-                foldRtoPQ(a0: a0, @as: li.Tail, atusP: atusP, atusQ: atusQ, acc: newAcc);
-            }
-            else
+                Free f = new Free();
+                atusP.Add(new AlphaTuple(("a", li.Head), ("b", f), ("ab", acc)));
+                foldRtoPQ(b0, li.Tail, b, atusP, atusQ, f);
+            } else if (@as is NilTerm)
             {
-                atusQ.Add(new AlphaTuple(("a", a0), ("b", acc)));
-            }
+                atusQ.Add(new AlphaTuple(("a", b0), ("b", acc)));
+            } else throw new Exception("foldRtoPQ: as is not list or nil.");
         }
     }
 }

@@ -61,6 +61,10 @@ namespace CNP.Helper.EagerLinq
             return Lazy.Count(source, predicate);
         }
 
+        public static IEnumerable<TSource> Distinct<TSource>(this IEnumerable<TSource> source)
+        {
+            return Lazy.ToList(Lazy.Distinct(source));
+        }
         public static IEnumerable<System.Linq.IGrouping<TKey, TSource>> GroupBy<TKey, TSource>(this IEnumerable<TSource> source,
             Func<TSource, TKey> condition)
         {

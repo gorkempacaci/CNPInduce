@@ -11,22 +11,22 @@ namespace Synthesis
         [TestMethod]
         public void Append()
         {
-            string sigStr = "{a0:in, as:in, b:out}";
-            string atusStr = "{{a0:[4,5,6], as:[1,2,3], b:[1,2,3,4,5,6]}}";
+            string sigStr = "{b0:in, as:in, b:out}";
+            string atusStr = "{{b0:[4,5,6], as:[1,2,3], b:[1,2,3,4,5,6]}}";
             assertSingleResultFor(sigStr, atusStr, foldr(cons, id), "append");
         }
         [TestMethod]
         public void AppendToUnit()
         {
-            string sigStr = "{a0:in, as:in, b:out}";
-            string atusStr = "{{a0:[4], as:[1,2,3], b:[1,2,3,4]}}";
+            string sigStr = "{b0:in, as:in, b:out}";
+            string atusStr = "{{b0:[4], as:[1,2,3], b:[1,2,3,4]}}";
             assertSingleResultFor(sigStr, atusStr, foldr(cons, id), "append");
         }
         [TestMethod]
         public void AppendToEmpty()
         {
-            string sigStr = "{a0:in, as:in, b:out}";
-            string atusStr = "{{a0:[], as:[1,2,3], b:[1,2,3]}}";
+            string sigStr = "{b0:in, as:in, b:out}";
+            string atusStr = "{{b0:[], as:[1,2,3], b:[1,2,3]}}";
             assertSingleResultFor(sigStr, atusStr, foldr(cons, id), "append");
         }
     }
@@ -37,8 +37,8 @@ namespace Synthesis
         [TestMethod]
         public void Reverse3()
         {
-            string sigStr = "{a0:in, as:in, b:out}";
-            string atusStr = "{{a0:[], as:[1,2,3], b:[3,2,1]}}";
+            string sigStr = "{a0:in, bs:in, a:out}";
+            string atusStr = "{{a0:[], bs:[1,2,3], a:[3,2,1]}}";
             assertSingleResultFor(sigStr, atusStr, foldl(cons, id), "reverse3");
         }
     }

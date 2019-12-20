@@ -12,41 +12,52 @@ namespace CNP.Language
 
         public static readonly IEnumerable<Signature> Id = parse_1(new List<string>
         {
-            "{a:in, b:in}",
-            "{a:in, b:out}",
-            "{a:out, b:in}"
+            "{a:in, b:*}",
+            "{a:*, b:in}"
         });
 
         public static readonly IEnumerable<Signature> Cons = parse_1(new List<string>
         {
-            "{a:in, b:in, ab:out}",
-            "{a:out, b:out, ab:in}"
+            "{a:in, b:in, ab:*}",
+            "{a:*, b:*, ab:in}"
         });
 
-        public static readonly IReadOnlyDictionary<Signature, IEnumerable<OperatorCombinedSignature>> Fold = parse1_2(
+        public static readonly IReadOnlyDictionary<Signature, IEnumerable<OperatorCombinedSignature>> FoldR = parse1_2(
             new List<string>
             {
-                "{a0:in, as:in, b:*} / {a:in, b:in, ab:*} / {a:in, b:*}",
-                "{a0:*, as:in, b:*} / {a:in, b:in, ab:*} / {a:*, b:*}"
+                "{b0:in, as:in, b:out} / {a:*, b:*, ab:out} / {a:*, b:out}",
+                "{b0:out, as:in, b:out} / {a:*, b:*, ab:out} / {a:out, b:out}",
+                "{b0:in, as:out, b:out} / {a:out, b:*, ab:out} / {a:*, b:out}",
+                "{b0:out, as:out, b:out} / {a:out, b:*, ab:out} / {a:out, b:out}"
             });
 
+        public static readonly IReadOnlyDictionary<Signature, IEnumerable<OperatorCombinedSignature>> FoldL = parse1_2(
+            new List<string>
+            {
+                "{a0:in, bs:in, a:out} / {a:*, b:*, ab:out} / {a:*, b:out}",
+                "{a0:out, bs:in, a:out} / {a:*, b:*, ab:out} / {a:out, b:out}",
+                "{a0:in, bs:out, a:out} / {a:out, b:*, ab:out} / {a:*, b:out}",
+                "{a0:out, bs:out, a:out} / {a:out, b:*, ab:out} / {a:out, b:out}"
+            });
 
         private static Dictionary<Signature, IEnumerable<OperatorCombinedSignature>> parse1_2(
             IEnumerable<string> collapsedSigs)
         {
-            var splitSigs = collapsedSigs.SelectMany(expandAsteriskToInOut)
-                .Select(s => s.Split('/')
-                    .Select(Parser.ParseProgramSignature)
-                    .ToArray())
-                .Select(sa => new OperatorCombinedSignature(sa[0], sa[1], sa[2]))
-                .GroupBy(cs => cs.OperatorSignature)
-                .ToDictionary(csg => csg.Key, csg => csg as IEnumerable<OperatorCombinedSignature>);
+            var expanded = collapsedSigs.SelectMany(expandAsteriskToInOut);
+            var distinctStrs = expanded.Distinct();
+                
+            var splitSigs = distinctStrs.Select(s => s.Split('/')
+                .Select(Parser.ParseProgramSignature)
+                .ToArray())
+            .Select(sa => new OperatorCombinedSignature(sa[0], sa[1], sa[2]))
+            .GroupBy(cs => cs.OperatorSignature)
+            .ToDictionary(csg => csg.Key, csg => csg as IEnumerable<OperatorCombinedSignature>);
             return splitSigs;
         }
 
         private static IEnumerable<Signature> parse_1(IEnumerable<string> sigs)
         {
-            return sigs.Select(Parser.ParseProgramSignature);
+            return sigs.SelectMany(expandAsteriskToInOut).Distinct().Select(Parser.ParseProgramSignature);
         }
 
         private static IEnumerable<string> expandAsteriskToInOut(string c)

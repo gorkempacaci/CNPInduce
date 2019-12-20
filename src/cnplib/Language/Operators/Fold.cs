@@ -11,8 +11,7 @@ namespace CNP.Language
     {
         public Program Base { get; private set; }
         public Program Recursive { get; private set; }
-        public override ISet<string> ArgumentNames => foldArgumentNames;
-        protected static readonly HashSet<string> foldArgumentNames = new HashSet<string>(new string[] { "a0", "as", "b" });
+
         private int height;
 
         public Fold(Program recursiveCase, Program baseCase)
