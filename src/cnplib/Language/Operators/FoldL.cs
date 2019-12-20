@@ -31,7 +31,7 @@ namespace CNP.Language
             List<AlphaTuple> pObs = new List<AlphaTuple>(), qObs = new List<AlphaTuple>();
             foreach (AlphaTuple at in obs.Observables)
                 foldLtoPQ(at["a0"], at["as"], pObs, qObs, at["b"]);
-            if (pObs.Any() || qObs.Any())
+            if (!pObs.Any() || !qObs.Any())
                 return Iterators.Empty<FoldL>();
             var newFolds = pqSignatures.Select(op =>
             {

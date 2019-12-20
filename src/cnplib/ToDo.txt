@@ -1,0 +1,9 @@
+== Code Quality
+- Merge FoldR and FoldL reverse semantics into one reducing redundant code.
+
+== TidyUp
+- Would a FreeContext reduce variable mistreatment bugs in the future? An AlphaTuple would have a FreeContext, 
+  and if other AlphaTuples want to share its context they'd need to be created through its method
+  .InSameContext((name, value),...,(mame,value)) : AlphaTuple
+  
+  
