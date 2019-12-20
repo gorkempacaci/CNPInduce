@@ -30,7 +30,7 @@ namespace CNP.Language
             }
             List<AlphaTuple> pObs = new List<AlphaTuple>(), qObs = new List<AlphaTuple>();
             foreach (AlphaTuple at in obs.Observables)
-                foldLtoPQ(at["a0"], at["as"], pObs, qObs, at["b"]);
+                foldLtoPQ(at["a0"], at["as"], at["b"], pObs, qObs);
             if (!pObs.Any() || !qObs.Any())
                 return Iterators.Empty<FoldL>();
             var newFolds = pqSignatures.Select(op =>
@@ -44,18 +44,20 @@ namespace CNP.Language
         // foldl(P,Q)(A0,nil,B) :- Q(A0,B).
         // foldl(P,Q)(A0,[A|At],B) :- P(A,A0,Acc), foldl(P,Q)(Acc,At,B).
         //
-        // foldl p q ([], [1,2,3], B) :- p(1, [], B1), p(2, B1, B2), p(3, B2, B3), q(B3, B).
-        static void foldLtoPQ(Term @as, Term b, List<AlphaTuple> atusP, List<AlphaTuple> atusQ, Term acc)
+        // foldl p q ([], [1,2,3], B) :- q([], B1), p(1, B1, B2), p(2, B2, B3), p(3, B3, B)
+        static void foldLtoPQ(Term a0, Term @as, Term b, List<AlphaTuple> atusP, List<AlphaTuple> atusQ, Term acc = null)
         {
-            if (@as is TermList li)
+            if (acc == null)
             {
-                Free newAcc = new Free();
-                atusP.Add(new AlphaTuple(("a", li.Head), ("b", acc), ("ab", newAcc)));
-                foldLtoPQ(@as: li.Tail, @b: b, @atusP: atusP, @atusQ: atusQ, acc: newAcc);
+                Free f = new Free();
+                atusQ.Add(new AlphaTuple(("a", a0), ("b", f)));
+                foldLtoPQ(a0, @as, b, atusP, atusQ, f);
             }
-            else
+            else if (@as is TermList li)
             {
-                atusQ.Add(new AlphaTuple(("a", acc), ("b", b)));
+                Free f = new Free();
+                atusP.Add(new AlphaTuple(("a", li.Head), ("b", acc), ("ab", f)));
+                foldLtoPQ(a0, li.Tail, b, atusP, atusQ, f);
             }
         }
     }
