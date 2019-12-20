@@ -10,7 +10,7 @@ namespace CNP.Language
         public FoldR(Program recursiveCase, Program baseCase) : base(recursiveCase, baseCase) { }
         public override string ToString()
         {
-            return "foldr(" + Recursive.ToString() + "," + base.ToString() + ")";
+            return "foldr(" + Recursive.ToString() + "," + Base.ToString() + ")";
         }
         internal override ObservedProgram FindFirstHole()
         {

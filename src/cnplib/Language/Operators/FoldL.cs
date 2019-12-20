@@ -10,7 +10,7 @@ namespace CNP.Language
         public FoldL(Program recursiveCase, Program baseCase) : base(recursiveCase, baseCase) { }
         public override string ToString()
         {
-            return "foldl(" + Recursive.ToString() + "," + base.ToString() + ")";
+            return "foldl(" + Recursive.ToString() + "," + Base.ToString() + ")";
         }
         internal override ObservedProgram FindFirstHole()
         {
@@ -43,6 +43,7 @@ namespace CNP.Language
         }
         // foldl(P,Q)(A0,nil,B) :- Q(A0,B).
         // foldl(P,Q)(A0,[A|At],B) :- P(A,A0,Acc), foldl(P,Q)(Acc,At,B).
+        // reverse3([], [1,2,3], [3,2,1]) :- id([], []), cons(1, [], [1]), cons(2, [1], [2,1]). cons(3, [2,1], [3,2,1]).
         //
         // foldl p q ([], [1,2,3], B) :- q([], B1), p(1, B1, B2), p(2, B2, B3), p(3, B3, B)
         static void foldLtoPQ(Term a0, Term @as, Term b, List<AlphaTuple> atusP, List<AlphaTuple> atusQ, Term acc = null)
@@ -55,9 +56,17 @@ namespace CNP.Language
             }
             else if (@as is TermList li)
             {
-                Free f = new Free();
-                atusP.Add(new AlphaTuple(("a", li.Head), ("b", acc), ("ab", f)));
-                foldLtoPQ(a0, li.Tail, b, atusP, atusQ, f);
+                if (li.Tail is TermList)
+                {
+                    Free f = new Free();
+                    atusP.Add(new AlphaTuple(("a", li.Head), ("b", acc), ("ab", f)));
+                    foldLtoPQ(a0, li.Tail, b, atusP, atusQ, f);
+                }
+                else
+                {
+                    atusP.Add(new AlphaTuple(("a", li.Head), ("b", acc), ("ab", b)));
+                }
+
             }
         }
     }
