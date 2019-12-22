@@ -24,11 +24,7 @@ namespace CNP.Language
             return new FoldR(Base.CloneAndReplace(oldComponent, newComponent, plannedParenthood),
                                 Recursive.CloneAndReplace(oldComponent, newComponent, plannedParenthood));
         }
-
-        // public static IEnumerable<Fold> FromObservationBase(ObservedProgram obs)
-        // {
-        //     
-        // }
+        
         public static IEnumerable<FoldR> FromObservation(ObservedProgram obs)
         {
             if (!obs.ArgumentNames.SetEquals(foldrArgumentNames) ||

@@ -5,7 +5,8 @@ using System.Diagnostics;
 using System;
 
 
-
+namespace Language
+{
     [TestClass]
     public class Unification : TestBase
     {
@@ -16,9 +17,9 @@ using System;
         {
             Free X = new Free(), Y = new Free(), Z = new Free();
             ConstantTerm a = new ConstantTerm("a"),
-                         u = new ConstantTerm("u"),
-                         i = new ConstantTerm("i"),
-                         o = new ConstantTerm("o");
+                u = new ConstantTerm("u"),
+                i = new ConstantTerm("i"),
+                o = new ConstantTerm("o");
             Term left = list(list(X, a), u, X, list(i, Y, X), Z);
             Term right = list(list(Z, Y), u, X, list(i, Y, X), o);
             var success = Term.UnifyInPlace(left, right);
@@ -79,3 +80,4 @@ using System;
 
     }
 
+}

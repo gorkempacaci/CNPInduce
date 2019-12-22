@@ -6,6 +6,8 @@ using CNP.Language;
 using CNP.Parsing;
 using System.Collections.Generic;
 
+namespace Language
+{
 
     [TestClass]
     public class Parsing : TestBase
@@ -20,25 +22,25 @@ using System.Collections.Generic;
                 new Lexem(TokenType.Identifier, "a", 1),
                 new Lexem(TokenType.Colon, ":", 2),
                 new Lexem(TokenType.Identifier, "goo", 3),
-                new Lexem(TokenType.Comma, ",",6),
-                new Lexem(TokenType.Identifier, "b",8),
-                new Lexem(TokenType.Colon, ":",9),
-                new Lexem(TokenType.VariableName, "Boo",10),
-                new Lexem(TokenType.Comma, ",",13),
-                new Lexem(TokenType.Identifier, "c",15),
-                new Lexem(TokenType.Colon, ":",16),
-                new Lexem(TokenType.BracketOpen, "[",17),
-                new Lexem(TokenType.Identifier, "a",18),
-                new Lexem(TokenType.Comma, ",",19),
-                new Lexem(TokenType.VariableName, "Y",21),
-                new Lexem(TokenType.Comma, ",",22),
-                new Lexem(TokenType.BracketOpen, "[",24),
-                new Lexem(TokenType.ValueInt, "0",25),
-                new Lexem(TokenType.Comma, ",",26),
-                new Lexem(TokenType.VariableName, "Boo",28),
-                new Lexem(TokenType.BracketClose, "]",31),
-                new Lexem(TokenType.BracketClose, "]",32),
-                new Lexem(TokenType.MustacheClose, "}",33)
+                new Lexem(TokenType.Comma, ",", 6),
+                new Lexem(TokenType.Identifier, "b", 8),
+                new Lexem(TokenType.Colon, ":", 9),
+                new Lexem(TokenType.VariableName, "Boo", 10),
+                new Lexem(TokenType.Comma, ",", 13),
+                new Lexem(TokenType.Identifier, "c", 15),
+                new Lexem(TokenType.Colon, ":", 16),
+                new Lexem(TokenType.BracketOpen, "[", 17),
+                new Lexem(TokenType.Identifier, "a", 18),
+                new Lexem(TokenType.Comma, ",", 19),
+                new Lexem(TokenType.VariableName, "Y", 21),
+                new Lexem(TokenType.Comma, ",", 22),
+                new Lexem(TokenType.BracketOpen, "[", 24),
+                new Lexem(TokenType.ValueInt, "0", 25),
+                new Lexem(TokenType.Comma, ",", 26),
+                new Lexem(TokenType.VariableName, "Boo", 28),
+                new Lexem(TokenType.BracketClose, "]", 31),
+                new Lexem(TokenType.BracketClose, "]", 32),
+                new Lexem(TokenType.MustacheClose, "}", 33)
             };
             Lexer lx = new Lexer();
             IEnumerable<Lexem> actualTokens = Lexer.Tokenize(input);
@@ -51,8 +53,8 @@ using System.Collections.Generic;
             string sigStr = "{a:in, b:out, c:in}";
             Signature parsedSig = Parser.ParseProgramSignature(sigStr);
             Signature expectedSig = new Signature(("a", ArgumentMode.In),
-                                                                ("b", ArgumentMode.Out),
-                                                                ("c", ArgumentMode.In));
+                ("b", ArgumentMode.Out),
+                ("c", ArgumentMode.In));
             Assert.AreEqual(expectedSig, parsedSig);
         }
 
@@ -115,6 +117,7 @@ using System.Collections.Generic;
             Assert.AreEqual("{a:'λ0', b:['λ0', 'a']}", nietBruijn(t1).ToString());
             Assert.AreEqual("{a:'aa', c:'λ0', d:0}", nietBruijn(t2).ToString());
         }
+
         [TestMethod]
         public void AlphaTuple()
         {
@@ -149,3 +152,4 @@ using System.Collections.Generic;
             Assert.AreEqual(strOfNested, strOfList);
         }
     }
+}
