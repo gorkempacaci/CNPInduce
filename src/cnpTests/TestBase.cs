@@ -47,11 +47,11 @@ using System.IO;
             return t;
         }
 
-        protected void assertSingleResultFor(string sigStr, string atusStr, Program elementaryProgramExpected, string programName)
+        protected void assertSingleResultFor(string typeStr, string atusStr, Program elementaryProgramExpected, string programName)
         {
-            Signature sig = Parser.ParseProgramSignature(sigStr);
+            ProgramType type = Parser.ParseProgramType(typeStr);
             IEnumerable<AlphaTuple> atus = Parser.ParseAlphaTupleSet(atusStr);
-            ObservedProgram obs = new ObservedProgram(atus, sig);
+            ObservedProgram obs = new ObservedProgram(atus, type);
             SynthesisJob job = new SynthesisJob(obs, 1);
             var measurement = benchmark.StartNew();
             var programs = job.FindAllPrograms();
@@ -61,11 +61,11 @@ using System.IO;
             measurement.Finish(programName, elementaryProgramExpected.ToString());
         }
 
-        protected void assertNoResultFor(string sigStr, string atusStr)
+        protected void assertNoResultFor(string typeStr, string atusStr)
         {
-            Signature sig = Parser.ParseProgramSignature(sigStr);
+            ProgramType type = Parser.ParseProgramType(typeStr);
             IEnumerable<AlphaTuple> atus = Parser.ParseAlphaTupleSet(atusStr);
-            ObservedProgram obs = new ObservedProgram(atus, sig);
+            ObservedProgram obs = new ObservedProgram(atus, type);
             SynthesisJob job = new SynthesisJob(obs, 1);
             var programs = job.FindAllPrograms();
             Assert.AreEqual(0, programs.Count(), "A program should not be found.");

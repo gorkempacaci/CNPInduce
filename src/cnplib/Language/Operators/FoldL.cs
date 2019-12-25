@@ -7,9 +7,6 @@ namespace CNP.Language
 {
     public class FoldL : Fold
     {
-        public override ISet<string> ArgumentNames => foldlArgumentNames;
-        protected static readonly HashSet<string> foldlArgumentNames = new HashSet<string>(new string[] { "a0", "bs", "a" });
-        
         public FoldL(Program recursiveCase, Program baseCase) : base(recursiveCase, baseCase) { }
         public override string ToString()
         {
@@ -24,10 +21,19 @@ namespace CNP.Language
             return new FoldL(Base.CloneAndReplace(oldComponent, newComponent, plannedParenthood),
                              Recursive.CloneAndReplace(oldComponent, newComponent, plannedParenthood));
         }
+
+        private static IReadOnlyDictionary<ProgramType, IEnumerable<FoldLType>> valences =
+            TypeHelper.ParseCompactOperatorTypes<FoldLType>(new[]
+            {
+                "{a:*, b:*, ab:out} -> {a:*, b:out} -> {a0:in, bs:in, a:out}",
+                "{a:*, b:*, ab:out} -> {a:out, b:out} -> {a0:out, bs:in, a:out}",
+                "{a:out, b:*, ab:out} -> {a:*, b:out} -> {a0:in, bs:out, a:out}",
+                "{a:out, b:*, ab:out} -> {a:out, b:out} -> {a0:out, bs:out, a:out}"
+            });
+        
         public static IEnumerable<FoldL> FromObservation(ObservedProgram obs)
         {
-            if (!obs.ArgumentNames.SetEquals(foldlArgumentNames) ||
-                !Valences.FoldL.TryGetValue(obs.Signature, out IEnumerable<OperatorCombinedSignature> pqSignatures))
+            if (!valences.TryGetValue(obs.ProgramType, out IEnumerable<FoldLType> pqTypes))
             {
                 return Iterators.Empty<FoldL>();
             }
@@ -36,11 +42,11 @@ namespace CNP.Language
                 foldLtoPQ(at["a0"], at["bs"], at["a"], pObs, qObs);
             if (!pObs.Any() || !qObs.Any())
                 return Iterators.Empty<FoldL>();
-            var newFolds = pqSignatures.Select(op =>
+            var newFolds = pqTypes.Select(op =>
             {
                 FreeDictionary fd = new FreeDictionary();
-                return new FoldL(new ObservedProgram(pObs.Clone(fd), op.LeftOperandSignature),
-                    new ObservedProgram(qObs.Clone(fd), op.RightOperandSignature));
+                return new FoldL(recursiveCase:new ObservedProgram(pObs.Clone(fd), op.RecursiveOperandType),
+                    baseCase:new ObservedProgram(qObs.Clone(fd), op.BaseOperandType));
             });
             return newFolds;
         }

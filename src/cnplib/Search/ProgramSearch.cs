@@ -52,16 +52,7 @@ namespace CNP.Search
                 t.Start();
             }
         }
-        ///// <summary>
-        ///// Blocks until all threads are successfully joined.
-        ///// </summary>
-        //public void Stop(Action callback)
-        //{
-        //    searchReceiver = null;
-        //    threadObjects.ForEach(t => t.Stop());
-        //    WaitUntilDone();
-        //    callback?.Invoke();
-        //}
+
         /// <summary>
         /// Returns the next program in the top of the queue. Outputs a program that is not closed.
         /// True if Take() was successfull. False if there is nothing in the queue.

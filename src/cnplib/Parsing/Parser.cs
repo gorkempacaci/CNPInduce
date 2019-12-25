@@ -8,13 +8,27 @@ namespace CNP.Parsing
 {
     public class Parser
     {
-        public static Signature ParseProgramSignature(string signatureString)
+        /// <summary>
+        /// Operator types should follow the structure Operand1Type -> ... -> OperandNType -> ExpressionType
+        /// For example: {a:in, b:in, ab:out} -> {a:in, b:out} -> {a0:in, bs:in, a:out}
+        /// </summary>
+        public static TOperatorType ParseOperatorType<TOperatorType>(string operatorTypeString)
         {
-            var lexems = Lexer.Tokenize(signatureString);
+            string[] parts = operatorTypeString.Split(new [] {"->"}, StringSplitOptions.None);
+            if (parts.Length < 2)
+            {
+                throw new Exception("Operator type must have at least 2 components.");
+            }
+            var types = parts.Select(ParseProgramType).ToArray();
+            return (TOperatorType)Activator.CreateInstance(typeof(TOperatorType),(object[])types);
+        }
+        public static ProgramType ParseProgramType(string typeString)
+        {
+            var lexems = Lexer.Tokenize(typeString);
             var it = lexems.GetEnumerator();
             if (!it.MoveNext())
-                throw new ParserException("Expecting program signature.", it.Current);
-            return ReadProgramSignature(it);
+                throw new ParserException("Expecting program type.", it.Current);
+            return ReadProgramType(it);
         }
         public static IEnumerable<AlphaTuple> ParseAlphaTupleSet(string alphaSetString)
         {
@@ -52,7 +66,7 @@ namespace CNP.Parsing
 
 
 
-        static Signature ReadProgramSignature(IEnumerator<Lexem> it)
+        static ProgramType ReadProgramType(IEnumerator<Lexem> it)
         {
             List<KeyValuePair<string, ArgumentMode>> nameModePairs = new List<KeyValuePair<string, ArgumentMode>>();
             GetType(it, TokenType.MustacheOpen);
@@ -64,14 +78,14 @@ namespace CNP.Parsing
                 var type = GetType(it, TokenType.Comma, TokenType.MustacheClose);
                 if (type == TokenType.MustacheClose)
                 {
-                    return new Signature(nameModePairs);
+                    return new ProgramType(nameModePairs);
                 }
                 else
                 {
                     Move(it);
                 }
             }
-            throw new ParserException("Invalid program signature.", it.Current);
+            throw new ParserException("Invalid program type.", it.Current);
         }
         /// <summary>
         /// Variable scope is the tuple scope (Variables do not reach between alpha-tuples)

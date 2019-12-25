@@ -48,14 +48,14 @@ namespace Language
         }
 
         [TestMethod]
-        public void ProgramSignature()
+        public void ProgramType()
         {
-            string sigStr = "{a:in, b:out, c:in}";
-            Signature parsedSig = Parser.ParseProgramSignature(sigStr);
-            Signature expectedSig = new Signature(("a", ArgumentMode.In),
+            string typeStr = "{a:in, b:out, c:in}";
+            ProgramType parsedType = Parser.ParseProgramType(typeStr);
+            ProgramType expectedType = new ProgramType(("a", ArgumentMode.In),
                 ("b", ArgumentMode.Out),
                 ("c", ArgumentMode.In));
-            Assert.AreEqual(expectedSig, parsedSig);
+            Assert.AreEqual(expectedType, parsedType);
         }
 
         [TestMethod]
@@ -63,8 +63,8 @@ namespace Language
         {
             Free A = new Free(), B = new Free();
             AlphaTuple atu = new AlphaTuple(("a", cnst("aa")), ("b", list(A, list(A), list(B, cnst("b"), A))));
-            AlphaTuple atuNB = nietBruijn(atu);
-            Assert.AreEqual("{a:'aa', b:['λ0', ['λ0'], ['λ1', 'b', 'λ0']]}", atuNB.ToString());
+            AlphaTuple atuNb = nietBruijn(atu);
+            Assert.AreEqual("{a:'aa', b:['λ0', ['λ0'], ['λ1', 'b', 'λ0']]}", atuNb.ToString());
         }
 
         [TestMethod]

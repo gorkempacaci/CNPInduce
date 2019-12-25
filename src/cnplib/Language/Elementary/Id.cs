@@ -11,23 +11,23 @@ namespace CNP.Language
     /// </summary>
     public class Id : ElementaryProgram
     {
-        public static readonly Id IdProgram = new Id();
-
-        private Id()
-        {
-        }
-
-        private static readonly ISet<string> IdArgNames = new HashSet<string>() {"a", "b"};
-        public override ISet<string> ArgumentNames => IdArgNames;
-
+        private Id() {}
+        
         public override string ToString()
         {
             return "id";
         }
+        public static readonly Id IdProgram = new Id();
+
+        private static readonly IReadOnlyCollection<ProgramType> valences = TypeHelper.ParseCompactProgramTypes(new[]
+        {
+            "{a:in, b:*}",
+            "{a:*, b:in}"
+        });
 
         public static IEnumerable<Id> FromObservation(ObservedProgram obs)
         {
-            if (!IdArgNames.SetEquals(obs.ArgumentNames) || !Valences.Id.Contains(obs.Signature))
+            if (!valences.Contains(obs.ProgramType))
                 return Iterators.Empty<Id>();
 
             if (obs.Observables.All(at => Term.UnifyInPlace(at.Terms["a"], at.Terms["b"])))

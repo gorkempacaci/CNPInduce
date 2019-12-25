@@ -8,8 +8,6 @@ namespace CNP.Language
 {
     public class FoldR : Fold
     {
-        public override ISet<string> ArgumentNames => foldrArgumentNames;
-        protected static readonly HashSet<string> foldrArgumentNames = new HashSet<string>(new string[] { "b0", "as", "b" });
         public FoldR(Program recursiveCase, Program baseCase) : base(recursiveCase, baseCase) { }
         public override string ToString()
         {
@@ -24,11 +22,20 @@ namespace CNP.Language
             return new FoldR(Base.CloneAndReplace(oldComponent, newComponent, plannedParenthood),
                                 Recursive.CloneAndReplace(oldComponent, newComponent, plannedParenthood));
         }
+
+        private static IReadOnlyDictionary<ProgramType, IEnumerable<FoldRType>> valences =
+            TypeHelper.ParseCompactOperatorTypes<FoldRType>(
+                new[]
+                {
+                    "{a:*, b:*, ab:out} -> {a:*, b:out} -> {b0:in, as:in, b:out}",
+                    "{a:*, b:*, ab:out} -> {a:out, b:out} -> {b0:out, as:in, b:out}",
+                    "{a:out, b:*, ab:out} -> {a:*, b:out} -> {b0:in, as:out, b:out}",
+                    "{a:out, b:*, ab:out} -> {a:out, b:out} -> {b0:out, as:out, b:out}"
+                });
         
         public static IEnumerable<FoldR> FromObservation(ObservedProgram obs)
         {
-            if (!obs.ArgumentNames.SetEquals(foldrArgumentNames) ||
-                !Valences.FoldR.TryGetValue(obs.Signature, out IEnumerable<OperatorCombinedSignature> pqSignatures))
+            if (!valences.TryGetValue(obs.ProgramType, out IEnumerable<FoldRType> pqTypes))
             {
                 return Iterators.Empty<FoldR>();
             }
@@ -37,11 +44,11 @@ namespace CNP.Language
                 foldRtoPQ(at["b0"], at["as"], at["b"], pObs, qObs);
             if (!pObs.Any() || !qObs.Any())
                 return Iterators.Empty<FoldR>();
-            var newFolds = pqSignatures.Select(op =>
+            var newFolds = pqTypes.Select(op =>
             {
                 FreeDictionary fd = new FreeDictionary();
-                return new FoldR(new ObservedProgram(pObs.Clone(fd), op.LeftOperandSignature),
-                    new ObservedProgram(qObs.Clone(fd), op.RightOperandSignature));
+                return new FoldR(new ObservedProgram(pObs.Clone(fd), op.RecursiveOperandType),
+                    new ObservedProgram(qObs.Clone(fd), op.BaseOperandType));
             });
             return newFolds;
         }

@@ -21,9 +21,9 @@ namespace Synthesis
         [DataRow("{a:out, b:in}", "{{a:A, b:0}, {a:A, b:'yello'}}")]
         [DataRow("{a:in, b:in}", "{{a:0, b:0}, {a:'hello', b:'hello'}}")]
         [DataRow("{a:in, b:out}", "{{a:[], b:B}}")]
-        public void IdPositive(string sigStr, string atusStr)
+        public void IdPositive(string typeStr, string atusStr)
         {
-            assertSingleResultFor(sigStr, atusStr, Id.IdProgram, "id");
+            assertSingleResultFor(typeStr, atusStr, Id.IdProgram, "id");
         }
 
         [DataTestMethod]
@@ -31,9 +31,9 @@ namespace Synthesis
         [DataRow("{a:in, b:in, ab:out}", "{{a:0, b:[], ab:[0]}}")]
         [DataRow("{a:in, b:in, ab:out}", "{{a:0, b:[1], ab:[0,1]}}")]
         [DataRow("{a:in, b:in, ab:out}", "{{a:0, b:[1,2], ab:[0,1,2]}}")]
-        public void ConsPositive(string sigStr, string atusStr)
+        public void ConsPositive(string typeStr, string atusStr)
         {
-            assertSingleResultFor(sigStr, atusStr, Cons.ConsProgram, "cons");
+            assertSingleResultFor(typeStr, atusStr, Cons.ConsProgram, "cons");
         }
 
         [DataTestMethod]
@@ -43,10 +43,10 @@ namespace Synthesis
         [DataRow("{a:in}", "{{a:[1|X]}, {a:[1,2|[3|F]]}, {a:L}, {a:[1,2,T|4]}}", "a", "[1, 2, 3|4]")]
         [DataRow("{a:out}", "{{a:[1|X]}, {a:[1,2|[3|F]]}, {a:L}, {a:[1,2,T|4]}}", "a", "[1, 2, 3|4]")]
         [DataRow("{a:in}", "{{a:[1|X]}, {a:[1,2|[3,F]]}, {a:L}, {a:[1,2,T,4]}}", "a", "[1, 2, 3, 4]")]
-        public void ConstPositive(string sigStr, string atusStr, string argName, string constValueStr)
+        public void ConstPositive(string typeStr, string atusStr, string argName, string constValueStr)
         {
             Term grTerm = Parser.ParseTerm(constValueStr);
-            assertSingleResultFor(sigStr, atusStr, new Const(argName, grTerm), "const");
+            assertSingleResultFor(typeStr, atusStr, new Const(argName, grTerm), "const");
         }
 
         [DataTestMethod]
@@ -57,11 +57,11 @@ namespace Synthesis
         [DataRow("{a:in, b:in, ab:out}", "{{a:0, b:0, ab:[0,0]}}")]
         // const
         [DataRow("{a:in}", "{{a:[1|X]}, {a:L}, {a:[1,2,T|4]}}")] // not ground
-        public void Negative(string sigStr, string atusStr)
+        public void Negative(string typeStr, string atusStr)
         {
-            Signature sig = Parser.ParseProgramSignature(sigStr);
+            ProgramType type = Parser.ParseProgramType(typeStr);
             IEnumerable<AlphaTuple> atus = Parser.ParseAlphaTupleSet(atusStr);
-            ObservedProgram obs = new ObservedProgram(atus, sig);
+            ObservedProgram obs = new ObservedProgram(atus, type);
             SynthesisJob job = new SynthesisJob(obs, 1);
             var programs = job.FindAllPrograms();
             Assert.AreEqual(0, programs.Count());

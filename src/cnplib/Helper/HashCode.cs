@@ -29,7 +29,7 @@ namespace CNP.Helper
             return ((h1 << 5) + h1) ^ h2;
         }
 
-        public static int OfDictionary<TKey, TValue>(IDictionary<TKey, TValue> dic)
+        public static int OfDictionary<TKey, TValue>(IReadOnlyDictionary<TKey, TValue> dic)
         {
             return dic.OrderBy(kvp => kvp.Key)
                       .Select(kvp => HashCode.Combined(kvp.Key, kvp.Value))

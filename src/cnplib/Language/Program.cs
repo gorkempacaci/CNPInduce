@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using CNP.Helper;
 using CNP.Helper.EagerLinq;
 
@@ -33,8 +34,6 @@ namespace CNP.Language
         /// If there is no hole, returns null.
         /// </summary>
         internal abstract ObservedProgram FindFirstHole();
-
-        public abstract ISet<string> ArgumentNames { get; }
 
         public abstract int Height { get; }
     }

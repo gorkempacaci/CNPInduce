@@ -8,10 +8,9 @@ namespace CNP.Language
 
     public class Const : ElementaryProgram
     {
+        public string ArgumentName { get; private set; }
         public Term Value { get; private set; }
         
-        private readonly ISet<string> constArgNames;
-        public override ISet<string> ArgumentNames => constArgNames;
         
         public Const(string argName, Term groundTerm)
         {
@@ -19,16 +18,17 @@ namespace CNP.Language
             {
                 throw new Exception("The term for the Const can only be a ground term.");
             }
-            constArgNames = new HashSet<string>() { argName };
+
+            ArgumentName = argName;
             Value = groundTerm;
         }
 
         public static IEnumerable<Const> FromObservation(ObservedProgram op)
         {
-            if (op.ArgumentNames.Count() != 1 || !op.Observables.Any())
+            if (op.ProgramType.Keys.Count() != 1 || !op.Observables.Any())
                 return Iterators.Empty<Const>();
             Free candidateConstant = new Free();
-            string argName = op.ArgumentNames.First();
+            string argName = op.ProgramType.Keys.First();
             var allTups = Enumerable.ToList(op.Observables);
             int count = allTups.Count();
             for (int i = 1; i < count; i++)
@@ -43,7 +43,7 @@ namespace CNP.Language
         {
             if (obj is null || !(obj is Const constProgram))
                 return false;
-            bool sameName = constProgram.ArgumentNames.SetEquals(this.ArgumentNames);
+            bool sameName = constProgram.ArgumentName.Equals(this.ArgumentName);
             bool sameValue = constProgram.Value.Equals(this.Value);
             return sameName && sameValue;
         }
@@ -55,7 +55,7 @@ namespace CNP.Language
 
         public override string ToString()
         {
-            return "Const("+ArgumentNames.First()+", "+Value.ToString()+")";
+            return "const("+ArgumentName+", "+Value.ToString()+")";
         }
     }
 }

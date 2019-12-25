@@ -5,5 +5,5 @@
 - Would a FreeContext reduce variable mistreatment bugs in the future? An AlphaTuple would have a FreeContext, 
   and if other AlphaTuples want to share its context they'd need to be created through its method
   .InSameContext((name, value),...,(mame,value)) : AlphaTuple
-  
-  
+- Collate observables in test results into a single row in table.
+- Test results measurements last one should be in main directory. Also in a historical Json data file.

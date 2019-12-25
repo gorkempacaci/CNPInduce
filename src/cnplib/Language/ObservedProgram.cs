@@ -12,20 +12,17 @@ namespace CNP.Language
     /// </summary>
     public class ObservedProgram : Program
     {
-        private ISet<string> _argNames;
-        public override ISet<string> ArgumentNames => _argNames;
 
         public override int Height => 0;
 
         public readonly IEnumerable<AlphaTuple> Observables;
-        public readonly Signature Signature;
+        public readonly ProgramType ProgramType;
 
-        public ObservedProgram(IEnumerable<AlphaTuple> obsv, Signature s)
+        public ObservedProgram(IEnumerable<AlphaTuple> obsv, ProgramType s)
         {
             IsClosed = false;
             Observables = obsv;
-            _argNames = FindArgNames(obsv);
-            Signature = s;
+            ProgramType = s;
         }
         /// <summary>
         /// Replaces itself if it is the oldComponent.
@@ -40,7 +37,7 @@ namespace CNP.Language
             else
             {
                 var clonedObservables = Observables.Select(o => o.Clone(plannedParenthood));
-                return new ObservedProgram(clonedObservables, Signature);
+                return new ObservedProgram(clonedObservables, ProgramType);
             }
         }
         internal override ObservedProgram FindFirstHole()
@@ -48,21 +45,21 @@ namespace CNP.Language
             return this;
         }
 
-        private static ISet<string> FindArgNames(IEnumerable<AlphaTuple> ats)
-        {
-            if (!ats.Any())
-                throw new Exception("FindArgNames: List of tuples is empty.");
-            var allKeys = ats.Select(at => at.Terms.Keys);
-            var first = allKeys.First();
-            if (allKeys.All(ks => ks.SequenceEqual(first)))
-            {
-                var set = new HashSet<string>(first);
-                return set;
-            }
-            else
-            {
-                throw new Exception("FindArgNames: Keys in a list of tuples are not the same: " + ats.ToString());
-            }
-        }
+        // private static ISet<string> FindArgNames(IEnumerable<AlphaTuple> ats)
+        // {
+        //     if (!ats.Any())
+        //         throw new Exception("FindArgNames: List of tuples is empty.");
+        //     var allKeys = ats.Select(at => at.Terms.Keys);
+        //     var first = allKeys.First();
+        //     if (allKeys.All(ks => ks.SequenceEqual(first)))
+        //     {
+        //         var set = new HashSet<string>(first);
+        //         return set;
+        //     }
+        //     else
+        //     {
+        //         throw new Exception("FindArgNames: Keys in a list of tuples are not the same: " + ats.ToString());
+        //     }
+        // }
     }
 }

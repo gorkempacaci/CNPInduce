@@ -8,19 +8,24 @@ namespace CNP.Language
 
     public class Cons : ElementaryProgram
     {
-        public static readonly Cons ConsProgram = new Cons();
         private Cons() { }
-        private static readonly ISet<string> consArgNames = new HashSet<string>() { "a", "b", "ab" };
 
-        public override ISet<string> ArgumentNames => consArgNames;
         public override string ToString()
         {
             return "cons";
         }
+
+        private static readonly IReadOnlyCollection<ProgramType> valences = TypeHelper.ParseCompactProgramTypes(new[]
+        {
+            "{a:in, b:in, ab:*}",
+            "{a:*, b:*, ab:in}"
+        });
+        
+        public static readonly Cons ConsProgram = new Cons();
         public static IEnumerable<Cons> FromObservation(ObservedProgram op)
         {
 
-            if (!op.ArgumentNames.SetEquals(consArgNames) || !Valences.Cons.Contains(op.Signature))
+            if (!valences.Contains(op.ProgramType))
                 return Iterators.Empty<Cons>();
 
             if (op.Observables.All(at => Term.UnifyInPlace(at["ab"], new TermList(at["a"], at["b"]))))
