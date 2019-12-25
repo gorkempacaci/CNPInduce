@@ -55,7 +55,7 @@ using System.Text;
             {
                 sb.AppendLine(string.Format("{0} | {1} | {2:F4}s | {3:F4}s", 
                     en.ProgramName.Replace("|", "\\|"),
-                    string.Join("  \n", en.cnpStrings.Select(s=>s.Replace("|", "\\|"))),
+                    string.Join("<br/>", en.cnpStrings.Select(s=>s.Replace("|", "\\|"))),
                     en.MinTime, 
                     en.MaxTime));
             }
