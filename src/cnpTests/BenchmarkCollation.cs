@@ -1,22 +1,49 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text;
 
 
     public class BenchmarkCollation
     {
-        Dictionary<string, BenchmarkEntry> benchmarks = new Dictionary<string, BenchmarkEntry>();
-        public void CollateNewTime(string programName, string programCNPString, double time)
+        private class BenchmarkEntry
         {
-            string key = BenchmarkEntry.KeyFor(programName, programCNPString);
-            if (benchmarks.TryGetValue(key, out BenchmarkEntry be))
+            public readonly string ProgramName;
+            public double MinTime { get; private set; }
+            public double MaxTime { get; private set; }
+            public List<string> cnpStrings;
+            public BenchmarkEntry(string programName, string programCNPString, double firstTime)
             {
-                be.NewTime(time);
+                ProgramName = programName;
+                cnpStrings = new List<string> {programCNPString};
+                MinTime = MaxTime = firstTime;
+            }
+            public override int GetHashCode()
+            {
+                return ProgramName.GetHashCode();
+            }
+            public void NewTime(double time, string programString = null)
+            {
+                MinTime = Math.Min(MinTime, time);
+                MaxTime = Math.Max(MaxTime, time);
+                if (programString != null)
+                {
+                    cnpStrings.Add(programString);
+                }
+            }
+        }
+        
+        Dictionary<string, BenchmarkEntry> benchmarks = new Dictionary<string, BenchmarkEntry>();
+        public void ReportNewTime(string programName, string programCNPString, double time)
+        {
+            if (benchmarks.TryGetValue(programName, out BenchmarkEntry be))
+            {
+                be.NewTime(time, programCNPString);
             }
             else
             {
-                benchmarks.Add(key, new BenchmarkEntry(programName, programCNPString, time));
+                benchmarks.Add(programName, new BenchmarkEntry(programName, programCNPString, time));
             }
         }
         public string ToMarkdown()
@@ -26,7 +53,11 @@ using System.Text;
             sb.AppendLine("--- | --- | ---: | ---:");
             foreach(BenchmarkEntry en in benchmarks.Values)
             {
-                sb.AppendLine(string.Format("{0} | {1} | {2:F4}s | {3:F4}s", en.ProgramName.Replace("|", "\\|"), en.ProgramCNPString.Replace("|","\\|"), en.MinTime, en.MaxTime));
+                sb.AppendLine(string.Format("{0} | {1} | {2:F4}s | {3:F4}s", 
+                    en.ProgramName.Replace("|", "\\|"),
+                    string.Join("  \n", en.cnpStrings.Select(s=>s.Replace("|", "\\|"))),
+                    en.MinTime, 
+                    en.MaxTime));
             }
             return sb.ToString();
         }
@@ -40,38 +71,8 @@ using System.Text;
             File.WriteAllText(filename, md);
         }
     }
-    public class BenchmarkEntry
-    {
-        public string ProgramName { get; private set; }
-        public string ProgramCNPString { get; private set; }
-        public double MinTime { get; private set; }
-        public double MaxTime { get; private set; }
-        public BenchmarkEntry(string programName, string programCNPString, double firstTime)
-        {
-            ProgramName = programName;
-            ProgramCNPString = programCNPString;
-            MinTime = MaxTime = firstTime;
-        }
-        public override bool Equals(object obj)
-        {
-            if (obj is null || !(obj is BenchmarkEntry other))
-                return false;
-            return ProgramName == other.ProgramName && ProgramCNPString == other.ProgramCNPString;
-        }
-        public override int GetHashCode()
-        {
-            return CNP.Helper.HashCode.Combined(ProgramName, ProgramCNPString);
-        }
-        public void NewTime(double time)
-        {
-            MinTime = Math.Min(MinTime, time);
-            MaxTime = Math.Max(MaxTime, time);
-        }
-        public static string KeyFor(string programName, string programCNPString)
-        {
-            return programName + "(" + programCNPString + ")";
-        }
-    }
+    
+
     public class BenchmarkMeasurement
     {
         BenchmarkCollation _target;
@@ -91,12 +92,12 @@ using System.Text;
         {
             _t1 = DateTime.UtcNow;
         }
-        public void Finish(string programName, string programCNPString)
+        public void ReportFinish(string programName, string programCNPString)
         {
             if (!_t1.HasValue)
                 TakeFinishTime();
             double td = (_t1.Value - _t0).TotalSeconds;
-            _target.CollateNewTime(programName, programCNPString, td);
+            _target.ReportNewTime(programName, programCNPString, td);
         }
     }
 

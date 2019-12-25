@@ -58,7 +58,7 @@ using System.IO;
             measurement.TakeFinishTime();
             Assert.AreEqual(1, programs.Count(), "A program should be found.");
             Assert.AreEqual(elementaryProgramExpected, programs.First());
-            measurement.Finish(programName, elementaryProgramExpected.ToString());
+            measurement.ReportFinish(programName, elementaryProgramExpected.ToString());
         }
 
         protected void assertNoResultFor(string typeStr, string atusStr)
