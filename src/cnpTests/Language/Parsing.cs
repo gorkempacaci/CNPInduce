@@ -76,7 +76,7 @@ namespace Language
             string tStr = t.ToString();
             Assert.AreEqual("[1, 'b', ['λ0', 'd'], [], 'λ0']", tStr);
         }
-
+        
         [TestMethod]
         public void TermCons()
         {
