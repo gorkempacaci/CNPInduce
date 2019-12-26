@@ -15,9 +15,5 @@ jobs:
         dotnet-version: 2.2.108
     - name: Build with dotnet
       run: dotnet build --configuration Release
-  test:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v1
-      - name: tests
-        run: dotnet test
+    - name: Test
+      run: dotnet test ./src/Solution.sln --configuration Release
