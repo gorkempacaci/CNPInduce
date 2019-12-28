@@ -44,22 +44,5 @@ namespace CNP.Language
         {
             return this;
         }
-
-        // private static ISet<string> FindArgNames(IEnumerable<AlphaTuple> ats)
-        // {
-        //     if (!ats.Any())
-        //         throw new Exception("FindArgNames: List of tuples is empty.");
-        //     var allKeys = ats.Select(at => at.Terms.Keys);
-        //     var first = allKeys.First();
-        //     if (allKeys.All(ks => ks.SequenceEqual(first)))
-        //     {
-        //         var set = new HashSet<string>(first);
-        //         return set;
-        //     }
-        //     else
-        //     {
-        //         throw new Exception("FindArgNames: Keys in a list of tuples are not the same: " + ats.ToString());
-        //     }
-        // }
     }
 }

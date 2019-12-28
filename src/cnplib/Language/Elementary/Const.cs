@@ -32,11 +32,11 @@ namespace CNP.Language
             var allTups = Enumerable.ToList(op.Observables);
             int count = allTups.Count();
             for (int i = 1; i < count; i++)
-                if (!Term.UnifyInPlace(allTups[0].Terms[argName], allTups[i].Terms[argName]))
+                if (!Term.UnifyInPlace(allTups[0][argName], allTups[i][argName]))
                     return Iterators.Empty<Const>();
-            if (!allTups[0].Terms[argName].IsGround())
+            if (!allTups[0][argName].IsGround())
                 return Iterators.Empty<Const>();
-            return Iterators.Singleton(new Const(argName, allTups[0].Terms[argName]));
+            return Iterators.Singleton(new Const(argName, allTups[0][argName]));
         }
 
         public override bool Equals(object obj)

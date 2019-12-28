@@ -9,13 +9,13 @@ namespace CNP.Language
 
     [System.Diagnostics.CodeAnalysis.SuppressMessage("Common Practices and Code Improvements", "RECS0063:Warns when a culture-aware 'StartsWith' call is used by default.", Justification = "<Pending>")]
     [System.Diagnostics.CodeAnalysis.SuppressMessage("Common Practices and Code Improvements", "RECS0061:Warns when a culture-aware 'EndsWith' call is used by default.", Justification = "<Pending>")]
-    public class AlphaTuple : IEnumerable<KeyValuePair<string, Term>>, IFreeContainer
+    public class AlphaTuple : IEnumerable<KeyValuePair<ArgumentName, Term>>, IFreeContainer
     {
-        private readonly SortedList<string, Term> _terms;
-        public IReadOnlyDictionary<string, Term> Terms => _terms;
+        private readonly SortedList<ArgumentName, Term> _terms;
+        public IReadOnlyDictionary<ArgumentName, Term> Terms => _terms;
 
         public AlphaTuple(params (string, Term)[] terms)
-            :this(terms.ToDictionary(t => t.Item1, t=>t.Item2))
+            :this(terms.ToDictionary(t => new ArgumentName(t.Item1), t=>t.Item2))
         {
 
         }
@@ -24,13 +24,13 @@ namespace CNP.Language
         /// Builds a new alphatuple from a dictionary. Creates a new data structure internally. Does not do a deep copy.
         /// </summary>
         /// <param name="terms"></param>
-        public AlphaTuple(IEnumerable<KeyValuePair<string, Term>> terms)
+        public AlphaTuple(IEnumerable<KeyValuePair<ArgumentName, Term>> terms)
         {
-            _terms = new SortedList<string, Term>();
-            foreach (KeyValuePair<string, Term> at in terms)
+            _terms = new SortedList<ArgumentName, Term>();
+            foreach (KeyValuePair<ArgumentName, Term> nv in terms)
             {
-                _terms.Add(at.Key, at.Value);
-                if (at.Value is Free freeValue)
+                _terms.Add(nv.Key, nv.Value);
+                if (nv.Value is Free freeValue)
                 {
                     freeValue.RegisterContainer(this);
                 }
@@ -39,14 +39,14 @@ namespace CNP.Language
 
         public AlphaTuple Clone(FreeDictionary plannedParenthood)
         {
-            return new AlphaTuple(_terms.Select(e => new KeyValuePair<string, Term>(e.Key, e.Value.Clone(plannedParenthood))));
+            return new AlphaTuple(_terms.Select(e => new KeyValuePair<ArgumentName, Term>(e.Key, e.Value.Clone(plannedParenthood))));
         }
         IFreeContainer IFreeContainer.Clone(FreeDictionary plannedParenthood)
         {
             return this.Clone(plannedParenthood);
         }
 
-        public IEnumerator<KeyValuePair<string, Term>> GetEnumerator()
+        public IEnumerator<KeyValuePair<ArgumentName, Term>> GetEnumerator()
         {
             return Terms.GetEnumerator();
         }
@@ -58,7 +58,7 @@ namespace CNP.Language
 
         public void SubstituteFreeInPlace(Free oldTerm, Term newTerm)
         {
-            var keys = new List<string>(_terms.Keys);
+            var keys = new List<ArgumentName>(_terms.Keys);
             var values = new List<Term>(_terms.Values);
             bool foundFree = false;
             for(int i=0; i<values.Count; i++)
@@ -79,13 +79,9 @@ namespace CNP.Language
             }
         }
 
-        public Term this[string name]
-        {
-            get
-            {
-                return Terms[name];
-            }
-        }
+        public Term this[string name] => Terms[new ArgumentName(name)];
+
+        public Term this[ArgumentName name] => Terms[name];
 
         public override string ToString()
         {

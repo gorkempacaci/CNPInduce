@@ -30,7 +30,7 @@ namespace CNP.Language
             if (!valences.Contains(obs.ProgramType))
                 return Iterators.Empty<Id>();
 
-            if (obs.Observables.All(at => Term.UnifyInPlace(at.Terms["a"], at.Terms["b"])))
+            if (obs.Observables.All(at => Term.UnifyInPlace(at["a"], at["b"])))
                 return Iterators.Singleton(IdProgram);
             else return Iterators.Empty<Id>();
 

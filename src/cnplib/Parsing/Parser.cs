@@ -115,10 +115,10 @@ namespace CNP.Parsing
         }
         static bool ReadAlphaTuple(IEnumerator<Lexem> it, NamedVariables frees, out AlphaTuple at)
         {
-            List<KeyValuePair<string, Term>> namedTerms = new List<KeyValuePair<string, Term>>();
+            List<KeyValuePair<ArgumentName, Term>> namedTerms = new List<KeyValuePair<ArgumentName, Term>>();
             GetType(it, TokenType.MustacheOpen);
             Move(it);
-            while (ReadNameTerm(it, frees, out KeyValuePair<string, Term> nameTerm))
+            while (ReadNameTerm(it, frees, out KeyValuePair<ArgumentName, Term> nameTerm))
             {
                 namedTerms.Add(nameTerm);
                 Move(it);
@@ -146,14 +146,14 @@ namespace CNP.Parsing
             nameMode = new KeyValuePair<string, ArgumentMode>(name, mode);
             return true;
         }
-        static bool ReadNameTerm(IEnumerator<Lexem> it, NamedVariables frees, out KeyValuePair<string, Term> nameTerm)
+        static bool ReadNameTerm(IEnumerator<Lexem> it, NamedVariables frees, out KeyValuePair<ArgumentName, Term> nameTerm)
         {
             string name = GetContent(it, TokenType.Identifier, "A name:term pair should start with an identifier.");
             Move(it);
             string colon = GetContent(it, TokenType.Colon, "A name:term pair is missing a colon(:)");
             Move(it);
             Term term = ReadTerm(it, frees);
-            nameTerm = new KeyValuePair<string, Term>(name, term);
+            nameTerm = new KeyValuePair<ArgumentName, Term>(new ArgumentName(name), term);
             return true;
         }
         static Term ReadTerm(IEnumerator<Lexem> it, NamedVariables frees)
