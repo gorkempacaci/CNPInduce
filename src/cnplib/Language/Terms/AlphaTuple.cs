@@ -14,6 +14,8 @@ namespace CNP.Language
         private readonly SortedList<ArgumentName, Term> _terms;
         public IReadOnlyDictionary<ArgumentName, Term> Terms => _terms;
 
+        public IEnumerable<ArgumentName> DomainNames => _terms.Keys;
+
         public AlphaTuple(params (string, Term)[] terms)
             :this(terms.ToDictionary(t => new ArgumentName(t.Item1), t=>t.Item2))
         {
@@ -37,11 +39,11 @@ namespace CNP.Language
             }
         }
 
-        public AlphaTuple Clone(FreeDictionary plannedParenthood)
+        public AlphaTuple Clone(TermReferenceDictionary plannedParenthood)
         {
             return new AlphaTuple(_terms.Select(e => new KeyValuePair<ArgumentName, Term>(e.Key, e.Value.Clone(plannedParenthood))));
         }
-        IFreeContainer IFreeContainer.Clone(FreeDictionary plannedParenthood)
+        IFreeContainer IFreeContainer.Clone(TermReferenceDictionary plannedParenthood)
         {
             return this.Clone(plannedParenthood);
         }

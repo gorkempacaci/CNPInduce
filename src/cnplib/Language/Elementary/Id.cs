@@ -19,7 +19,7 @@ namespace CNP.Language
         }
         public static readonly Id IdProgram = new Id();
 
-        private static readonly IReadOnlyCollection<ProgramType> valences = TypeHelper.ParseCompactProgramTypes(new[]
+        private static readonly TypeStore<ProgramType> valences = TypeHelper.ParseCompactProgramTypes(new[]
         {
             "{a:in, b:*}",
             "{a:*, b:in}"
@@ -27,7 +27,7 @@ namespace CNP.Language
 
         public static IEnumerable<Id> FromObservation(ObservedProgram obs)
         {
-            if (!valences.Contains(obs.ProgramType))
+            if (!valences.TryGetValue(obs.Domains, out _))
                 return Iterators.Empty<Id>();
 
             if (obs.Observables.All(at => Term.UnifyInPlace(at["a"], at["b"])))

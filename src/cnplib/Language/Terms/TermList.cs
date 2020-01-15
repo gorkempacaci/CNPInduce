@@ -60,13 +60,13 @@ namespace CNP.Language
         {
             return Head.IsGround() && Tail.IsGround();
         }
-        public override Term Clone(FreeDictionary plannedParenthood)
+        public override Term Clone(TermReferenceDictionary plannedParenthood)
         {
             return new TermList(Head.Clone(plannedParenthood),
                                 Tail.Clone(plannedParenthood));
         }
 
-        IFreeContainer IFreeContainer.Clone(FreeDictionary plannedParenthood)
+        IFreeContainer IFreeContainer.Clone(TermReferenceDictionary plannedParenthood)
         {
             return this.Clone(plannedParenthood) as IFreeContainer;
         }

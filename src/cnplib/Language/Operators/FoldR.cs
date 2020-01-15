@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.Design;
+using System.Net.Http;
+using System.Threading.Tasks;
 using CNP.Helper;
 using CNP.Helper.EagerLinq;
 
@@ -17,13 +19,14 @@ namespace CNP.Language
         {
             return Base.FindFirstHole() ?? Recursive.FindFirstHole();
         }
-        public override Program CloneAndReplace(ObservedProgram oldComponent, Program newComponent, FreeDictionary plannedParenthood)
+        public override Program CloneAndReplace(TermReferenceDictionary plannedParenthood, ObservedProgram oldComponent,
+            Program newComponent)
         {
-            return new FoldR(Base.CloneAndReplace(oldComponent, newComponent, plannedParenthood),
-                                Recursive.CloneAndReplace(oldComponent, newComponent, plannedParenthood));
+            return new FoldR(Base.CloneAndReplace(plannedParenthood, oldComponent, newComponent),
+                                Recursive.CloneAndReplace(plannedParenthood, oldComponent, newComponent));
         }
 
-        private static IReadOnlyDictionary<ProgramType, IEnumerable<FoldRType>> valences =
+        private static TypeStore<FoldRType> valences =
             TypeHelper.ParseCompactOperatorTypes<FoldRType>(
                 new[]
                 {
@@ -35,22 +38,28 @@ namespace CNP.Language
         
         public static IEnumerable<FoldR> FromObservation(ObservedProgram obs)
         {
-            if (!valences.TryGetValue(obs.ProgramType, out IEnumerable<FoldRType> pqTypes))
+            if (!valences.TryGetValue(obs.Domains, out IEnumerable<FoldRType> foldTypes))
             {
                 return Iterators.Empty<FoldR>();
             }
-            List<AlphaTuple> pObs = new List<AlphaTuple>(), qObs = new List<AlphaTuple>();
-            foreach (AlphaTuple at in obs.Observables)
-                foldRtoPQ(at["b0"], at["as"], at["b"], pObs, qObs);
-            if (!pObs.Any() || !qObs.Any())
-                return Iterators.Empty<FoldR>();
-            var newFolds = pqTypes.Select(op =>
+            IEnumerable<ObservedProgram> newObservedPrograms = obs.CloneToGroundDomains(foldTypes.First().Domains);
+            List<FoldR> newFoldrs = new List<FoldR>();
+            foreach (ObservedProgram groundObs in newObservedPrograms)
             {
-                FreeDictionary fd = new FreeDictionary();
-                return new FoldR(new ObservedProgram(pObs.Clone(fd), op.RecursiveOperandType),
-                    new ObservedProgram(qObs.Clone(fd), op.BaseOperandType));
-            });
-            return newFolds;
+                List<AlphaTuple> pObs = new List<AlphaTuple>(), qObs = new List<AlphaTuple>();
+                foreach (AlphaTuple at in groundObs.Observables)
+                    foldRtoPQ(at["b0"], at["as"], at["b"], pObs, qObs);
+                if (!pObs.Any() || !qObs.Any())
+                    return Iterators.Empty<FoldR>();
+
+                newFoldrs.AddRange(foldTypes.Select(op =>
+                {
+                    TermReferenceDictionary fd = new TermReferenceDictionary();
+                    return new FoldR(new ObservedProgram(pObs.Clone(fd), op.RecursiveComponentDomains),
+                        new ObservedProgram(qObs.Clone(fd), op.BaseComponentDomains));
+                }));
+            }
+            return newFoldrs;
         }
 
         // foldr(P,Q)(A0,[],B) :- Q(A0,B).

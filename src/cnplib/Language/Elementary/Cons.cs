@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Net.Http;
 using CNP.Helper.EagerLinq;
 using  CNP.Helper;
 
@@ -15,7 +16,7 @@ namespace CNP.Language
             return "cons";
         }
 
-        private static readonly IReadOnlyCollection<ProgramType> valences = TypeHelper.ParseCompactProgramTypes(new[]
+        private static readonly TypeStore<ProgramType> valences = TypeHelper.ParseCompactProgramTypes(new[]
         {
             "{a:in, b:in, ab:*}",
             "{a:*, b:*, ab:in}"
@@ -24,10 +25,12 @@ namespace CNP.Language
         public static readonly Cons ConsProgram = new Cons();
         public static IEnumerable<Cons> FromObservation(ObservedProgram op)
         {
-
-            if (!valences.Contains(op.ProgramType))
+            if (!valences.TryGetValue(op.Domains, out _))
                 return Iterators.Empty<Cons>();
-
+            if (!op.Domains.Names.Contains(new ArgumentName("ab")))
+            {
+                throw null;
+            }
             if (op.Observables.All(at => Term.UnifyInPlace(at["ab"], new TermList(at["a"], at["b"]))))
                 return Iterators.Singleton(ConsProgram);
             else return Iterators.Empty<Cons>();

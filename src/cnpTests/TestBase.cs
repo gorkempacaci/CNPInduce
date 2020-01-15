@@ -33,7 +33,7 @@ using System.IO;
         /// </summary>
         protected static AlphaTuple nietBruijn(AlphaTuple atu)
         {
-            atu = atu.Clone(new FreeDictionary());
+            atu = atu.Clone(new TermReferenceDictionary());
             var allVarsDistinct = atu.Terms.Values.SelectMany(freesIn).Distinct().ToList();
             allVarsDistinct.For((Free f, int i) => { f.SubstituteInContainers(new ConstantTerm("λ" + i.ToString())); });
             return atu;
@@ -41,17 +41,17 @@ using System.IO;
 
         protected static Term nietBruijnTerm(Term t)
         {
-            t = t.Clone(new FreeDictionary());
+            t = t.Clone(new TermReferenceDictionary());
             var allVarsDistinct = freesIn(t).Distinct();
             allVarsDistinct.For((Free f, int i) => { f.SubstituteInContainers(new ConstantTerm("λ" + i.ToString())); });
             return t;
         }
 
-        protected void assertSingleResultFor(string typeStr, string atusStr, Program elementaryProgramExpected, string programName)
+        protected void assertSingleResultFor(string domains, string atusStr, Program elementaryProgramExpected, string programName)
         {
-            ProgramType type = Parser.ParseProgramType(typeStr);
+            NameModeMap namesModes = Parser.ParseNameModeMap(domains);
             IEnumerable<AlphaTuple> atus = Parser.ParseAlphaTupleSet(atusStr);
-            ObservedProgram obs = new ObservedProgram(atus, type);
+            ObservedProgram obs = new ObservedProgram(atus, namesModes);
             SynthesisJob job = new SynthesisJob(obs, 1);
             var measurement = benchmark.StartNew();
             var programs = job.FindAllPrograms();
@@ -61,11 +61,11 @@ using System.IO;
             measurement.ReportFinish(programName, elementaryProgramExpected.ToString());
         }
 
-        protected void assertNoResultFor(string typeStr, string atusStr)
+        protected void assertNoResultFor(string domains, string atusStr)
         {
-            ProgramType type = Parser.ParseProgramType(typeStr);
+            NameModeMap namesModes = Parser.ParseNameModeMap(domains);
             IEnumerable<AlphaTuple> atus = Parser.ParseAlphaTupleSet(atusStr);
-            ObservedProgram obs = new ObservedProgram(atus, type);
+            ObservedProgram obs = new ObservedProgram(atus, namesModes);
             SynthesisJob job = new SynthesisJob(obs, 1);
             var programs = job.FindAllPrograms();
             Assert.AreEqual(0, programs.Count(), "A program should not be found.");

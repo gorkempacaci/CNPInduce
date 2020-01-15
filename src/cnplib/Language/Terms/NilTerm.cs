@@ -16,7 +16,7 @@ namespace CNP.Language
         {
             return true;
         }
-        public override Term Clone(FreeDictionary plannedParenthood)
+        public override Term Clone(TermReferenceDictionary plannedParenthood)
         {
             return this;
         }

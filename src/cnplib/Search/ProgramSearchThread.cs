@@ -67,7 +67,7 @@ namespace CNP.Search
                 IEnumerable<Program> newSubTrees = filler(hole);
                 foreach (Program subTree in newSubTrees)
                 {
-                    Program newProgram = cloneProgram.CloneAndReplace(hole, subTree, new FreeDictionary());
+                    Program newProgram = cloneProgram.CloneAndReplace(new TermReferenceDictionary(), hole, subTree);
                     programs.Add(newProgram);
                 }
             }

@@ -8,6 +8,10 @@ namespace CNP.Helper.EagerLinq
 {
     public static class Enumerable
     {
+        public static TSource Aggregate<TSource>(this IEnumerable<TSource> source, Func<TSource, TSource, TSource> f)
+        {
+            return Lazy.Aggregate(source, f);
+        }
         public static bool Any<TSource>(this IEnumerable<TSource> source)
         {
             return Lazy.Any(source);
@@ -35,6 +39,13 @@ namespace CNP.Helper.EagerLinq
         public static IEnumerable<TResult> SelectMany<TSource, TResult>(this IEnumerable<TSource> source, Func<TSource, IEnumerable<TResult>> selector)
         {
             return Lazy.ToList(Lazy.SelectMany(source, selector));
+        }
+
+        public static IEnumerable<TResult> SelectMany<TSource, TCollection, TResult>(this IEnumerable<TSource> source,
+            Func<TSource, IEnumerable<TCollection>> collectionSelector,
+            Func<TSource, TCollection, TResult> resultSelector)
+        {
+            return Lazy.ToList(Lazy.SelectMany(source, collectionSelector, resultSelector));
         }
         public static TSource First<TSource>(this IEnumerable<TSource> source)
         {
@@ -64,6 +75,11 @@ namespace CNP.Helper.EagerLinq
         public static IEnumerable<TSource> Distinct<TSource>(this IEnumerable<TSource> source)
         {
             return Lazy.ToList(Lazy.Distinct(source));
+        }
+
+        public static IEnumerable<TSource> Except<TSource>(this IEnumerable<TSource> source, IEnumerable<TSource> second)
+        {
+            return Lazy.ToList(Lazy.Except(source, second));
         }
         public static IEnumerable<System.Linq.IGrouping<TKey, TSource>> GroupBy<TKey, TSource>(this IEnumerable<TSource> source,
             Func<TSource, TKey> condition)

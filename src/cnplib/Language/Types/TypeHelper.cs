@@ -9,21 +9,19 @@ namespace CNP.Language
 {
     public static class TypeHelper
     {
-        public static Dictionary<ProgramType, IEnumerable<TOperatorType>> ParseCompactOperatorTypes<TOperatorType>(
-            IEnumerable<string> compactStrs) where TOperatorType:OperatorType
+        public static TypeStore<TOperatorType> ParseCompactOperatorTypes<TOperatorType>(
+            IEnumerable<string> compactStrs) where TOperatorType:ComposedType
         {
             var expandedStrs = compactStrs.SelectMany(expandAsteriskToInOut).Distinct();
             var types = expandedStrs.Select(Parser.ParseOperatorType<TOperatorType>);
-            var grps = types.GroupBy(t => t.ExpressionType);
-            var dict = grps.ToDictionary(g => g.Key, g => g as IEnumerable<TOperatorType>);
-            return dict;
+            return new TypeStore<TOperatorType>(types);
         }
 
-        public static HashSet<ProgramType> ParseCompactProgramTypes(IEnumerable<string> compactStrs)
+        public static TypeStore<ProgramType> ParseCompactProgramTypes(IEnumerable<string> compactStrs)
         {
             var expandedStrs = compactStrs.SelectMany(expandAsteriskToInOut).Distinct();
             var types = expandedStrs.Select(Parser.ParseProgramType);
-            return types.ToHashSet();
+            return new TypeStore<ProgramType>(types);
         }
         
         private static IEnumerable<string> expandAsteriskToInOut(string c)

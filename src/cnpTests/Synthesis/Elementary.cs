@@ -46,7 +46,7 @@ namespace Synthesis
         public void ConstPositive(string typeStr, string atusStr, string argName, string constValueStr)
         {
             Term grTerm = Parser.ParseTerm(constValueStr);
-            assertSingleResultFor(typeStr, atusStr, new Const(argName, grTerm), "const");
+            assertSingleResultFor(typeStr, atusStr, new Const(new ArgumentName(argName), grTerm), "const");
         }
 
         [DataTestMethod]
@@ -59,9 +59,9 @@ namespace Synthesis
         [DataRow("{a:in}", "{{a:[1|X]}, {a:L}, {a:[1,2,T|4]}}")] // not ground
         public void Negative(string typeStr, string atusStr)
         {
-            ProgramType type = Parser.ParseProgramType(typeStr);
+            NameModeMap namesModes = Parser.ParseNameModeMap(typeStr);
             IEnumerable<AlphaTuple> atus = Parser.ParseAlphaTupleSet(atusStr);
-            ObservedProgram obs = new ObservedProgram(atus, type);
+            ObservedProgram obs = new ObservedProgram(atus, namesModes);
             SynthesisJob job = new SynthesisJob(obs, 1);
             var programs = job.FindAllPrograms();
             Assert.AreEqual(0, programs.Count());

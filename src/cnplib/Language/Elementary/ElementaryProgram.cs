@@ -13,7 +13,8 @@ namespace CNP.Language
         {
             IsClosed = true;
         }
-        public override Program CloneAndReplace(ObservedProgram oldComponent, Program newComponent, FreeDictionary plannedParenthood)
+        public override Program CloneAndReplace(TermReferenceDictionary plannedParenthood, ObservedProgram oldComponent,
+            Program newComponent)
         {
             return this;
         }

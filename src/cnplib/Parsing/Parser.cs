@@ -19,16 +19,21 @@ namespace CNP.Parsing
             {
                 throw new Exception("Operator type must have at least 2 components.");
             }
-            var types = parts.Select(ParseProgramType).ToArray();
+            var types = parts.Select(ParseNameModeMap).ToArray();
             return (TOperatorType)Activator.CreateInstance(typeof(TOperatorType),(object[])types);
         }
-        public static ProgramType ParseProgramType(string typeString)
+
+        public static NameModeMap ParseNameModeMap(string nameModeMap)
         {
-            var lexems = Lexer.Tokenize(typeString);
+            var lexems = Lexer.Tokenize(nameModeMap);
             var it = lexems.GetEnumerator();
             if (!it.MoveNext())
                 throw new ParserException("Expecting program type.", it.Current);
-            return ReadProgramType(it);
+            return ReadNameModeMap(it);
+        }
+        public static ProgramType ParseProgramType(string typeString)
+        {
+            return new ProgramType(ParseNameModeMap(typeString));
         }
         public static IEnumerable<AlphaTuple> ParseAlphaTupleSet(string alphaSetString)
         {
@@ -66,7 +71,7 @@ namespace CNP.Parsing
 
 
 
-        static ProgramType ReadProgramType(IEnumerator<Lexem> it)
+        static NameModeMap ReadNameModeMap(IEnumerator<Lexem> it)
         {
             List<KeyValuePair<string, ArgumentMode>> nameModePairs = new List<KeyValuePair<string, ArgumentMode>>();
             GetType(it, TokenType.MustacheOpen);
@@ -78,7 +83,7 @@ namespace CNP.Parsing
                 var type = GetType(it, TokenType.Comma, TokenType.MustacheClose);
                 if (type == TokenType.MustacheClose)
                 {
-                    return new ProgramType(nameModePairs);
+                    return new NameModeMap(nameModePairs);
                 }
                 else
                 {

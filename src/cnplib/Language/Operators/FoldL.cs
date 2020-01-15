@@ -16,13 +16,14 @@ namespace CNP.Language
         {
             return Recursive.FindFirstHole() ?? Base.FindFirstHole();
         }
-        public override Program CloneAndReplace(ObservedProgram oldComponent, Program newComponent, FreeDictionary plannedParenthood)
+        public override Program CloneAndReplace(TermReferenceDictionary plannedParenthood, ObservedProgram oldComponent,
+            Program newComponent)
         {
-            return new FoldL(Base.CloneAndReplace(oldComponent, newComponent, plannedParenthood),
-                             Recursive.CloneAndReplace(oldComponent, newComponent, plannedParenthood));
+            return new FoldL(Base.CloneAndReplace(plannedParenthood, oldComponent, newComponent),
+                             Recursive.CloneAndReplace(plannedParenthood, oldComponent, newComponent));
         }
 
-        private static IReadOnlyDictionary<ProgramType, IEnumerable<FoldLType>> valences =
+        private static TypeStore<FoldLType> valences =
             TypeHelper.ParseCompactOperatorTypes<FoldLType>(new[]
             {
                 "{a:*, b:*, ab:out} -> {a:*, b:out} -> {a0:in, bs:in, a:out}",
@@ -33,7 +34,8 @@ namespace CNP.Language
         
         public static IEnumerable<FoldL> FromObservation(ObservedProgram obs)
         {
-            if (!valences.TryGetValue(obs.ProgramType, out IEnumerable<FoldLType> pqTypes))
+            return Iterators.Empty<FoldL>();
+            if (!valences.TryGetValue(obs.Domains, out IEnumerable<FoldLType> pqTypes))
             {
                 return Iterators.Empty<FoldL>();
             }
@@ -44,9 +46,9 @@ namespace CNP.Language
                 return Iterators.Empty<FoldL>();
             var newFolds = pqTypes.Select(op =>
             {
-                FreeDictionary fd = new FreeDictionary();
-                return new FoldL(recursiveCase:new ObservedProgram(pObs.Clone(fd), op.RecursiveOperandType),
-                    baseCase:new ObservedProgram(qObs.Clone(fd), op.BaseOperandType));
+                TermReferenceDictionary fd = new TermReferenceDictionary();
+                return new FoldL(recursiveCase:new ObservedProgram(pObs.Clone(fd), op.RecursiveComponentDomains),
+                    baseCase:new ObservedProgram(qObs.Clone(fd), op.BaseComponentDomains));
             });
             return newFolds;
         }

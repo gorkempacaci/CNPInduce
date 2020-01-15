@@ -18,8 +18,56 @@ namespace CNP.Helper
             yield return obj;
         }
 
+
+
+        /// <summary>
+        /// permutations([1]) = [[1]]
+        /// permutations([1,2]) = [[1,2],[2,1]]
+        /// permutations([1,2,3]) = [[1,2,3],[1,3,2],[2,1,3],[2,3,1],[3,1,2],[3,2,1]]
+        /// TODO: Optimize
+        /// </summary>
+        public static IEnumerable<IEnumerable<TSource>> Permutations<TSource>(this IEnumerable<TSource> source)
+        {
+            int len = source.Count();
+            if (len == 0)
+                return Empty<IEnumerable<TSource>>();
+            if (len == 1)
+                return Singleton(source);
+            List<IEnumerable<TSource>> result = new List<IEnumerable<TSource>>();
+            for (int i = 0; i < len; i++)
+            {
+                var enumAtIndex = source.Skip(i);
+                var head = enumAtIndex.First();
+                var tail = source.Take(i).Concat(enumAtIndex.Skip(1));
+                result.AddRange(tail.Permutations().Select(l => Singleton(head).Concat(l)));
+            }
+            return result;
+        }
+
+        public static IEnumerable<TTarget> Cartesian<TSource1, TSource2, TTarget>(this IEnumerable<TSource1> first,
+            IEnumerable<TSource2> second, Func<TSource1, TSource2, TTarget> op)
+        {
+            List<TTarget> allElements = new List<TTarget>();
+            foreach (TSource1 f in first)
+            {
+                foreach (TSource2 s in second)
+                {
+                    allElements.Add(op(f,s));
+                }
+            }
+            return allElements;
+        }
+
+        /// <summary>
+        /// TODO: Replace with Enumerable.Empty
+        /// </summary>
         public static IEnumerable<T> Empty<T>() => new List<T>();
 
+        public static IEnumerable<TSource> Flatten<TSource>(this IEnumerable<IEnumerable<TSource>> lists)
+        {
+            return lists.Aggregate((l1, l2) => l1.Concat(l2));
+        }
+            
         public static void For<TSource>(this IEnumerable<TSource> source, Action<TSource, int> action)
         {
             IEnumerator<TSource> it = source.GetEnumerator();
@@ -60,25 +108,6 @@ namespace CNP.Helper
             }
         }
 
-        public static IEnumerable<TSource> Clone<TSource>(this IEnumerable<TSource> source, FreeDictionary plannedParenthood) where TSource:IFreeContainer
-        {
-            return source.Select(e => (TSource)e.Clone(plannedParenthood));
-        }
-        
-        public static (TSource, TSource) ToValueTuple2<TSource>(this IEnumerable<TSource> source)
-        {
-            var vals = Enumerable.ToArray(source);
-            if (vals.Length!=2)
-                throw  new Exception("ToValueTuple2: IEnumerable has more than 2 elements.");
-            return ValueTuple.Create(vals[0], vals[1]);
-        }
-        public static (TSource, TSource, TSource) ToValueTuple3<TSource>(this IEnumerable<TSource> source)
-        {
-            var vals = Enumerable.ToArray(source);
-            if (vals.Length!=3)
-                throw  new Exception("ToValueTuple3: IEnumerable has more than 3 elements.");
-            return ValueTuple.Create(vals[0], vals[1], vals[2]);
-        }
         public static List<TResult> Generate<TResult>(int count, Func<TResult> generator)
         {
             List<TResult> list = new List<TResult>(count);
@@ -99,6 +128,45 @@ namespace CNP.Helper
             return Singleton(obj).Concat(tail);
         }
 
+        /// <summary>
+        /// May return tail as null if there's only one element in the list.
+        /// </summary>
+        public static bool ToHeadAndTail<T>(IEnumerable<T> source, out T head, out IEnumerable<T> tail)
+        {
+            head = default(T);
+            tail = System.Linq.Enumerable.Empty<T>();
+            if (source.Any())
+            {
+                head = source.First();
+                var rest = source.Skip(1);
+                if (rest.Any())
+                {
+                    tail = rest;
+                }
+                return true;
+            }
+            else return false;
+        }
+
+        public static IEnumerable<TSource> Clone<TSource>(this IEnumerable<TSource> source, TermReferenceDictionary plannedParenthood) where TSource:IFreeContainer
+        {
+            return source.Select(e => (TSource)e.Clone(plannedParenthood));
+        }
+        
+        public static (TSource, TSource) ToValueTuple2<TSource>(this IEnumerable<TSource> source)
+        {
+            var vals = Enumerable.ToArray(source);
+            if (vals.Length!=2)
+                throw  new Exception("ToValueTuple2: IEnumerable has more than 2 elements.");
+            return ValueTuple.Create(vals[0], vals[1]);
+        }
+        public static (TSource, TSource, TSource) ToValueTuple3<TSource>(this IEnumerable<TSource> source)
+        {
+            var vals = Enumerable.ToArray(source);
+            if (vals.Length!=3)
+                throw  new Exception("ToValueTuple3: IEnumerable has more than 3 elements.");
+            return ValueTuple.Create(vals[0], vals[1], vals[2]);
+        }
         public static IEnumerable<TResult> New<TResult, T1>(this IEnumerable<T1> source)
         {
             return source.Select(s => (TResult) Activator.CreateInstance(typeof(TResult), s));

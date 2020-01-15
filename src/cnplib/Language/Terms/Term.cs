@@ -11,7 +11,7 @@ namespace CNP.Language
     /// </summary>
     public abstract class Term
     {
-        public abstract Term Clone(FreeDictionary plannedParenthood);
+        public abstract Term Clone(TermReferenceDictionary plannedParenthood);
 
         /// <summary>
         /// Returns true if other occurs in this term.

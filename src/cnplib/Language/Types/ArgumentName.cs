@@ -6,7 +6,7 @@ namespace CNP.Language
     /// <summary>
     /// A name for an argument. Can be bound to a ground identifier or can be free. 
     /// </summary>
-    public class ArgumentName : IComparable
+    public class ArgumentName : Term, IComparable
     {
         private string _name;
         private readonly int _argNameId = _argNameCounter++;
@@ -25,14 +25,25 @@ namespace CNP.Language
             BindName(name);
         }
 
-        public void BindName(string name)
+        public bool BindName(string name)
         {
             Validator.AssertArgumentName(name);
-            _name = name;
+            if (IsGround())
+                return false;
+            else
+            {
+                _name = name;
+                return true;
+            }
         }
 
-        public bool IsGround => _name != null;
-        
+        public override bool IsGround() => _name != null;
+
+        public override bool Contains(Free other)
+        {
+            return false;
+        }
+
         /// <summary>
         /// Returns true if both names are ground and have the same name, or if they're the same object.
         /// </summary>
@@ -41,10 +52,10 @@ namespace CNP.Language
             if (!(obj is ArgumentName other))
             {
                 return false;
-            } else if (this.IsGround && other.IsGround)
+            } else if (this.IsGround() && other.IsGround())
             {
                 return Name == other.Name;
-            } else if (!this.IsGround && !other.IsGround)
+            } else if (!this.IsGround() && !other.IsGround())
             {
                 return object.ReferenceEquals(this, other);
             }
@@ -53,7 +64,7 @@ namespace CNP.Language
 
         public override int GetHashCode()
         {
-            return _argNameId * 31;
+            return 0;
         }
 
         public override string ToString()
@@ -61,11 +72,16 @@ namespace CNP.Language
             return Name;
         }
 
+        public override Term Clone(TermReferenceDictionary plannedParenthood)
+        {
+            return plannedParenthood.AddOrGet(this, () => IsGround() ? new ArgumentName(_name) : ArgumentName.NewUnbound());
+        }
+
         public int CompareTo(object obj)
         {
             if (!(obj is ArgumentName otherName))
                 throw new Exception("ArgumentName.CompareTo: obj is not ArgumentName");
-            if (this.IsGround && otherName.IsGround)
+            if (this.IsGround() && otherName.IsGround())
                 return String.Compare(_name, otherName._name, StringComparison.Ordinal);
             else return _argNameId.CompareTo(otherName._argNameId);
         }

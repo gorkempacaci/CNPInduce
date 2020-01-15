@@ -1,3 +1,6 @@
+== Bugs
+- When an observedprogram is cloned, there are frees it shares with the other observedprograms in the previous tree. during cloning of the whole program wrt an observedprogram, these connections are broken? 
+
 == Code Quality
 - Merge FoldR and FoldL reverse semantics into one reducing redundant code.
 
@@ -7,3 +10,6 @@
   .InSameContext((name, value),...,(mame,value)) : AlphaTuple
 - Collate observables in test results into a single row in table.
 - Test results measurements last one should be in main directory. Also in a historical Json data file.
+
+== Optimization
+- Typestore can use multiple indexes at the cost of memory and initialization time. It already indexes by the number of ins and outs, but it could also index by each combination of ground argument names. 

@@ -8,11 +8,11 @@ namespace CNP.Language
 
     public class Const : ElementaryProgram
     {
-        public string ArgumentName { get; private set; }
+        public ArgumentName ArgumentName { get; private set; }
         public Term Value { get; private set; }
         
         
-        public Const(string argName, Term groundTerm)
+        public Const(ArgumentName argName, Term groundTerm)
         {
             if (!groundTerm.IsGround())
             {
@@ -25,10 +25,10 @@ namespace CNP.Language
 
         public static IEnumerable<Const> FromObservation(ObservedProgram op)
         {
-            if (op.ProgramType.Keys.Count() != 1 || !op.Observables.Any())
+            if (!op.Domains.Names.Any() || op.Domains.Count()!=1)
                 return Iterators.Empty<Const>();
             Free candidateConstant = new Free();
-            string argName = op.ProgramType.Keys.First();
+            ArgumentName argName = op.Domains.Names.First();
             var allTups = Enumerable.ToList(op.Observables);
             int count = allTups.Count();
             for (int i = 1; i < count; i++)

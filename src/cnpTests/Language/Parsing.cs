@@ -52,9 +52,9 @@ namespace Language
         {
             string typeStr = "{a:in, b:out, c:in}";
             ProgramType parsedType = Parser.ParseProgramType(typeStr);
-            ProgramType expectedType = new ProgramType(("a", ArgumentMode.In),
+            ProgramType expectedType = new ProgramType(new NameModeMap(("a", ArgumentMode.In),
                 ("b", ArgumentMode.Out),
-                ("c", ArgumentMode.In));
+                ("c", ArgumentMode.In)));
             Assert.AreEqual(expectedType, parsedType);
         }
 
@@ -125,6 +125,24 @@ namespace Language
             AlphaTuple atu = Parser.ParseAlphaTuple(atuStr);
             atu = nietBruijn(atu);
             Assert.AreEqual("{a:'aa', b:['λ0', ['λ0'], 'λ1', 'b', 'λ0']}", atu.ToString());
+        }
+
+        [TestMethod]
+        public void AlphaTupleAccessWithArgumentNameString()
+        {
+            string atuStr = "{a:'aa', b:[A, [A], B, 'b', A]}";
+            AlphaTuple atu = Parser.ParseAlphaTuple(atuStr);
+            Term t = atu["a"];
+            Assert.AreEqual("'aa'", t.ToString());
+        }
+        
+        [TestMethod]
+        public void AlphaTupleAccessWithArgumentNameObject()
+        {
+            string atuStr = "{a:'aa', b:[A, [A], B, 'b', A]}";
+            AlphaTuple atu = Parser.ParseAlphaTuple(atuStr);
+            Term t = atu[new ArgumentName("a")];
+            Assert.AreEqual("'aa'", t.ToString());
         }
 
         //{a:'aa', b:['λ0', ['λ0'], 'λ1', 'b', 'λ0']}

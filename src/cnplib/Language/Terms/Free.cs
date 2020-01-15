@@ -7,7 +7,7 @@ namespace CNP.Language
     public interface IFreeContainer
     {
         void SubstituteFreeInPlace(Free oldTerm, Term newTerm);
-        IFreeContainer Clone(FreeDictionary plannedParenthood);
+        IFreeContainer Clone(TermReferenceDictionary plannedParenthood);
     }
     public class Free : Term
     {
@@ -46,7 +46,7 @@ namespace CNP.Language
             return false;
         }
 
-        public override Term Clone(FreeDictionary plannedParenthood)
+        public override Term Clone(TermReferenceDictionary plannedParenthood)
         {
             Term newMe;
             if (!plannedParenthood.TryGetValue(this, out newMe))
