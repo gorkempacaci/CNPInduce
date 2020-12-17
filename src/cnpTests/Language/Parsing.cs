@@ -52,7 +52,7 @@ namespace Language
         {
             string typeStr = "{a:in, b:out, c:in}";
             ProgramType parsedType = Parser.ParseProgramType(typeStr);
-            ProgramType expectedType = new ProgramType(new NameModeMap(("a", ArgumentMode.In),
+            ProgramType expectedType = new ProgramType(new Valence(("a", ArgumentMode.In),
                 ("b", ArgumentMode.Out),
                 ("c", ArgumentMode.In)));
             Assert.AreEqual(expectedType, parsedType);
@@ -76,7 +76,7 @@ namespace Language
             string tStr = t.ToString();
             Assert.AreEqual("[1, 'b', ['λ0', 'd'], [], 'λ0']", tStr);
         }
-        
+
         [TestMethod]
         public void TermCons()
         {
@@ -135,13 +135,13 @@ namespace Language
             Term t = atu["a"];
             Assert.AreEqual("'aa'", t.ToString());
         }
-        
+
         [TestMethod]
         public void AlphaTupleAccessWithArgumentNameObject()
         {
             string atuStr = "{a:'aa', b:[A, [A], B, 'b', A]}";
             AlphaTuple atu = Parser.ParseAlphaTuple(atuStr);
-            Term t = atu[new ArgumentName("a")];
+            Term t = atu[new ArgumentNameVar("a")];
             Assert.AreEqual("'aa'", t.ToString());
         }
 

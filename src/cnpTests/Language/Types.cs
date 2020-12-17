@@ -16,7 +16,7 @@ namespace Language
         [TestMethod]
         public void IdenticalTypes_SameHashcode()
         {
-            ProgramType s1 = new ProgramType(new NameModeMap(("a", ArgumentMode.In), ("b", ArgumentMode.Out)));
+            ProgramType s1 = new ProgramType(new Valence(("a", ArgumentMode.In), ("b", ArgumentMode.Out)));
             ProgramType s2 = Parser.ParseProgramType("{b:out, a:in}");
             Assert.AreEqual(s1.GetHashCode(), s2.GetHashCode(), "Hashcodes should be the same.");
         }
@@ -32,7 +32,7 @@ namespace Language
         [TestMethod]
         public void TypeWithDifferentArgModes_DifferentHashcodes()
         {
-            ProgramType s1 = new ProgramType(new NameModeMap(("a", ArgumentMode.Out), ("b", ArgumentMode.Out)));
+            ProgramType s1 = new ProgramType(new Valence(("a", ArgumentMode.Out), ("b", ArgumentMode.Out)));
             ProgramType s2 = Parser.ParseProgramType("{b:out, a:in}");
             int h1 = s1.GetHashCode();
             int h2 = s2.GetHashCode();
@@ -49,30 +49,28 @@ namespace Language
         {
             TypeStore<ProgramType> ts = new TypeStore<ProgramType>(new[]
             {
-                new ProgramType(new NameModeMap(("a", ArgumentMode.Out), ("b", ArgumentMode.In))),
-                new ProgramType(new NameModeMap(("a", ArgumentMode.Out), ("b", ArgumentMode.Out)))
+                new ProgramType(new Valence(("a", ArgumentMode.Out), ("b", ArgumentMode.In))),
+                new ProgramType(new Valence(("a", ArgumentMode.Out), ("b", ArgumentMode.Out)))
             });
-            bool r = ts.TryGetValue(new NameModeMap(("a", ArgumentMode.Out), ("b", ArgumentMode.Out)),
-                out IEnumerable<ProgramType> types);
-            Assert.IsTrue(r, "A result was returned.");
+            var types = ts.FindCompatibleTypes(new Valence(("a", ArgumentMode.Out), ("b", ArgumentMode.Out)));
+            Assert.IsTrue(types.Any(), "A result was returned.");
             bool inTheResults =
-                types.Contains(new ProgramType(new NameModeMap(("a", ArgumentMode.Out), ("b", ArgumentMode.Out))));
+                types.Contains(new ProgramType(new Valence(("a", ArgumentMode.Out), ("b", ArgumentMode.Out))));
             Assert.IsTrue(inTheResults, "A newly ground program type should be returned.");
             bool allAreGround = types.All(t => t.IsGround());
             Assert.IsTrue(allAreGround, "All types returned should be ground.");
         }
-        
+
         [TestMethod]
         public void TypeStore_PartiallyGroundLookup_OnlyReturnsTypesWithPartiallyMatchingSignatures()
         {
             TypeStore<ProgramType> ts = new TypeStore<ProgramType>(new[]
             {
-                new ProgramType(new NameModeMap(("a", ArgumentMode.Out), ("b", ArgumentMode.In))),
-                new ProgramType(new NameModeMap(("u", ArgumentMode.Out), ("v", ArgumentMode.In)))
+                new ProgramType(new Valence(("a", ArgumentMode.Out), ("b", ArgumentMode.In))),
+                new ProgramType(new Valence(("u", ArgumentMode.Out), ("v", ArgumentMode.In)))
             });
-            bool r = ts.TryGetValue(new NameModeMap((ArgumentName.NewUnbound(), ArgumentMode.Out), (new ArgumentName("b"), ArgumentMode.In)),
-                out IEnumerable<ProgramType> types);
-            Assert.IsTrue(r, "A result was returned.");
+            var types = ts.FindCompatibleTypes(new Valence((ArgumentNameVar.NewUnbound(), ArgumentMode.Out), (new ArgumentNameVar("b"), ArgumentMode.In)));
+            Assert.IsTrue(types.Any(), "A result was returned.");
             Assert.AreEqual(1, types.Count(), "Only one type is found.");
             Assert.AreEqual(ArgumentMode.Out, types.First().Domains["a"]);
             Assert.AreEqual(ArgumentMode.In, types.First().Domains["b"]);
@@ -83,12 +81,11 @@ namespace Language
         {
             TypeStore<ProgramType> ts = new TypeStore<ProgramType>(new[]
             {
-                new ProgramType(new NameModeMap(("a", ArgumentMode.Out), ("b", ArgumentMode.In))),
-                new ProgramType(new NameModeMap(("a", ArgumentMode.Out), ("b", ArgumentMode.In), ("c", ArgumentMode.In)))
+                new ProgramType(new Valence(("a", ArgumentMode.Out), ("b", ArgumentMode.In))),
+                new ProgramType(new Valence(("a", ArgumentMode.Out), ("b", ArgumentMode.In), ("c", ArgumentMode.In)))
             });
-            bool r = ts.TryGetValue(new NameModeMap((ArgumentName.NewUnbound(), ArgumentMode.Out), (ArgumentName.NewUnbound(), ArgumentMode.In)),
-                out IEnumerable<ProgramType> types);
-            Assert.IsTrue(r, "A result was returned.");
+            var types = ts.FindCompatibleTypes(new Valence((ArgumentNameVar.NewUnbound(), ArgumentMode.Out), (ArgumentNameVar.NewUnbound(), ArgumentMode.In)));
+            Assert.IsTrue(types.Any(), "A result was returned.");
             Assert.AreEqual(1, types.Count(), "Only one type is found.");
             Assert.AreEqual(ArgumentMode.Out, types.First().Domains["a"]);
             Assert.AreEqual(ArgumentMode.In, types.First().Domains["b"]);
@@ -99,12 +96,11 @@ namespace Language
         {
             TypeStore<ProgramType> ts = new TypeStore<ProgramType>(new[]
             {
-                new ProgramType(new NameModeMap(("a", ArgumentMode.Out), ("b", ArgumentMode.In))),
-                new ProgramType(new NameModeMap(("a", ArgumentMode.Out), ("b", ArgumentMode.In), ("c", ArgumentMode.In)))
+                new ProgramType(new Valence(("a", ArgumentMode.Out), ("b", ArgumentMode.In))),
+                new ProgramType(new Valence(("a", ArgumentMode.Out), ("b", ArgumentMode.In), ("c", ArgumentMode.In)))
             });
-            bool r = ts.TryGetValue(new NameModeMap((ArgumentName.NewUnbound(), ArgumentMode.Out), (new ArgumentName("u"), ArgumentMode.In)),
-                out IEnumerable<ProgramType> types);
-            Assert.IsFalse(r, "No results were returned.");
+            var types = ts.FindCompatibleTypes(new Valence((ArgumentNameVar.NewUnbound(), ArgumentMode.Out), (new ArgumentNameVar("u"), ArgumentMode.In)));
+            Assert.IsFalse(types.Any(), "No results were returned.");
             Assert.AreEqual(0, types.Count(), "Types count should be zero.");
         }
 
@@ -113,15 +109,14 @@ namespace Language
         {
             TypeStore<ProgramType> ts = new TypeStore<ProgramType>(new[]
             {
-                new ProgramType(new NameModeMap(("a", ArgumentMode.Out), ("b", ArgumentMode.In), ("d", ArgumentMode.In))),
-                new ProgramType(new NameModeMap(("a", ArgumentMode.Out), ("b", ArgumentMode.In), ("c", ArgumentMode.In)))
+                new ProgramType(new Valence(("a", ArgumentMode.Out), ("b", ArgumentMode.In), ("d", ArgumentMode.In))),
+                new ProgramType(new Valence(("a", ArgumentMode.Out), ("b", ArgumentMode.In), ("c", ArgumentMode.In)))
             });
-            bool r = ts.TryGetValue(new NameModeMap((ArgumentName.NewUnbound(), ArgumentMode.Out), (new ArgumentName("b"), ArgumentMode.In), (ArgumentName.NewUnbound(), ArgumentMode.In)),
-                out IEnumerable<ProgramType> types);
-            Assert.IsTrue(r, "A result was returned.");
+            var types = ts.FindCompatibleTypes(new Valence((ArgumentNameVar.NewUnbound(), ArgumentMode.Out), (new ArgumentNameVar("b"), ArgumentMode.In), (ArgumentNameVar.NewUnbound(), ArgumentMode.In)));
+            Assert.IsTrue(types.Any(), "A result was returned.");
             Assert.AreEqual(2, types.Count(), "Two types are found.");
         }
-        
-        
+
+
     }
 }

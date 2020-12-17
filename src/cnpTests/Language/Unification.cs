@@ -62,7 +62,7 @@ namespace Language
         {
             Free a = new Free();
             Term t = list(cnst(1), list(cnst("a"), list(cnst("i"), a, cnst("iii")), cnst("c")), cnst(3));
-            a.SubstituteInContainers(cnst("ii"));
+            a.ReplaceInAllContexts(cnst("ii"));
             Assert.AreEqual("[1, ['a', ['i', 'ii', 'iii'], 'c'], 3]", t.ToString(), "Free is unified without tuple.");
         }
 
@@ -73,7 +73,7 @@ namespace Language
         {
             Free a = new Free();
             Term t = list(cnst(1), list(cnst("a"), list(cnst("i"), cnst("ii"), a), cnst("c")), cnst(3));
-            a.SubstituteInContainers(cnst("iii"));
+            a.ReplaceInAllContexts(cnst("iii"));
             Assert.AreEqual("[1, ['a', ['i', 'ii', 'iii'], 'c'], 3]", t.ToString(), "Free is unified without tuple.");
         }
 

@@ -6,45 +6,74 @@ using CNP.Language;
 
 namespace CNP.Search
 {
-    /// <summary>
-    /// The top-level object for synthesis jobs.
-    /// </summary>
-    public class SynthesisJob : IProgramSearchReceiver
+  /// <summary>
+  /// The top-level object for synthesis jobs.
+  /// </summary>
+  // TODO: Add job constants.
+  public class SynthesisJob : IProgramSearchReceiver
+  {
+    const int DEFAULT_MAX_HEIGHT = 5;
+    ProgramSearch search;
+    SearchOptions searchOptions;
+    ConcurrentQueue<Program> programs = new ConcurrentQueue<Program>();
+
+    /// <param name="tuples">Tuples of the program observation.</param>
+    /// <param name="valence">Valence of the program</param>
+    /// <param name="maxTreeHeight">Height=0 only gives elementary programs. Height=1 gives programs like foldr(cons, id), and so on. </param>
+    public SynthesisJob(IEnumerable<AlphaTuple> tuples, Valence valence, int maxTreeHeight = DEFAULT_MAX_HEIGHT, ThreadCount tCount = default, SearchOptions sOpt = SearchOptions.FindOnlyFirstProgram)
     {
-        const int DEFAULT_MAX_HEIGHT = 5;
-
-        int programCountLimit;
-        ProgramSearch search;
-
-        
-        ConcurrentQueue<Program> programs = new ConcurrentQueue<Program>();
-
-        public SynthesisJob(ObservedProgram initialObservation, int programCount = int.MaxValue, int maxHeight = DEFAULT_MAX_HEIGHT)
-        {
-            programCountLimit = programCount;
-            search = new ProgramSearch(initialObservation, this, maxHeight);
-        }
-
-        /// <summary>
-        /// Finds all programs up to depth. Blocks until search is complete. Guarantees that in the returned list, shallower programs come first.
-        /// </summary> 
-        public IEnumerable<Program> FindAllPrograms()
-        {
-            search.Start();
-            search.WaitUntilDone();
-            var set = programs.ToHashSet(); // don't repeat same program twice. 
-            return set;
-        }
-
-        public bool FoundNewProgram(Program p)
-        {
-            programs.Enqueue(p);
-            return !(programs.Count < programCountLimit);
-        }
-
-        public void SearchIsFinished()
-        {
-            
-        }
+      ObservedProgram initialObservation = new(tuples, valence, maxTreeHeight);
+      search = new ProgramSearch(initialObservation, this, tCount);
+      searchOptions = sOpt;
     }
+
+    /// <summary>
+    /// Finds all programs up to depth. Blocks until search is complete. Guarantees that in the returned list, shallower programs come first.
+    /// </summary> 
+    public IEnumerable<Program> FindAllPrograms()
+    {
+      search.Start();
+      search.WaitUntilDone();
+      var set = programs.ToHashSet(); // don't repeat same program twice. TODO: Very inefficient to convert to set after the fact. This should be handled while the search is populating the list.
+      return set;
+    }
+
+    public bool FoundNewProgram(Program p)
+    {
+      programs.Enqueue(p);
+      if (searchOptions == SearchOptions.FindOnlyFirstProgram)
+        return true;
+      else return false; // false means do not stop searching
+    }
+
+    public void SearchIsFinished()
+    {
+
+    }
+  }
+
+  public enum SearchOptions
+  {
+    FindOnlyFirstProgram,
+    FindAllPrograms
+  }
+
+  public struct ThreadCount
+  {
+    int numberOfThreads;
+    /// <summary>
+    /// If n=0, it means one thread per logical processor.
+    /// </summary>
+    /// <param name="n"></param>
+    public ThreadCount(int n)
+    {
+      numberOfThreads = n;
+    }
+    public int GetNumberOfThreads()
+    {
+      if (numberOfThreads == 0)
+        return Environment.ProcessorCount;
+      else return numberOfThreads;
+    }
+  }
 }

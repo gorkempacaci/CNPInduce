@@ -148,7 +148,7 @@ namespace CNP.Helper
             else return false;
         }
 
-        public static IEnumerable<TSource> Clone<TSource>(this IEnumerable<TSource> source, TermReferenceDictionary plannedParenthood) where TSource:IFreeContainer
+        public static IEnumerable<TSource> Clone<TSource>(this IEnumerable<TSource> source, TermReferenceDictionary plannedParenthood) where TSource:Term
         {
             return source.Select(e => (TSource)e.Clone(plannedParenthood));
         }

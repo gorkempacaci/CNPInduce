@@ -4,23 +4,23 @@ using CNP.Helper;
 namespace CNP.Language
 {
     /// <summary>
-    /// A name for an argument. Can be bound to a ground identifier or can be free. 
+    /// Meta-variable for name for an argument. Can be bound to a ground identifier or can be free.
     /// </summary>
-    public class ArgumentName : Term, IComparable
+    public class ArgumentNameVar : Term, IComparable
     {
         private string _name;
-        private readonly int _argNameId = _argNameCounter++;
+        private readonly int _argNameId = System.Threading.Interlocked.Increment(ref _argNameCounter);
         private static int _argNameCounter = 0;
 
         
         public string Name => _name ?? ("#"+_argNameId.ToString());
 
-        private ArgumentName()
+        private ArgumentNameVar()
         {
             _name = null;
         }
         
-        public ArgumentName(string name)
+        public ArgumentNameVar(string name)
         {
             BindName(name);
         }
@@ -49,7 +49,7 @@ namespace CNP.Language
         /// </summary>
         public override bool Equals(object obj)
         {
-            if (!(obj is ArgumentName other))
+            if (!(obj is ArgumentNameVar other))
             {
                 return false;
             } else if (this.IsGround() && other.IsGround())
@@ -64,7 +64,7 @@ namespace CNP.Language
 
         public override int GetHashCode()
         {
-            return 0;
+            return IsGround() ? Name.GetHashCode() : 0;
         }
 
         public override string ToString()
@@ -72,23 +72,23 @@ namespace CNP.Language
             return Name;
         }
 
-        public override Term Clone(TermReferenceDictionary plannedParenthood)
+        public override ArgumentNameVar Clone(TermReferenceDictionary plannedParenthood)
         {
-            return plannedParenthood.AddOrGet(this, () => IsGround() ? new ArgumentName(_name) : ArgumentName.NewUnbound());
+            return plannedParenthood.AddOrGet(this, () => IsGround() ? new ArgumentNameVar(_name) : ArgumentNameVar.NewUnbound()) as ArgumentNameVar;
         }
 
         public int CompareTo(object obj)
         {
-            if (!(obj is ArgumentName otherName))
+            if (!(obj is ArgumentNameVar otherName))
                 throw new Exception("ArgumentName.CompareTo: obj is not ArgumentName");
             if (this.IsGround() && otherName.IsGround())
                 return String.Compare(_name, otherName._name, StringComparison.Ordinal);
             else return _argNameId.CompareTo(otherName._argNameId);
         }
 
-        public static ArgumentName NewUnbound()
+        public static ArgumentNameVar NewUnbound()
         {
-            return new ArgumentName();
+            return new ArgumentNameVar();
         }
     }
 }

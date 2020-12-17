@@ -10,75 +10,69 @@ using Enumerable = System.Linq.Enumerable;
 namespace CNP.Language
 {
 
+  /// <summary>
+  /// An unbound program variable, an observation. Immutable object.
+  /// </summary>
+  public class ObservedProgram : Program
+  {
+
+    public readonly IEnumerable<AlphaTuple> Observables;
+    public readonly Valence Domains;
     /// <summary>
-    /// An unbound program variable, an observation. Immutable object.
+    /// Decompositions-To-Live. Decreased until 0 and if it's zero then that observation
+    /// can only be replaced with an elementary predicate, because it doesn't afford any more
+    /// height to the program tree. It's used to limit the search to a maximum depth.
+    /// For example, if an OP with DTL=3 is replaced with a foldr(op1, op2), DTLs for op1 and op2 should be 2. If this value is not decreased then the search may not terminate.
     /// </summary>
-    public class ObservedProgram : Program
+    public readonly int DTL;
+
+    public ObservedProgram(IEnumerable<AlphaTuple> obsv, Valence doms, int dtl)
     {
-
-        public override int Height => 0;
-
-        public readonly IEnumerable<AlphaTuple> Observables;
-        public readonly NameModeMap Domains;
-
-        public ObservedProgram(IEnumerable<AlphaTuple> obsv, NameModeMap doms)
-        {
-            IsClosed = false;
-            Observables = obsv;
-            Domains = doms;
-        }
-
-        /// <summary>
-        /// Makes the free argument names in this OP ground by using given names. 
-        /// </summary>
-        /// TODO: Optimize
-        [SuppressMessage("ReSharper", "PossibleMultipleEnumeration")]
-        public IEnumerable<ObservedProgram> CloneToGroundDomains(NameModeMap targetDomains)
-        {
-            IEnumerable<KeyValuePair<ArgumentName,ArgumentMode>> myGroundDomains =
-                this.Domains.WhereAndNot(n => n.Key.IsGround(), out IEnumerable<KeyValuePair<ArgumentName,ArgumentMode>> myFreeDomains);
-            var targetDomsToMatch = targetDomains.Except(myGroundDomains);
-            if (targetDomains.Count() != targetDomsToMatch.Count() + myGroundDomains.Count())
-                return Iterators.Empty<ObservedProgram>();
-            if (myFreeDomains.Count() != targetDomsToMatch.Count())
-                return Iterators.Empty<ObservedProgram>();
-            var myFreeIns = myFreeDomains.Where(d => d.Value == ArgumentMode.In);
-            var myFreeOuts = myFreeDomains.Where(d => d.Value == ArgumentMode.Out);
-            var targetGroundIns = targetDomsToMatch.Where(d => d.Value == ArgumentMode.In);
-            var targetGroundOuts = targetDomsToMatch.Where(d => d.Value == ArgumentMode.Out);
-            if (myFreeIns.Count() != targetGroundIns.Count() || myFreeOuts.Count() != targetGroundOuts.Count())
-                throw new Exception("CloneToGroundDomains: Free In or Out domains on ObservedProgram doesn't match free target domains.");
-            var targetInPerms = targetGroundIns.Permutations();
-            var targetOutPerms = targetGroundOuts.Permutations();
-            var inBindings = targetInPerms.Select(gs => myFreeIns.Zip(gs, (f, g) => new KeyValuePair<Term, Term>(f.Key, g.Key)));
-            var outBindings = targetOutPerms.Select(gs => myFreeOuts.Zip(gs, (f, g) => new KeyValuePair<Term, Term>(f.Key, g.Key)));
-            var allBindings = inBindings.Cartesian(outBindings, (@is, os) => @is.Concat(os));
-            var allObservations = allBindings.Select(o => this.CloneAndReplace(new TermReferenceDictionary(o)) as ObservedProgram);
-            return allObservations;
-        }
-
-        /// <summary>
-        /// Replaces itself if it is the oldComponent.
-        /// </summary>
-        public override Program CloneAndReplace(TermReferenceDictionary plannedParenthood, ObservedProgram oldComponent=null,
-            Program newComponent=null)
-        {
-            // If this is the oldComponent they're looking for
-            if (object.ReferenceEquals(this, oldComponent))
-            {
-                return newComponent;
-            }
-            else
-            {
-                var clonedObservables = Observables.Select(o => o.Clone(plannedParenthood));
-                var clonedDomains = Domains.Clone(plannedParenthood);
-                return new ObservedProgram(clonedObservables, clonedDomains);
-            }
-        }
-
-        internal override ObservedProgram FindFirstHole()
-        {
-            return this;
-        }
+      IsClosed = false;
+      Observables = obsv;
+      Domains = doms;
+      DTL = dtl;
     }
+
+    internal override Program Clone(TermReferenceDictionary plannedParenthood)
+    {
+      var clonedObservables = Observables.Select(o => o.Clone(plannedParenthood));
+      var clonedDomains = Domains.Clone(plannedParenthood);
+      return new ObservedProgram(clonedObservables, clonedDomains, DTL);
+    }
+
+    /// <summary>
+    /// Replaces itself if it is the oldComponent.
+    /// </summary>
+    internal override Program CloneAndReplaceObservation(ObservedProgram oldComponent, Program newComponent, TermReferenceDictionary plannedParenthood)
+    {
+      // If this is the oldComponent they're looking for
+      if (object.ReferenceEquals(this, oldComponent))
+      {
+        return newComponent;
+      }
+      else
+      {
+        return this.Clone(plannedParenthood);
+      }
+    }
+
+    internal override ObservedProgram FindFirstHole()
+    {
+      return this;
+    }
+    public override int GetHeight()
+    {
+      return 0;
+    }
+    public override void SetAllRootsTo(Program newRoot)
+    {
+      Root = newRoot;
+    }
+
+    public override string ToString()
+    {
+      return this.Domains.ToString() + "/" + Observables.Count();
+    }
+  }
 }

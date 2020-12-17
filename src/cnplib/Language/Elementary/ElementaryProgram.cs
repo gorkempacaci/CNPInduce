@@ -4,24 +4,31 @@ using CNP.Helper;
 
 namespace CNP.Language
 {
-    /// <summary>
-    /// Elementary programs are always immutable.
-    /// </summary>
-    public abstract class ElementaryProgram : Program
+  public abstract class ElementaryProgram : Program
+  {
+    public ElementaryProgram()
     {
-        public ElementaryProgram()
-        {
-            IsClosed = true;
-        }
-        public override Program CloneAndReplace(TermReferenceDictionary plannedParenthood, ObservedProgram oldComponent,
-            Program newComponent)
-        {
-            return this;
-        }
-        internal override ObservedProgram FindFirstHole()
-        {
-            return null;
-        }
-        public override int Height { get => 0; }
+      IsClosed = true;
     }
+
+    internal sealed override Program CloneAndReplaceObservation(ObservedProgram oldComponent, Program newComponent, TermReferenceDictionary plannedParenthood)
+    {
+      return Clone(plannedParenthood);
+    }
+
+    internal override ObservedProgram FindFirstHole()
+    {
+      return null;
+    }
+
+    public override int GetHeight()
+    {
+      return 0;
+    }
+
+    public sealed override void SetAllRootsTo(Program newRoot)
+    {
+      Root = newRoot;
+    }
+  }
 }

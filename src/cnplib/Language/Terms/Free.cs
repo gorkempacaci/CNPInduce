@@ -1,55 +1,28 @@
 ﻿using System;
 using System.Collections.Generic;
 using CNP.Helper;
+using CNP.Helper.EagerLinq;
 
 namespace CNP.Language
 {
-    public interface IFreeContainer
-    {
-        void SubstituteFreeInPlace(Free oldTerm, Term newTerm);
-        IFreeContainer Clone(TermReferenceDictionary plannedParenthood);
-    }
     public class Free : Term
     {
         /// <summary>
         /// For printing variable ids
         /// </summary>
         private static int idCounter;
-        private readonly int id = idCounter++;
-
-        public bool IsFree => true;
-
-        private HashSet<IFreeContainer> immediateContainers = new HashSet<IFreeContainer>(ReferenceEqualityComparer<IFreeContainer>.Instance);
-
+        private readonly int id = System.Threading.Interlocked.Increment(ref idCounter);
         /// <summary>
-        /// Parameter is an immediate container of this Free. It could be a list term, for example container=[1,2,Free] or
-        /// an AlphaTuple.
+        /// The contexts this Free appears in. 
         /// </summary>
-        public void RegisterContainer(IFreeContainer container)
-        {
-            if (!immediateContainers.Contains(container))
-            {
-                this.immediateContainers.Add(container);
-            }
-        }
+        private List<IFreeContext> contexts = new();
 
-        public void SubstituteInContainers(Term newTerm)
-        {
-            foreach (IFreeContainer c in immediateContainers)
-            {
-                c.SubstituteFreeInPlace(this, newTerm);
-            }
-        }
 
-        public override bool IsGround()
-        {
-            return false;
-        }
+        public override bool IsGround() => false;
 
         public override Term Clone(TermReferenceDictionary plannedParenthood)
         {
-            Term newMe;
-            if (!plannedParenthood.TryGetValue(this, out newMe))
+            if (!plannedParenthood.TryGetValue(this, out Term newMe))
             {
                 newMe = new Free();
                 plannedParenthood.Add(this, newMe);
@@ -63,5 +36,25 @@ namespace CNP.Language
         {
             return "_" + id.ToString();
         }
+
+        /// <summary>
+        /// Adds a context the free appears in. For example, if Free X, and a Tuple {a:X, b:[X, [1, 2, X]]}, then X has three contexts, one tuple, and two lists (one through the head one through the tail)
+        /// </summary>
+        /// <param name="c"></param>
+        public void AddAContext(IFreeContext c)
+        {
+            if (!this.contexts.Any(co => object.ReferenceEquals(co, c)))
+                this.contexts.Add(c);
+        }
+
+        /// <summary>
+        /// Replaces this Free in all the contexts it appears in, with the given term. After this this Free should be disposable.
+        /// </summary>
+        public void ReplaceInAllContexts(Term t)
+        {
+            foreach (IFreeContext c in contexts)
+                c.ReplaceAllInstances(this, t);
+        }
     }
+
 }

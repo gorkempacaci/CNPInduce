@@ -2,40 +2,48 @@
 using System.Collections.Generic;
 using System.Net.Http;
 using CNP.Helper.EagerLinq;
-using  CNP.Helper;
+using CNP.Helper;
 
 namespace CNP.Language
 {
 
-    public class Cons : ElementaryProgram
-    {
-        private Cons() { }
-
-        public override string ToString()
-        {
-            return "cons";
-        }
-
-        private static readonly TypeStore<ProgramType> valences = TypeHelper.ParseCompactProgramTypes(new[]
-        {
+  public class Cons : ElementaryProgram
+  {
+    private static readonly TypeStore<ProgramType> valences = TypeHelper.ParseCompactProgramTypes(new[] {
             "{a:in, b:in, ab:*}",
-            "{a:*, b:*, ab:in}"
-        });
-        
-        public static readonly Cons ConsProgram = new Cons();
-        public static IEnumerable<Cons> FromObservation(ObservedProgram op)
-        {
-            if (!valences.TryGetValue(op.Domains, out _))
-                return Iterators.Empty<Cons>();
-            if (!op.Domains.Names.Contains(new ArgumentName("ab")))
-            {
-                throw null;
-            }
-            if (op.Observables.All(at => Term.UnifyInPlace(at["ab"], new TermList(at["a"], at["b"]))))
-                return Iterators.Singleton(ConsProgram);
-            else return Iterators.Empty<Cons>();
-        }
+            "{a:*, b:*, ab:in}"});
 
+    private Cons() { }
+
+    public override string ToString()
+    {
+      return "cons";
     }
+
+    internal override Program Clone(TermReferenceDictionary plannedParenthood)
+    {
+      return this;
+    }
+
+    public static readonly Cons ConsProgram = new Cons();
+    /// <summary>
+    /// Does not modify the given program, returns alternative cloned programs if they exist.
+    /// </summary>
+    public static IEnumerable<Program> CreateAtFirstHole(Program rootProgram)
+    {
+      Program p = rootProgram.Clone();
+      ObservedProgram obs = p.FindFirstHole();
+      if (!valences.FindCompatibleTypes(obs.Domains).Any())
+        return Iterators.Empty<Cons>();
+      if (!obs.Domains.Names.Contains(new ArgumentNameVar("ab")))
+      {
+        throw new InvalidOperationException();
+      }
+      if (obs.Observables.All(at => Term.UnifyInPlace(at["ab"], new TermList(at["a"], at["b"]))))
+        return Iterators.Singleton(p.CloneAndReplaceObservation(obs, ConsProgram));
+      else return Iterators.Empty<Program>();
+    }
+
+  }
 
 }

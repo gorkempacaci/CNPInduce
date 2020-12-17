@@ -1,57 +1,39 @@
 namespace CNP.Language
 {
-    public abstract class FoldType : ComposedType
+  public class FoldType : ComposedType
+  {
+    public readonly Valence RecursiveComponentDomains;
+    public readonly Valence BaseComponentDomains;
+
+    public FoldType(Valence recDoms, Valence baseDoms, Valence doms) : base(doms)
     {
-        public readonly NameModeMap RecursiveComponentDomains;
-        public readonly NameModeMap BaseComponentDomains;
-        public abstract string ANameInitial { get; }
-        public abstract string ANameList { get; } 
-        public abstract string ANameFolded { get; }
-        public FoldType(NameModeMap recDoms, NameModeMap baseDoms, NameModeMap doms) : base(doms)
-        {
-            RecursiveComponentDomains = recDoms;
-            BaseComponentDomains = baseDoms;
-        }
-
-        public override bool IsGround()
-        {
-            return base.IsGround() && RecursiveComponentDomains.IsGround() && BaseComponentDomains.IsGround();
-        }
-
-        public override bool Equals(object obj)
-        {
-            if (!(obj is FoldType other))
-                return false;
-            return Domains.Equals(other.Domains) &&
-                   RecursiveComponentDomains.Equals(other.RecursiveComponentDomains) &&
-                   BaseComponentDomains.Equals(other.BaseComponentDomains);
-        }
-
-        public override int GetHashCode()
-        {
-            return base.GetHashCode();
-        }
+      RecursiveComponentDomains = recDoms;
+      BaseComponentDomains = baseDoms;
     }
 
-    public class FoldRType : FoldType
+    public override bool IsGround()
     {
-        public override string ANameInitial { get; } = "b0";
-        public override string ANameList { get; } = "as";
-        public override string ANameFolded { get; } = "b";
+      return Domains.IsGround() && RecursiveComponentDomains.IsGround() && BaseComponentDomains.IsGround();
+    }
 
-        public FoldRType(NameModeMap recDoms, NameModeMap baseDoms, NameModeMap doms) : base(recDoms, baseDoms, doms)
-        {
-        }
-    }
-    
-    public class FoldLType : FoldType
+    public override bool Equals(object obj)
     {
-        public override string ANameInitial { get; } = "a0";
-        public override string ANameList { get; } = "bs";
-        public override string ANameFolded { get; } = "a";
-        
-        public FoldLType(NameModeMap recDoms, NameModeMap baseDoms, NameModeMap doms) : base(recDoms, baseDoms, doms)
-        {
-        }
+      if (!(obj is FoldType other))
+        return false;
+      return Domains.Equals(other.Domains) &&
+             RecursiveComponentDomains.Equals(other.RecursiveComponentDomains) &&
+             BaseComponentDomains.Equals(other.BaseComponentDomains);
     }
+
+    public override int GetHashCode()
+    {
+      return Domains.GetHashCode();
+    }
+
+    public override string ToString()
+    {
+      return RecursiveComponentDomains.ToString() + "->" + BaseComponentDomains.ToString() + "->" + Domains.ToString();
+    }
+  }
+
 }

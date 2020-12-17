@@ -1,15 +1,24 @@
-== Bugs
-- When an observedprogram is cloned, there are frees it shares with the other observedprograms in the previous tree. during cloning of the whole program wrt an observedprogram, these connections are broken? 
+== To be discussed
+- both fold's own, recursive and base parameters' names are ground and arbitrary. maybe it's possible to derive these names or make them dynamic by inferring which argument is bound to what using their types? This may apply to CNP language in general by removing argument name mechanics if types are specific enough. 
+- Hamfelt Nilsson folds are unfamiliar to functional programmers, maybe add some akin to those in FP?
 
-== Code Quality
-- Merge FoldR and FoldL reverse semantics into one reducing redundant code.
+== Bugs
+
+
+== Improvements
+- Importing from job files like the CNP that shipped with RICE. Maybe use JSON files instead.
+- Extensibility. Besides the CNP.CoreLanguage package (id, cons, const, and, or, foldr, foldl, map) there may be a CNP.Numerics or CNP.Math as well as CNP.Geometry (for avionics stuff). When running a job you can run the full suite by default, or choose only some for efficiency (Job.SetSearchOptions(CNP.CoreLanguage | CNP.Math) or something like that). This might require some packaging system decisions. Moreover we can allow the client to add their operators by giving a type that inherits from CNP.Program and a type for the reverse semantics (or a static method like we currently have).
+- AND operator: Constraint on ObservableProgram to be different than another program. Useful for and(P, Q). P dif Q is a requirement for efficiency. Once P is bound to, p, Q will be changed to be different to p. When grounding Q, if the new operator is different than p, the constraint is abandoned. if it's same as p, constrained is inherited to Q's arguments as P.i diff to Q.i for all arguments i. Custom constraints like this should possible to add easily without breaking core synthesis. Maybe a Program node has a Constraints list that is manipulated during search and ultimately required to be empty for program to be accepted.
+- Constraint for the proj operator to be not repeated.
 
 == TidyUp
-- Would a FreeContext reduce variable mistreatment bugs in the future? An AlphaTuple would have a FreeContext, 
+- foldr and foldl Qs names, and id's names should be {a, a'}, or {e1, e2}, not {a, b} because their types are the same.
+- Would a context reduce variable mistreatment bugs in the future? An AlphaTuple would have a FreeContext, 
   and if other AlphaTuples want to share its context they'd need to be created through its method
-  .InSameContext((name, value),...,(mame,value)) : AlphaTuple
+  .InSameContext((name, value),...,(mame,value)) : AlphaTuple.
+  The same context would apply to program components, so that you can't mix and match program components with different contexts. For example it'd be a problem with CloneAndReplace if the new component is from a different context.
 - Collate observables in test results into a single row in table.
 - Test results measurements last one should be in main directory. Also in a historical Json data file.
 
 == Optimization
-- Typestore can use multiple indexes at the cost of memory and initialization time. It already indexes by the number of ins and outs, but it could also index by each combination of ground argument names. 
+- Typestore can use multiple indexes at the cost of memory and initialization time. It already indexes by the number of ins and outs, but it could also index by each combination of ground argument names.

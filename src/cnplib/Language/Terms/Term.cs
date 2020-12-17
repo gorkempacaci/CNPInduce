@@ -11,15 +11,20 @@ namespace CNP.Language
     /// </summary>
     public abstract class Term
     {
+        /// <summary>
+        /// Clones the whole term while preserving Free references correctly. For example, a list such as [1, 2, X, 4, X, Y] is cloned to [1, 2, A, 4, A, B].
+        /// </summary>
+        /// <param name="plannedParenthood">Accumulated mapping of Free instances and the new Free references they are replaced with.</param>
+        /// <returns></returns>
         public abstract Term Clone(TermReferenceDictionary plannedParenthood);
 
         /// <summary>
-        /// Returns true if other occurs in this term.
+        /// Returns true if Free occurs in this term.
         /// </summary>
         public abstract bool Contains(Free other);
 
         /// <summary>
-        /// The term has no frees.
+        /// The term has no Free s.
         /// </summary>
         public abstract bool IsGround();
 
@@ -44,7 +49,7 @@ namespace CNP.Language
                 {
                     return true;
                 } else {
-                    aFree.SubstituteInContainers(b);
+                    aFree.ReplaceInAllContexts(b);
                     return true;
                 }
             }
@@ -52,7 +57,7 @@ namespace CNP.Language
             {
                 if (b is Free bFree)
                 {
-                    bFree.SubstituteInContainers(a);
+                    bFree.ReplaceInAllContexts(a);
                     return true;
                 }
                 else if (b is ConstantTerm bConst)
@@ -75,7 +80,7 @@ namespace CNP.Language
                     }
                     else
                     {
-                        bFree.SubstituteInContainers(a);
+                        bFree.ReplaceInAllContexts(a);
                         return true;
                     }
                 }
@@ -104,7 +109,7 @@ namespace CNP.Language
                     return true;
                 else if (b is Free bFree)
                 {
-                    bFree.SubstituteInContainers(a);
+                    bFree.ReplaceInAllContexts(a);
                     return true;
                 }
                 else

@@ -9,9 +9,9 @@ namespace CNP.Language
     
     public class ProgramType
     {
-        public NameModeMap Domains;
+        public Valence Domains;
 
-        public ProgramType(NameModeMap domains)
+        public ProgramType(Valence domains)
         {
             Domains = domains;
         }
@@ -23,7 +23,7 @@ namespace CNP.Language
 
         public override bool Equals(object obj)
         {
-            if (obj is ProgramType other)
+            if (obj is ProgramType other && obj is not ComposedType)
                 return Domains.Equals(other.Domains);
             else return false;
         }
