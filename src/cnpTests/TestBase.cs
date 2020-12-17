@@ -66,7 +66,7 @@ public class TestBase
         IEnumerable<AlphaTuple> atus = Parser.ParseAlphaTupleSet(atusStr);
         SynthesisJob job = new SynthesisJob(atus, namesModes);
         var programs = job.FindAllPrograms();
-        Assert.AreEqual(0, programs.Count(), "A program should not be found.");
+        Assert.AreEqual(0, programs.Count(), "A program should not have been found.");
     }
 
     private static IEnumerable<Free> freesIn(Term t)

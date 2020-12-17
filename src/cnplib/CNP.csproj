@@ -6,12 +6,9 @@
 
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <LangVersion>9.0</LangVersion>
-    <PlatformTarget>AnyCPU</PlatformTarget>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <LangVersion>7.0</LangVersion>
-    <NoStdLib>true</NoStdLib>
-    <LangVersion>7.0</LangVersion>
+    <LangVersion>9.0</LangVersion>
     <NoStdLib>true</NoStdLib>
   </PropertyGroup>
   <ItemGroup>
@@ -21,6 +18,8 @@
     <Folder Include="Language\Terms\" />
     <Folder Include="Language\Operators\" />
     <Folder Include="Language\Elementary\" />
+    <Folder Include="Language\MetaTerms\" />
+    <Folder Include="Language\Terms\Meta\" />
   </ItemGroup>
   <ItemGroup>
     <Compile Remove="Helper\ReferenceEqualityComparer.cs" />
