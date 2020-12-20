@@ -1,6 +1,7 @@
 == To be discussed
 - both fold's own, recursive and base parameters' names are ground and arbitrary. maybe it's possible to derive these names or make them dynamic by inferring which argument is bound to what using their types? This may apply to CNP language in general by removing argument name mechanics if types are specific enough. 
 - Hamfelt Nilsson folds are unfamiliar to functional programmers, maybe add some akin to those in FP?
+- The search always works with the first hole, searching top-down. If the first hole can't be filled, it disposes of the search node. How does this affect the search exhaustiveness? Maybe it should try each hole in a separate search path.
 
 == Bugs
 
@@ -22,3 +23,4 @@
 
 == Optimization
 - Typestore can use multiple indexes at the cost of memory and initialization time. It already indexes by the number of ins and outs, but it could also index by each combination of ground argument names.
+- Search is branching for each valence, for example P{a:in, b:out} and P{a:in, b:in}. Sub-searches for each of these may have overlap. 

@@ -35,7 +35,7 @@ namespace CNP.Language
       ObservedProgram obs = p.FindFirstHole();
       if (!valences.FindCompatibleTypes(obs.Domains).Any())
         return Iterators.Empty<Cons>();
-      if (!obs.Domains.Names.Contains(new ArgumentNameVar("ab")))
+      if (!obs.Domains.Names.Contains(new NameVar("ab")))
       {
         throw new InvalidOperationException();
       }

@@ -73,10 +73,10 @@ namespace CNP.Parsing
 
         static Valence ReadNameModeMap(IEnumerator<Lexem> it)
         {
-            List<KeyValuePair<string, ArgumentMode>> nameModePairs = new List<KeyValuePair<string, ArgumentMode>>();
+            List<KeyValuePair<string, Mode>> nameModePairs = new List<KeyValuePair<string, Mode>>();
             GetType(it, TokenType.MustacheOpen);
             Move(it);
-            while (ReadNameMode(it, out KeyValuePair<string, ArgumentMode> nameMode))
+            while (ReadNameMode(it, out KeyValuePair<string, Mode> nameMode))
             {
                 nameModePairs.Add(nameMode);
                 Move(it);
@@ -120,10 +120,10 @@ namespace CNP.Parsing
         }
         static bool ReadAlphaTuple(IEnumerator<Lexem> it, NamedVariables frees, out AlphaTuple at)
         {
-            List<KeyValuePair<ArgumentNameVar, Term>> namedTerms = new List<KeyValuePair<ArgumentNameVar, Term>>();
+            List<KeyValuePair<NameVar, Term>> namedTerms = new List<KeyValuePair<NameVar, Term>>();
             GetType(it, TokenType.MustacheOpen);
             Move(it);
-            while (ReadNameTerm(it, frees, out KeyValuePair<ArgumentNameVar, Term> nameTerm))
+            while (ReadNameTerm(it, frees, out KeyValuePair<NameVar, Term> nameTerm))
             {
                 namedTerms.Add(nameTerm);
                 Move(it);
@@ -141,24 +141,24 @@ namespace CNP.Parsing
             at = null;
             return false;
         }
-        static bool ReadNameMode(IEnumerator<Lexem> it, out KeyValuePair<string, ArgumentMode> nameMode)
+        static bool ReadNameMode(IEnumerator<Lexem> it, out KeyValuePair<string, Mode> nameMode)
         {
             string name = GetContent(it, TokenType.Identifier, "A name:mode pair should start with an identifier.");
             Move(it);
             string colon = GetContent(it, TokenType.Colon, "A name:mode pair is missing a colon(:)");
             Move(it);
-            ArgumentMode mode = GetMode(it);
-            nameMode = new KeyValuePair<string, ArgumentMode>(name, mode);
+            Mode mode = GetMode(it);
+            nameMode = new KeyValuePair<string, Mode>(name, mode);
             return true;
         }
-        static bool ReadNameTerm(IEnumerator<Lexem> it, NamedVariables frees, out KeyValuePair<ArgumentNameVar, Term> nameTerm)
+        static bool ReadNameTerm(IEnumerator<Lexem> it, NamedVariables frees, out KeyValuePair<NameVar, Term> nameTerm)
         {
             string name = GetContent(it, TokenType.Identifier, "A name:term pair should start with an identifier.");
             Move(it);
             string colon = GetContent(it, TokenType.Colon, "A name:term pair is missing a colon(:)");
             Move(it);
             Term term = ReadTerm(it, frees);
-            nameTerm = new KeyValuePair<ArgumentNameVar, Term>(new ArgumentNameVar(name), term);
+            nameTerm = new KeyValuePair<NameVar, Term>(new NameVar(name), term);
             return true;
         }
         static Term ReadTerm(IEnumerator<Lexem> it, NamedVariables frees)
@@ -246,14 +246,14 @@ namespace CNP.Parsing
                 throw new ParserException("Expecting content", it.Current);
             }
         }
-        public static ArgumentMode GetMode(IEnumerator<Lexem> it)
+        public static Mode GetMode(IEnumerator<Lexem> it)
         {
             string modeString = GetContent(it, TokenType.Identifier, "A name:mode pair is missing a mode.");
             modeString = modeString.Trim();
             if (modeString == "in")
-                return ArgumentMode.In;
+                return Mode.In;
             else if (modeString == "out")
-                return ArgumentMode.Out;
+                return Mode.Out;
             else throw new ParserException("Unrecognized argument mode:" + modeString, it.Current);
         }
     }

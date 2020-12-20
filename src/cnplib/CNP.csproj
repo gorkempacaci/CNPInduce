@@ -2,12 +2,6 @@
 
   <PropertyGroup>
     <TargetFramework>net5.0</TargetFramework>
-  </PropertyGroup>
-
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <LangVersion>9.0</LangVersion>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <LangVersion>9.0</LangVersion>
     <NoStdLib>true</NoStdLib>
   </PropertyGroup>
@@ -18,7 +12,6 @@
     <Folder Include="Language\Terms\" />
     <Folder Include="Language\Operators\" />
     <Folder Include="Language\Elementary\" />
-    <Folder Include="Language\MetaTerms\" />
     <Folder Include="Language\Terms\Meta\" />
   </ItemGroup>
   <ItemGroup>

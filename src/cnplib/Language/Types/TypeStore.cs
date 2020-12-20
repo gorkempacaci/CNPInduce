@@ -12,7 +12,7 @@ namespace CNP.Language
     public class TypeStore<TType> where TType:ProgramType
     {
         /// <summary>
-        /// Maps mode numbers to list of types (optimization).
+        /// Maps mode numbers to lists of types (for optimization).
         /// </summary>
         private Dictionary<int, IEnumerable<TType>> typeLists;
 

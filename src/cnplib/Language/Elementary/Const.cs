@@ -8,11 +8,11 @@ namespace CNP.Language
   //TODO: if straight semantics are implemented, const(a, 5) should unify with proj(a, id), or any tuple that has {a:5}.
   public class Const : ElementaryProgram
   {
-    public ArgumentNameVar ArgumentName { get; private set; }
+    public NameVar ArgumentName { get; private set; }
     public Term Value { get; private set; }
 
 
-    public Const(ArgumentNameVar argName, Term groundTerm)
+    public Const(NameVar argName, Term groundTerm)
     {
       if (!groundTerm.IsGround())
       {
@@ -25,7 +25,7 @@ namespace CNP.Language
 
     internal override Program Clone(TermReferenceDictionary plannedParenthood)
     {
-      return new Const(ArgumentName.Clone(plannedParenthood) as ArgumentNameVar, Value.Clone(plannedParenthood));
+      return new Const(ArgumentName.Clone(plannedParenthood) as NameVar, Value.Clone(plannedParenthood));
     }
 
     public override bool Equals(object obj)
@@ -57,7 +57,7 @@ namespace CNP.Language
       if (obs.Domains.Count() != 1)
         return Iterators.Empty<Const>();
       Free candidateConstant = new Free();
-      ArgumentNameVar argName = obs.Domains.Names.First();
+      NameVar argName = obs.Domains.Names.First();
       var allTups = Enumerable.ToList(obs.Observables);
       int count = allTups.Count();
       for (int i = 1; i < count; i++)
