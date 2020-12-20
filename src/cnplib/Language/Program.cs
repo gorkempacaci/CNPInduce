@@ -29,7 +29,7 @@ namespace CNP.Language
     }
 
     /// <summary>
-    /// true only if a program tree does not have any program variables (instances of ObservedProgram) in it. A program may be closed and still have some ArgumentNameVar instances free. (some domain names not ground).
+    /// true only if a program tree does not have any program variables (instances of ObservedProgram) in it. A program may be closed and still have some NameVar instances free. (some domain names not ground).
     /// </summary>
     public bool IsClosed { get; protected set; }
 

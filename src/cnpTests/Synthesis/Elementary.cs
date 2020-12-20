@@ -46,7 +46,7 @@ namespace Synthesis
     public void ConstPositive(string typeStr, string atusStr, string argName, string constValueStr)
     {
       Term grTerm = Parser.ParseTerm(constValueStr);
-      assertSingleResultFor(typeStr, atusStr, new Const(new ArgumentNameVar(argName), grTerm), "const");
+      assertSingleResultFor(typeStr, atusStr, new Const(new NameVar(argName), grTerm), "const");
     }
 
     [DataTestMethod]
