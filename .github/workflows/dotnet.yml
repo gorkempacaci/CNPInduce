@@ -22,4 +22,4 @@ jobs:
     - name: Build
       run: dotnet build ./src/cnp.sln --configuration Release
     - name: Test
-      run: dotnet test ./src/cnp.sln --no-build --verbosity normal
+      run: dotnet test ./src/cnp.sln --verbosity normal
