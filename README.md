@@ -1,4 +1,9 @@
-﻿
+﻿# TCNP
+
+CNP synthesizer implemented in C#.
+- Object-level mutable unification for efficiency
+- Paralellizable on a single machine with multi-threading
+- Types for predicates (not implemented yet besides well-modedness)
 
 ## Definitions
 
