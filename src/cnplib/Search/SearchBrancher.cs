@@ -26,26 +26,34 @@ namespace CNP.Search
     }
     public void Start()
     {
-      try
+
+      while (!stopRequested)
       {
-        while (!stopRequested)
+        IEnumerable<Program> alternates = CNP.Helper.Iterators.Empty<Program>();
+        Action<IEnumerable<Program>> queueBack = null;
+        try
         {
-          if (queue.TryTake(out Program open, out Action<IEnumerable<Program>> give))
+          if (queue.TryTake(out Program open, out queueBack))
           {
-            IEnumerable<Program> alternates = AlternateOnFirstHole(open, ref queue.SearchedProgramsCount);
+            alternates = AlternateOnFirstHole(open, ref queue.SearchedProgramsCount);
             // if there are no alternatives produced, the open program disappears from search space.
-            give(alternates);
           }
           else
           {
             Thread.Sleep(50);
           }
         }
+        catch (InvalidOperationException)
+        {
+          Stop();
+        }
+        finally
+        {
+          if (queueBack != null)
+            queueBack(alternates);
+        }
       }
-      catch (InvalidOperationException)
-      {
-        Stop();
-      }
+
     }
     /// <summary>
     /// Takes an open program, finds the first whole, and returns clones of the program where the whole is filled with different alternatives.
@@ -59,7 +67,8 @@ namespace CNP.Search
                 Cons.CreateAtFirstHole,
                 Const.CreateAtFirstHole,
                 FoldR.CreateAtFirstHole,
-                FoldL.CreateAtFirstHole
+                FoldL.CreateAtFirstHole,
+                Proj.CreateAtFirstHole
       };
       foreach (var filler in fillers)
       {

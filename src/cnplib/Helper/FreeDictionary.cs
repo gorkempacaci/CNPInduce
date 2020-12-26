@@ -4,7 +4,10 @@ using CNP.Language;
 
 namespace CNP.Helper
 {
-    public class NamedVariables : Dictionary<string, Free>
+  /// <summary>
+  /// Maintains a mapping of variable names and the Frees they're representing, mostly for parsing purposes.
+  /// </summary>
+    public class FreeDictionary : Dictionary<string, Free>
     {
         public Free GetOrAdd(string variableName)
         {

@@ -17,7 +17,7 @@ namespace CNP.Language
   {
 
     public readonly IEnumerable<AlphaTuple> Observables;
-    public readonly Valence Domains;
+    public readonly Valence Valence;
     /// <summary>
     /// Decompositions-To-Live. Decreased until 0 and if it's zero then that observation
     /// can only be replaced with an elementary predicate, because it doesn't afford any more
@@ -26,18 +26,31 @@ namespace CNP.Language
     /// </summary>
     public readonly int DTL;
 
-    public ObservedProgram(IEnumerable<AlphaTuple> obsv, Valence doms, int dtl)
+    public ObservedProgram(IEnumerable<AlphaTuple> obsv, Valence vlnc, int dtl) : base(false)
     {
-      IsClosed = false;
       Observables = obsv;
-      Domains = doms;
+      Valence = vlnc;
       DTL = dtl;
+#if DEBUG // check that the valence matches the domains on the tuples
+      foreach(var o in Observables)
+      {
+        if (!o.DomainNames.OrderBy(d=>d.Name).SequenceEqual(Valence.Keys.OrderBy(d=>d.Name), ReferenceEqualityComparer.Instance))
+          throw new ArgumentException("Observation: domain names and tuple domain names don't match. ");
+      }
+#endif
     }
 
     internal override Program Clone(TermReferenceDictionary plannedParenthood)
     {
-      var clonedObservables = Observables.Select(o => o.Clone(plannedParenthood));
-      var clonedDomains = Domains.Clone(plannedParenthood);
+      List<AlphaTuple> clonedObservables = new();
+      foreach(AlphaTuple at in Observables)
+      {
+        AlphaTuple net = at.Clone(plannedParenthood);
+        clonedObservables.Add(net);
+      }
+      Valence clonedDomains = Valence.Clone(plannedParenthood);
+      //var clonedObservables = Observables.Select(o => o.Clone(plannedParenthood));
+      //var clonedDomains = Valence.Clone(plannedParenthood);
       return new ObservedProgram(clonedObservables, clonedDomains, DTL);
     }
 
@@ -72,7 +85,7 @@ namespace CNP.Language
 
     public override string ToString()
     {
-      return this.Domains.ToString() + "/" + Observables.Count();
+      return this.Valence.ToString() + "#" + Observables.Count() + "/TL=" + DTL;
     }
   }
 }

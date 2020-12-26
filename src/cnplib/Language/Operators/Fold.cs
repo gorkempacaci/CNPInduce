@@ -4,6 +4,7 @@ using System.Reflection;
 using CNP.Parsing;
 using CNP.Helper;
 using CNP.Helper.EagerLinq;
+using Helper;
 
 namespace CNP.Language
 {
@@ -13,9 +14,8 @@ namespace CNP.Language
     public Program Base { get; private set; }
     public Program Recursive { get; private set; }
 
-    public Fold(Program recursiveCase, Program baseCase)
+    public Fold(Program recursiveCase, Program baseCase) : base(baseCase.IsClosed && recursiveCase.IsClosed)
     {
-      IsClosed = baseCase.IsClosed && recursiveCase.IsClosed;
       Base = baseCase;
       Recursive = recursiveCase;
     }
@@ -47,23 +47,26 @@ namespace CNP.Language
       Base.SetAllRootsTo(newRoot);
     }
 
-    protected static IEnumerable<Program> CreateAtFirstHole(Program rootProgram, TypeStore<FoldType> valences, Func<Program, Program, Fold> foldFactoryMethod, Func<Term, Term, Term, List<AlphaTuple>, List<AlphaTuple>, bool> unfold)
+    protected static IEnumerable<Program> CreateAtFirstHole(Program rootProgram, TypeStore<FoldType> valences, Func<Program, Program, Fold> foldFactoryMethod, Func<Term, Term, Term, List<AlphaTuple>, NameVarDictionary, List<AlphaTuple>, NameVarDictionary, bool> unfold)
     {
       rootProgram = rootProgram.Clone();
       ObservedProgram obs = rootProgram.FindFirstHole();
       if (obs.DTL == 0)
         return Iterators.Empty<Program>();
-      IEnumerable<FoldType> foldTypes = valences.FindCompatibleTypes(obs.Domains);
+      IEnumerable<FoldType> foldTypes = valences.FindCompatibleTypes(obs.Valence);
       if (!foldTypes.Any())
         return Iterators.Empty<Program>();
-      // decompose into p and q examples
-      List<AlphaTuple> pExamples = new(), qExamples = new();
-      foreach (AlphaTuple at in obs.Observables)
-        if (false == unfold(at["b0"], at["as"], at["b"], pExamples, qExamples))
-          return Iterators.Empty<Program>(); // if even one of the observations doesn't unfold, this is not a fold.
+
       var newRootPrograms = new List<Program>();
       foreach (var fpq in foldTypes)
       {
+        // decompose into p and q examples
+        List<AlphaTuple> pExamples = new(), qExamples = new();
+        NameVarDictionary pNames = new(fpq.RecursiveComponentDomains.Keys); // initialize with existing names
+        NameVarDictionary qNames = new(fpq.BaseComponentDomains.Keys);
+        foreach (AlphaTuple at in obs.Observables)
+          if (false == unfold(at["b0"], at["as"], at["b"], pExamples, pNames, qExamples, qNames))
+            return Iterators.Empty<Program>(); // if even one of the observations doesn't unfold, this is not a fold.
         var pp = new TermReferenceDictionary(); // a fresh cloning map from old root to new context
         var pEx = pExamples.Select(e => e.Clone(pp)); // clone examples
         var qEx = qExamples.Select(e => e.Clone(pp));

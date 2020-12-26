@@ -9,7 +9,7 @@ namespace CNP.Language
   public class NameVar : Term, IComparable
   {
     private string _name;
-    private readonly int _argNameId = System.Threading.Interlocked.Increment(ref _argNameCounter);
+    public readonly int _argNameId = System.Threading.Interlocked.Increment(ref _argNameCounter);
     private static int _argNameCounter = 0;
 
 
@@ -49,7 +49,11 @@ namespace CNP.Language
     /// </summary>
     public override bool Equals(object obj)
     {
-      if (!(obj is NameVar other))
+      if (obj is string sName && this.IsGround())
+      {
+        return sName == _name;
+      }
+      else if (!(obj is NameVar other))
       {
         return false;
       }
@@ -64,10 +68,7 @@ namespace CNP.Language
       else return false;
     }
 
-    public override int GetHashCode()
-    {
-      return IsGround() ? Name.GetHashCode() : 0;
-    }
+    public override int GetHashCode() => Name.GetHashCode();
 
     public override string ToString()
     {
@@ -76,7 +77,9 @@ namespace CNP.Language
 
     public override NameVar Clone(TermReferenceDictionary plannedParenthood)
     {
-      return plannedParenthood.AddOrGet(this, () => IsGround() ? new NameVar(_name) : NameVar.NewUnbound()) as NameVar;
+      if (IsGround())
+        return plannedParenthood.GetOrAdd(this, () => new NameVar(_name)) as NameVar;
+      else return plannedParenthood.GetOrAdd(this, () => NameVar.NewUnbound()) as NameVar;
     }
 
     public int CompareTo(object obj)

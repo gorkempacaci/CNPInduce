@@ -5,13 +5,14 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using CNP.Helper;
 using CNP.Helper.EagerLinq;
+using Helper;
 
 namespace CNP.Language
 {
   public class FoldR : Fold
   {
     private static TypeStore<FoldType> valences =
-        TypeHelper.ParseCompactOperatorTypes<FoldType>(
+        TypeHelper.ParseListOfCompactedComposedTypes<FoldType>(
             new[]
             {       // valence for P -> valence for Q -> valence for foldr(P,Q)
                     "{a:*, b:*, ab:out} -> {a:*, b:out} -> {b0:in, as:in, b:out}",
@@ -67,17 +68,20 @@ namespace CNP.Language
            foldr(Y, [], Z) :- Q(Y, Z).
            foldr(Y, [X|T], W) :- foldr(Y, T, Z), P(X, Z, W).
      */
-    static bool unfoldFoldrToPQ(Term b0, Term @as, Term b, List<AlphaTuple> atusP, List<AlphaTuple> atusQ)
+    static bool unfoldFoldrToPQ(Term b0, Term @as, Term b, List<AlphaTuple> atusP, NameVarDictionary pNameDict, List<AlphaTuple> atusQ, NameVarDictionary qNameDict)
     {
       if (@as is TermList li)
       {
         Free f = new();
-        atusP.Add(new AlphaTuple(("a", li.Head), ("b",f), ("ab",b)));
-        return unfoldFoldrToPQ(b0, li.Tail, f, atusP, atusQ);
+        atusP.Add(new AlphaTuple((pNameDict.GetOrAdd("a"), li.Head),
+                                 (pNameDict.GetOrAdd("b"),f),
+                                 (pNameDict.GetOrAdd("ab"),b)));
+        return unfoldFoldrToPQ(b0, li.Tail, f, atusP, pNameDict, atusQ, qNameDict);
       }
       else if (@as is NilTerm)
       {
-        atusQ.Add(new AlphaTuple(("a", b0), ("b",b)));
+        atusQ.Add(new AlphaTuple((qNameDict.GetOrAdd("a"), b0),
+                                 (qNameDict.GetOrAdd("b"),b)));
         return true;
       }
       else return false;

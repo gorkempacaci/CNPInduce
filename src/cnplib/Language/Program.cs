@@ -13,6 +13,15 @@ namespace CNP.Language
     private Program root;
 
     /// <summary>
+    /// Closed if this program is not, and does not contain, and observation.
+    /// </summary>
+    public Program(bool closed)
+    {
+      IsClosed = closed;
+      root = this;
+    }
+
+    /// <summary>
     /// If Root=this, then this is the root program for a program tree. If this
     /// program object is not the root of the tree, it won't clone, as that may
     /// break variable bindings.
@@ -23,15 +32,10 @@ namespace CNP.Language
       protected set => root = value ?? this;
     }
 
-    public Program()
-    {
-      root = this;
-    }
-
     /// <summary>
     /// true only if a program tree does not have any program variables (instances of ObservedProgram) in it. A program may be closed and still have some NameVar instances free. (some domain names not ground).
     /// </summary>
-    public bool IsClosed { get; protected set; }
+    public bool IsClosed { get; private set; }
 
 
     /// <summary>
@@ -90,7 +94,7 @@ namespace CNP.Language
     public abstract void SetAllRootsTo(Program newRoot);
 
     /// <summary>
-    /// Returns the first non-ground program (ObservedProgram) in the subtree, first as in in-order, LNR search.
+    /// Returns the first ObservedProgram in the subtree, first as in in-order, LNR search.
     /// If there is no hole, returns null.
     /// </summary>
     internal abstract ObservedProgram FindFirstHole();

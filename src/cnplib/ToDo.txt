@@ -11,7 +11,8 @@
 - Extensibility. Besides the CNP.CoreLanguage package (id, cons, const, and, or, foldr, foldl, map) there may be a CNP.Numerics or CNP.Math as well as CNP.Geometry (for avionics stuff). When running a job you can run the full suite by default, or choose only some for efficiency (Job.SetSearchOptions(CNP.CoreLanguage | CNP.Math) or something like that). This might require some packaging system decisions. Moreover we can allow the client to add their operators by giving a type that inherits from CNP.Program and a type for the reverse semantics (or a static method like we currently have).
 - AND operator: Constraint on ObservableProgram to be different than another program. Useful for and(P, Q). P dif Q is a requirement for efficiency. Once P is bound to, p, Q will be changed to be different to p. When grounding Q, if the new operator is different than p, the constraint is abandoned. if it's same as p, constrained is inherited to Q's arguments as P.i diff to Q.i for all arguments i. Custom constraints like this should possible to add easily without breaking core synthesis. Maybe a Program node has a Constraints list that is manipulated during search and ultimately required to be empty for program to be accepted.
 - Constraint for the proj operator to be not repeated.
-
+- Instead of Dictionary<int, IEnumerable<ProgramType>>, Lookup can be used. It's immutable but it might suffice.
+- The CreateAtFirstHole parameter type can be changed from Program to IProgramSource that allows an immutable interface and cloning. Useful for extensibility.
 == TidyUp
 - foldr and foldl Qs names, and id's names should be {a, a'}, or {e1, e2}, not {a, b} because their types are the same.
 - Would a context reduce variable mistreatment bugs in the future? An AlphaTuple would have a FreeContext, 

@@ -54,10 +54,10 @@ namespace CNP.Language
     {
       rootProgram = rootProgram.Clone();
       ObservedProgram obs = rootProgram.FindFirstHole();
-      if (obs.Domains.Count() != 1)
+      if (obs.Valence.Count() != 1)
         return Iterators.Empty<Const>();
       Free candidateConstant = new Free();
-      NameVar argName = obs.Domains.Names.First();
+      NameVar argName = obs.Valence.Names.First();
       var allTups = Enumerable.ToList(obs.Observables);
       int count = allTups.Count();
       for (int i = 1; i < count; i++)

@@ -9,7 +9,7 @@ namespace CNP.Language
 
   public class Cons : ElementaryProgram
   {
-    private static readonly TypeStore<ProgramType> valences = TypeHelper.ParseCompactProgramTypes(new[] {
+    private static readonly TypeStore<ProgramType> valences = TypeHelper.ParseListOfCompactedProgramTypes(new[] {
             "{a:in, b:in, ab:*}",
             "{a:*, b:*, ab:in}"});
 
@@ -33,12 +33,12 @@ namespace CNP.Language
     {
       Program p = rootProgram.Clone();
       ObservedProgram obs = p.FindFirstHole();
-      if (!valences.FindCompatibleTypes(obs.Domains).Any())
+      if (!valences.FindCompatibleTypes(obs.Valence).Any())
         return Iterators.Empty<Cons>();
-      if (!obs.Domains.Names.Contains(new NameVar("ab")))
-      {
-        throw new InvalidOperationException();
-      }
+      //if (!obs.Valence.Names.Contains(new NameVar("ab")))
+      //{
+      //  throw new InvalidOperationException();
+      //}
       if (obs.Observables.All(at => Term.UnifyInPlace(at["ab"], new TermList(at["a"], at["b"]))))
         return Iterators.Singleton(p.CloneAndReplaceObservation(obs, ConsProgram));
       else return Iterators.Empty<Program>();

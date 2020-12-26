@@ -6,9 +6,9 @@ namespace CNP.Language
 {
   public abstract class ElementaryProgram : Program
   {
-    public ElementaryProgram()
+    public ElementaryProgram() : base(true)
     {
-      IsClosed = true;
+      
     }
 
     internal sealed override Program CloneAndReplaceObservation(ObservedProgram oldComponent, Program newComponent, TermReferenceDictionary plannedParenthood)

@@ -8,6 +8,7 @@ using System.Diagnostics.CodeAnalysis;
 using CNP.Parsing;
 using CNP.Language;
 using CNP.Search;
+using Helper;
 
 namespace Synthesis
 {
@@ -45,7 +46,7 @@ namespace Synthesis
     [DataRow("{a:in}", "{{a:[1|X]}, {a:[1,2|[3,F]]}, {a:L}, {a:[1,2,T,4]}}", "a", "[1, 2, 3, 4]")]
     public void ConstPositive(string typeStr, string atusStr, string argName, string constValueStr)
     {
-      Term grTerm = Parser.ParseTerm(constValueStr);
+      Term grTerm = Parser.ParseTerm(constValueStr, new());
       assertSingleResultFor(typeStr, atusStr, new Const(new NameVar(argName), grTerm), "const");
     }
 
@@ -59,13 +60,13 @@ namespace Synthesis
     [DataRow("{a:in}", "{{a:[1|X]}, {a:L}, {a:[1,2,T|4]}}")] // not ground
     public void Negative(string typeStr, string atusStr)
     {
-      Valence namesModes = Parser.ParseNameModeMap(typeStr);
-      IEnumerable<AlphaTuple> atus = Parser.ParseAlphaTupleSet(atusStr);
+      NameVarDictionary namevars = new();
+      Valence namesModes = Parser.ParseNameModeMap(typeStr, namevars);
+      IEnumerable<AlphaTuple> atus = Parser.ParseAlphaTupleSet(atusStr, namevars);
       SynthesisJob job = new SynthesisJob(atus, namesModes);
       var programs = job.FindAllPrograms();
       Assert.AreEqual(0, programs.Count());
-    }// code her eis a little delayed to print. code here is a little delayed to print. is it still delayed? No. 
-     // does this really help? it seems so. 
+    }
   }
 
 }

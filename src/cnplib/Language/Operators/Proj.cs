@@ -11,7 +11,7 @@ namespace CNP.Language
     public readonly Program Source;
     public readonly ProjectionMap Projection;
 
-    public Proj(Program sourceProgram, ProjectionMap projection)
+    public Proj(Program sourceProgram, ProjectionMap projection) : base(sourceProgram.IsClosed)
     {
       this.Source = sourceProgram;
       this.Projection = projection;
@@ -43,24 +43,34 @@ namespace CNP.Language
       return Source.FindFirstHole();
     }
 
-    public static IEnumerable<Program> CreateAtFirstHole(Program rootProgram)
+    public static IEnumerable<Program> CreateAtFirstHole(Program originalProgram)
     {
-      List<ObservedProgram> programs = new List<ObservedProgram>(N_ELIMINATED_OUT_ARGUMENTS_ALLOWED + 1);
+      List<Program> programs = new List<Program>(N_ELIMINATED_OUT_ARGUMENTS_ALLOWED + 1);
       // for each program to be branched to
       for (int n_outs = 0; n_outs < N_ELIMINATED_OUT_ARGUMENTS_ALLOWED; n_outs++)
       {
         TermReferenceDictionary plnprn = new();
-        rootProgram = rootProgram.Clone(plnprn);
+        var rootProgram = originalProgram.Clone(plnprn);
         ObservedProgram obs = rootProgram.FindFirstHole();
         // with proj the subtree height will be 1
         if (obs.DTL == 0)
           return Iterators.Empty<Program>();
-        var eliminatedDoms = Enumerable.Range(0, n_outs).Select(_ => new KeyValuePair<NameVar, Mode>(NameVar.NewUnbound(), Mode.Out));
-        var sourceDoms = obs.Domains.Clone(plnprn).Concat(eliminatedDoms);
-        Func<IEnumerable<KeyValuePair<NameVar, Mode>>, IEnumerable<KeyValuePair<NameVar, Term>>> makeFreeTermsFor =
-          v => v.Select(d => new KeyValuePair<NameVar, Term>(d.Key, new Free()));
-        var sourceTuples = obs.Observables.Select(atu => new AlphaTuple(atu.Clone(plnprn).Terms.Concat(makeFreeTermsFor(eliminatedDoms))));
-        programs.Add(new ObservedProgram(sourceTuples, new Valence(sourceDoms), obs.DTL - 1));
+        // terms are needed for the eliminated domains for the new observation
+        Func<IEnumerable<NameVar>, Dictionary<NameVar, Term>> makeFreeTerms = doms => doms.ToDictionary(d => d, _ => new Free() as Term);
+        // projections map the domains(non-eliminated) of the new observation to the domains of proj expression.
+        var projection = obs.Valence.Keys.ToDictionary(n => NameVar.NewUnbound(), n => n);
+        // inverse projection maps the domains of proj to domains of observation
+        var invProjection = projection.ToDictionary(kv => kv.Value, kv => kv.Key);
+        // proj may have eliminated some domains, these will have free names and Out modes.
+        var eliminatedDoms = Enumerable.Range(0, n_outs).ToDictionary(_ => NameVar.NewUnbound(), _ => Mode.Out);
+        // function returns a new alpha tuple where the terms are the same but domains are replaced with those in the source.
+        Func<AlphaTuple, AlphaTuple> projToSource = patu => new AlphaTuple(patu.Terms.ToDictionary(t => invProjection[t.Key], t => t.Value.Clone(plnprn)).Concat(makeFreeTerms(eliminatedDoms.Keys)));
+        var sourceTuples = obs.Observables.Select(projToSource);
+        var sourceDoms = obs.Valence.ToDictionary(nv => invProjection[nv.Key], nv => nv.Value).Concat(eliminatedDoms);
+        var sourceProgram = new ObservedProgram(sourceTuples, new Valence(sourceDoms), obs.DTL - 1);
+        var program = new Proj(sourceProgram, new(projection));
+        rootProgram = rootProgram.CloneAndReplaceObservation(obs, program);
+        programs.Add(rootProgram);
       }
       return programs;
     }

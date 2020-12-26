@@ -25,10 +25,11 @@ namespace CNP.Language
 
     public static readonly Id IdProgram = new();
 
-    private static readonly TypeStore<ProgramType> valences = TypeHelper.ParseCompactProgramTypes(new[]
+    private static readonly TypeStore<ProgramType> valences = TypeHelper.ParseListOfCompactedProgramTypes(new[]
     {
-            "{a:in, b:*}",
-            "{a:*, b:in}"
+            "{a:in, b:in}",
+            "{a:in, b:out}",
+            "{a:out, b:in}"
         });
 
     /// <summary>
@@ -38,9 +39,11 @@ namespace CNP.Language
     {
       rootProgram = rootProgram.Clone();
       ObservedProgram obs = rootProgram.FindFirstHole();
-      if (!valences.FindCompatibleTypes(obs.Domains).Any())
+      if (!valences.FindCompatibleTypes(obs.Valence).Any())
         return Iterators.Empty<Id>();
-
+      //TODO: this only binds names in a,b order. Is it necessary to also do it the other way around?
+      obs.Valence.First().Key.BindName("a");
+      obs.Valence.Skip(1).First().Key.BindName("b");
       if (obs.Observables.All(at => Term.UnifyInPlace(at["a"], at["b"])))
       {
         return Iterators.Singleton(rootProgram.CloneAndReplaceObservation(obs, IdProgram));

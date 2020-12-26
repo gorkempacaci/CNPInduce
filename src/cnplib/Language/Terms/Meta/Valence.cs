@@ -17,20 +17,9 @@ namespace CNP.Language
     readonly IReadOnlyDictionary<NameVar, Mode> dict;
 
 
-    public Valence(params (string, Mode)[] tups)
-        : this(tups.ToDictionary(x => new NameVar(x.Item1), x => x.Item2))
-    {
-    }
-
     public Valence(params (NameVar, Mode)[] tups)
         : this(tups.ToDictionary(x => x.Item1, x => x.Item2))
     {
-    }
-
-    public Valence(IEnumerable<KeyValuePair<string, Mode>> args)
-        : this(args.ToDictionary(x => new NameVar(x.Key), x => x.Value))
-    {
-
     }
 
     public Valence(IEnumerable<KeyValuePair<NameVar, Mode>> args)

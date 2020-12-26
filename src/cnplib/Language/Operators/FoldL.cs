@@ -2,13 +2,14 @@
 using System.Collections.Generic;
 using CNP.Helper;
 using CNP.Helper.EagerLinq;
+using Helper;
 
 namespace CNP.Language
 {
   public class FoldL : Fold
   {
     private static TypeStore<FoldType> valences =
-        TypeHelper.ParseCompactOperatorTypes<FoldType>(new[]
+        TypeHelper.ParseListOfCompactedComposedTypes<FoldType>(new[]
         {
                  "{a:*, b:*, ab:out} -> {a:*, b:out} -> {b0:in, as:in, b:out}",
                  "{a:*, b:*, ab:out} -> {a:out, b:out} -> {b0:out, as:in, b:out}",
@@ -68,17 +69,20 @@ namespace CNP.Language
     /// lists atusP and atusQ should be initialized before call, since they're populated by this function.
     /// </summary>
     /// <returns></returns>
-    static bool unfoldFoldlToPQ(Term b0, Term @as, Term b, List<AlphaTuple> atusP, List<AlphaTuple> atusQ)
+    static bool unfoldFoldlToPQ(Term b0, Term @as, Term b, List<AlphaTuple> atusP, NameVarDictionary pNameDict, List<AlphaTuple> atusQ, NameVarDictionary qNameDict)
     {
       if (@as is TermList li)
       {
         Free f = new Free();
-        atusP.Add(new AlphaTuple(("a", li.Head), ("b", b0), ("ab", f)));
-        return unfoldFoldlToPQ(f, li.Tail, b, atusP, atusQ);
+        atusP.Add(new AlphaTuple((pNameDict.GetOrAdd("a"), li.Head),
+                                 (pNameDict.GetOrAdd("b"), b0),
+                                 (pNameDict.GetOrAdd("ab"), f)));
+        return unfoldFoldlToPQ(f, li.Tail, b, atusP, pNameDict, atusQ, qNameDict);
       }
       else if (@as is NilTerm)
       {
-        atusQ.Add(new AlphaTuple(("a", b0), ("b", b)));
+        atusQ.Add(new AlphaTuple((qNameDict.GetOrAdd("a"), b0),
+                                 (qNameDict.GetOrAdd("b"), b)));
         return true;
       }
       else return false;

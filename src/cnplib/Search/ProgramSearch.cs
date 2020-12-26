@@ -102,11 +102,9 @@ namespace CNP.Search
         }
         else
         {
-#if DEBUG // do this check only in debug mode as GetHeight is recursive.
-          if (p.GetHeight() > maxHeightForPrograms)
-            throw new InvalidOperationException("Invalid new search node. Program's height is greater than the max search height (" + maxHeightForPrograms + "). \nProgram: " + p.ToString());
-#endif
-          searchQueue.Enqueue(p);
+          if (p.GetHeight() <= maxHeightForPrograms)
+            searchQueue.Enqueue(p);
+          // else that search node is 
         }
       }
     }

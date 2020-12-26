@@ -8,36 +8,32 @@ using CNP.Helper;
 
 namespace CNP.Language
 {
+  /// <summary>
+  /// Maps source argument names to target argument names.
+  /// in a program like proj(id, {a:u, b:v}), represents the {a:u, b:v}. Therefore keys belong to the inner expression and values to the outer one.
+  /// </summary>
   public class ProjectionMap : IReadOnlyDictionary<NameVar, NameVar>
   {
     private Dictionary<NameVar, NameVar> dict;
 
-    public ProjectionMap(params (string, string)[] tups)
-        : this(tups.ToDictionary(x => new NameVar(x.Item1), y => new NameVar(y.Item2)))
-    {
-    }
+    public ProjectionMap(params (NameVar, NameVar)[] pairs)
+      : this(pairs.ToDictionary(x => x.Item1, x => x.Item2)) { }
 
-    public ProjectionMap(params (NameVar, NameVar)[] tups)
-        : this(tups.ToDictionary(x => x.Item1, x => x.Item2))
-    {
-    }
-
-    public ProjectionMap(IEnumerable<KeyValuePair<string, string>> args)
-        : this(args.ToDictionary(x => new NameVar(x.Key), y => new NameVar(y.Value)))
-    {
-
-    }
+    public ProjectionMap(IEnumerable<(NameVar, NameVar)> pairs)
+      : this(pairs.ToDictionary(x => x.Item1, x => x.Item2)) { }
 
     public ProjectionMap(IEnumerable<KeyValuePair<NameVar, NameVar>> args)
-        : this(args.ToDictionary(x => x.Key, x => x.Value))
-    {
+      : this(args.ToDictionary(x => x.Key, x => x.Value)) { }
 
-    }
-
-    //TODO: assert that the image is a set. (can't produce id using proj)
     public ProjectionMap(IDictionary<NameVar, NameVar> dic)
     {
       dict = new Dictionary<NameVar, NameVar>(dic);
+#if DEBUG
+      // assert that the co-domain of projections is a set
+      if (!dict.Values.IsSet())
+        throw new ArgumentException("Projection cannot map twice to the same argument name." + dic.ToMappingString());
+#endif
+
     }
 
     public ProjectionMap Clone(TermReferenceDictionary plannedParenthood)
