@@ -3,9 +3,6 @@
 - Hamfelt Nilsson folds are unfamiliar to functional programmers, maybe add some akin to those in FP?
 - The search always works with the first hole, searching top-down. If the first hole can't be filled, it disposes of the search node. How does this affect the search exhaustiveness? Maybe it should try each hole in a separate search path.
 
-== Bugs
-
-
 == Improvements
 - Importing from job files like the CNP that shipped with RICE. Maybe use JSON files instead.
 - Extensibility. Besides the CNP.CoreLanguage package (id, cons, const, and, or, foldr, foldl, map) there may be a CNP.Numerics or CNP.Math as well as CNP.Geometry (for avionics stuff). When running a job you can run the full suite by default, or choose only some for efficiency (Job.SetSearchOptions(CNP.CoreLanguage | CNP.Math) or something like that). This might require some packaging system decisions. Moreover we can allow the client to add their operators by giving a type that inherits from CNP.Program and a type for the reverse semantics (or a static method like we currently have).
