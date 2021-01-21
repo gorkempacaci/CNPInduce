@@ -13,8 +13,9 @@ namespace CNP.Parsing
     /// <summary>
     /// Operator types should follow the structure Operand1Type -> ... -> OperandNType -> ExpressionType
     /// For example: {a:in, b:in, ab:out} -> {a:in, b:out} -> {a0:in, bs:in, a:out}
+    /// The generic type should have a constructor that takes the operand valences, followed by the operator valence.
     /// </summary>
-    public static TOperatorType ParseOperatorType<TOperatorType>(string operatorTypeString)
+    public static TOperatorValence ParseFunctionalValence<TOperatorValence>(string operatorTypeString) where TOperatorValence : FunctionalValence
     {
       string[] parts = operatorTypeString.Split(new[] { "->" }, StringSplitOptions.None);
       if (parts.Length < 2)
@@ -23,7 +24,7 @@ namespace CNP.Parsing
       }
       NameVarDictionary namevars = new(); // name variable scope is the operator type
       var types = parts.Select(s => ParseNameModeMap(s, namevars)).ToArray();
-      return (TOperatorType)Activator.CreateInstance(typeof(TOperatorType), (object[])types);
+      return (TOperatorValence)Activator.CreateInstance(typeof(TOperatorValence), (object[])types);
     }
 
     public static Valence ParseNameModeMap(string nameModeMap, NameVarDictionary namevars)
@@ -34,9 +35,9 @@ namespace CNP.Parsing
         throw new ParserException("Expecting program type.", it.Current);
       return ReadNameModeMap(it, namevars);
     }
-    public static ProgramType ParseProgramType(string typeString)
+    public static Valence ParseValence(string typeString)
     {
-      return new ProgramType(ParseNameModeMap(typeString, new()));
+      return new Valence(ParseNameModeMap(typeString, new()));
     }
     public static IEnumerable<AlphaTuple> ParseAlphaTupleSet(string alphaSetString, NameVarDictionary namevars)
     {

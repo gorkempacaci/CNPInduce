@@ -1,38 +1,38 @@
 namespace CNP.Language
 {
-  public class FoldType : ComposedType
+  public class FoldValence : FunctionalValence
   {
-    public readonly Valence RecursiveComponentDomains;
-    public readonly Valence BaseComponentDomains;
+    public readonly Valence RecursiveComponent;
+    public readonly Valence BaseComponent;
 
-    public FoldType(Valence recDoms, Valence baseDoms, Valence doms) : base(doms)
+    public FoldValence(Valence recDoms, Valence baseDoms, Valence doms) : base(doms)
     {
-      RecursiveComponentDomains = recDoms;
-      BaseComponentDomains = baseDoms;
+      RecursiveComponent = recDoms;
+      BaseComponent = baseDoms;
     }
 
     public override bool IsGround()
     {
-      return Domains.IsGround() && RecursiveComponentDomains.IsGround() && BaseComponentDomains.IsGround();
+      return IsGround() && RecursiveComponent.IsGround() && BaseComponent.IsGround();
     }
 
     public override bool Equals(object obj)
     {
-      if (!(obj is FoldType other))
+      if (!(obj is FoldValence other))
         return false;
-      return Domains.Equals(other.Domains) &&
-             RecursiveComponentDomains.Equals(other.RecursiveComponentDomains) &&
-             BaseComponentDomains.Equals(other.BaseComponentDomains);
+      return base.Equals(other) &&
+             RecursiveComponent.Equals(other.RecursiveComponent) &&
+             BaseComponent.Equals(other.BaseComponent);
     }
 
     public override int GetHashCode()
     {
-      return Domains.GetHashCode();
+      return base.GetHashCode();
     }
 
     public override string ToString()
     {
-      return RecursiveComponentDomains.ToString() + "->" + BaseComponentDomains.ToString() + "->" + Domains.ToString();
+      return RecursiveComponent.ToString() + "->" + BaseComponent.ToString() + "->" + base.ToString();
     }
   }
 

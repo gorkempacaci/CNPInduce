@@ -47,13 +47,13 @@ namespace CNP.Language
       Base.SetAllRootsTo(newRoot);
     }
 
-    protected static IEnumerable<Program> CreateAtFirstHole(Program rootProgram, TypeStore<FoldType> valences, Func<Program, Program, Fold> foldFactoryMethod, Func<Term, Term, Term, List<AlphaTuple>, NameVarDictionary, List<AlphaTuple>, NameVarDictionary, bool> unfold)
+    protected static IEnumerable<Program> CreateAtFirstHole(Program rootProgram, TypeStore<FoldValence> valences, Func<Program, Program, Fold> foldFactoryMethod, Func<Term, Term, Term, List<AlphaTuple>, NameVarDictionary, List<AlphaTuple>, NameVarDictionary, bool> unfold)
     {
       rootProgram = rootProgram.Clone();
       ObservedProgram obs = rootProgram.FindFirstHole();
       if (obs.DTL == 0)
         return Iterators.Empty<Program>();
-      IEnumerable<FoldType> foldTypes = valences.FindCompatibleTypes(obs.Valence);
+      IEnumerable<FoldValence> foldTypes = valences.FindCompatibleTypes(obs.Valence);
       if (!foldTypes.Any())
         return Iterators.Empty<Program>();
 
@@ -62,16 +62,16 @@ namespace CNP.Language
       {
         // decompose into p and q examples
         List<AlphaTuple> pExamples = new(), qExamples = new();
-        NameVarDictionary pNames = new(fpq.RecursiveComponentDomains.Keys); // initialize with existing names
-        NameVarDictionary qNames = new(fpq.BaseComponentDomains.Keys);
+        NameVarDictionary pNames = new(fpq.RecursiveComponent.Keys); // initialize with existing names
+        NameVarDictionary qNames = new(fpq.BaseComponent.Keys);
         foreach (AlphaTuple at in obs.Observables)
           if (false == unfold(at["b0"], at["as"], at["b"], pExamples, pNames, qExamples, qNames))
             return Iterators.Empty<Program>(); // if even one of the observations doesn't unfold, this is not a fold.
         var pp = new TermReferenceDictionary(); // a fresh cloning map from old root to new context
         var pEx = pExamples.Select(e => e.Clone(pp)); // clone examples
         var qEx = qExamples.Select(e => e.Clone(pp));
-        var pVal = fpq.RecursiveComponentDomains.Clone(pp); // clone valences (maybe arg names aren't ground)
-        var qVal = fpq.BaseComponentDomains.Clone(pp);
+        var pVal = fpq.RecursiveComponent.Clone(pp); // clone valences (maybe arg names aren't ground)
+        var qVal = fpq.BaseComponent.Clone(pp);
         var pObs = new ObservedProgram(pEx, pVal, obs.DTL-1);
         var qObs = new ObservedProgram(qEx, qVal, obs.DTL-1);
         var foldProgram = foldFactoryMethod(pObs, qObs);

@@ -10,18 +10,18 @@ namespace CNP.Language
   public static class TypeHelper
   {
     public static TypeStore<TComposedType> ParseListOfCompactedComposedTypes<TComposedType>(
-        IEnumerable<string> compactStrs) where TComposedType : ComposedType
+        IEnumerable<string> compactStrs) where TComposedType : FunctionalValence
     {
       var expandedStrs = compactStrs.SelectMany(expandAsteriskToInOut).Distinct();
-      var types = expandedStrs.Select(sList => Parser.ParseOperatorType<TComposedType>(sList));
+      var types = expandedStrs.Select(sList => Parser.ParseFunctionalValence<TComposedType>(sList));
       return new TypeStore<TComposedType>(types);
     }
 
-    public static TypeStore<ProgramType> ParseListOfCompactedProgramTypes(IEnumerable<string> compactStrs)
+    public static TypeStore<Valence> ParseListOfCompactedProgramTypes(IEnumerable<string> compactStrs)
     {
       var expandedStrs = compactStrs.SelectMany(expandAsteriskToInOut).Distinct();
-      var types = expandedStrs.Select(s => Parser.ParseProgramType(s));
-      return new TypeStore<ProgramType>(types);
+      var types = expandedStrs.Select(s => Parser.ParseValence(s));
+      return new TypeStore<Valence>(types);
     }
 
     private static IEnumerable<string> expandAsteriskToInOut(string c)

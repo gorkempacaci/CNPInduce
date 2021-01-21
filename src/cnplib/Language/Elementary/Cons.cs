@@ -9,7 +9,7 @@ namespace CNP.Language
 
   public class Cons : ElementaryProgram
   {
-    private static readonly TypeStore<ProgramType> valences = TypeHelper.ParseListOfCompactedProgramTypes(new[] {
+    private static readonly TypeStore<Valence> valences = TypeHelper.ParseListOfCompactedProgramTypes(new[] {
             "{a:in, b:in, ab:*}",
             "{a:*, b:*, ab:in}"});
 

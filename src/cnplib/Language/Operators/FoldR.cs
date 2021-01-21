@@ -11,8 +11,8 @@ namespace CNP.Language
 {
   public class FoldR : Fold
   {
-    private static TypeStore<FoldType> valences =
-        TypeHelper.ParseListOfCompactedComposedTypes<FoldType>(
+    private static TypeStore<FoldValence> valences =
+        TypeHelper.ParseListOfCompactedComposedTypes<FoldValence>(
             new[]
             {       // valence for P -> valence for Q -> valence for foldr(P,Q)
                     "{a:*, b:*, ab:out} -> {a:*, b:out} -> {b0:in, as:in, b:out}",
@@ -44,7 +44,7 @@ namespace CNP.Language
     /// </summary>
     public static IEnumerable<Program> CreateAtFirstHole(Program rootProgram)
     {
-      return Fold.CreateAtFirstHole(rootProgram, valences as TypeStore<FoldType>, (rec, bas) => new FoldR(rec, bas), unfoldFoldrToPQ);
+      return Fold.CreateAtFirstHole(rootProgram, valences as TypeStore<FoldValence>, (rec, bas) => new FoldR(rec, bas), unfoldFoldrToPQ);
     }
 
     /*

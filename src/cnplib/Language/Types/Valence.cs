@@ -58,7 +58,7 @@ namespace CNP.Language
       return dict.ContainsKey(key);
     }
 
-    public bool IsGround()
+    public virtual bool IsGround()
     {
       return dict.Keys.All(k => k.IsGround());
     }
@@ -80,24 +80,34 @@ namespace CNP.Language
 
     public override int GetHashCode() => ModeNumber;
 
+    /// <summary>
+    /// Can only compare ground valences
+    /// </summary>
+    protected bool EqualsNamesAndModes(Valence otherVal)
+    {
+      if (dict.Count != otherVal.Count)
+        return false;
+      foreach(var name in dict.Keys)
+      {
+        if (!name.IsGround())
+          throw new ArgumentException("Valence comparison can only be made between ground valences.");
+        if (!otherVal.TryGetValue(name, out Mode otherMode))
+          return false;
+        var myMode = dict[name];
+        if (myMode != otherMode)
+          return false;
+      }
+      return true;
+    }
+
+    /// <summary>
+    /// This Valence has to be ground otherwise throws.
+    /// </summary>
     public override bool Equals(object obj)
     {
-      if (obj is Valence otherPs && dict.Keys.Count() == otherPs.Names.Count())
-      {
-        foreach (NameVar an in Names)
-        {
-          bool ifMe = this.TryGetValue(an, out Mode myMode);
-          bool ifOther = otherPs.TryGetValue(an, out Mode otherMode);
-          bool modes = myMode.Equals(otherMode);
-          return ifMe && ifOther && modes;
-        }
-
-        return Names.All(k => this.TryGetValue(k, out Mode myMode) &&
-                              otherPs.TryGetValue(k, out Mode othersMode) &&
-                              myMode.Equals(othersMode));
-      }
-
-      return false;
+      if (obj is Valence otherVal)
+        return EqualsNamesAndModes(otherVal);
+      else return false;
     }
 
     public override string ToString()

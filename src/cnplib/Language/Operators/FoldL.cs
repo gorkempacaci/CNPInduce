@@ -8,8 +8,8 @@ namespace CNP.Language
 {
   public class FoldL : Fold
   {
-    private static TypeStore<FoldType> valences =
-        TypeHelper.ParseListOfCompactedComposedTypes<FoldType>(new[]
+    private static TypeStore<FoldValence> valences =
+        TypeHelper.ParseListOfCompactedComposedTypes<FoldValence>(new[]
         {
                  "{a:*, b:*, ab:out} -> {a:*, b:out} -> {b0:in, as:in, b:out}",
                  "{a:*, b:*, ab:out} -> {a:out, b:out} -> {b0:out, as:in, b:out}",

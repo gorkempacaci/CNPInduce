@@ -12,9 +12,8 @@ Program definitions go here
 ### Program tree
 
 ```
-GroundName = Name string
-Name = GroundName | FreeName
-GroundTerm = Constant integer | Constant string
+Name = Name string | FreeName
+GroundTerm = Value integer | Value string
 Term = GroundTerm | Free
 Tuple = set((Name, Term))
 TupleSet = set(Tuple)
