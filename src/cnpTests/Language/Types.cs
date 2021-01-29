@@ -51,7 +51,7 @@ namespace Language
       {
                 new Valence((new("a"), Mode.Out), (new("b"), Mode.In)),
                 new Valence((new("a"), Mode.Out), (new("b"), Mode.Out))
-            });
+      });
       var types = ts.FindCompatibleTypes(new Valence((new("a"), Mode.Out), (new("b"), Mode.Out)));
       Assert.IsTrue(types.Any(), "A result was returned.");
       bool inTheResults =
@@ -61,6 +61,31 @@ namespace Language
       Assert.IsTrue(allAreGround, "All types returned should be ground.");
     }
 
+    [TestMethod]
+    public void TypeStore_GroundLookup_ReturnsOnlyMatchingModes_1()
+    {
+      TypeStore<Valence> ts = new TypeStore<Valence>(new[]
+      {
+                new Valence((new("a"), Mode.Out), (new("b"), Mode.In)),
+                new Valence((new("a"), Mode.Out), (new("b"), Mode.Out)),
+                new Valence((new("a"), Mode.In), (new("b"), Mode.Out))
+      });
+      var types = ts.FindCompatibleTypes(new Valence((new("a"), Mode.Out), (new("b"), Mode.Out)));
+      Assert.AreEqual(1, types.Count(), "Exactly one valence should be returned.");
+    }
+
+    [TestMethod]
+    public void TypeStore_GroundLookup_ReturnsOnlyMatchingModes_WhenStoreHasMultipleValencesWithSameModeNumber()
+    {
+      TypeStore<Valence> ts = new TypeStore<Valence>(new[]
+      {
+                new Valence((new("a"), Mode.Out), (new("b"), Mode.In)),
+                new Valence((new("a"), Mode.Out), (new("b"), Mode.Out)),
+                new Valence((new("a"), Mode.In), (new("b"), Mode.Out))
+      });
+      var types = ts.FindCompatibleTypes(new Valence((new("a"), Mode.In), (new("b"), Mode.Out)));
+      Assert.AreEqual(1, types.Count(), "Exactly one valence should be returned.");
+    }
     [TestMethod]
     public void TypeStore_PartiallyGroundLookup_OnlyReturnsTypesWithPartiallyMatchingSignatures()
     {

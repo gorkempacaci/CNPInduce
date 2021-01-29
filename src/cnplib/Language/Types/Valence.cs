@@ -11,7 +11,7 @@ namespace CNP.Language
   /// <summary>
   /// A structure that maps domain names to modes
   /// </summary>
-  public class Valence : IReadOnlyDictionary<NameVar, Mode>
+  public class Valence : IReadOnlyDictionary<NameVar, Mode>, IEnumerable<KeyValuePair<NameVar,Mode>>
   {
     readonly int modeNumber; // persists as the names become ground
     readonly IReadOnlyDictionary<NameVar, Mode> dict;
@@ -110,11 +110,20 @@ namespace CNP.Language
       else return false;
     }
 
+    public bool MapsAllNamesToSameMode(IEnumerable<KeyValuePair<NameVar,Mode>> groundNamesAndModes)
+    {
+      return groundNamesAndModes.All(g =>
+      {
+        if (!g.Key.IsGround())
+          throw new ArgumentException("All names should be ground for this check.");
+        return ContainsKey(g.Key) && this[g.Key] == g.Value;
+      });
+    }
+
     public override string ToString()
     {
       return "{" + string.Join(", ", dict.Select(nv => nv.Key.ToString() + ":" + nv.Value.ToString())) + "}";
     }
-
 
     /// <summary>
     /// Takes a ground name mode map, and returns all the possible assignments for free domains in this
@@ -124,8 +133,8 @@ namespace CNP.Language
     /// <returns></returns>
     public IEnumerable<TermReferenceDictionary> PossibleGroundings(Valence targetDomains)
     {
-      IEnumerable<KeyValuePair<NameVar, Mode>> myGroundDomains =
-          this.WhereAndNot(n => n.Key.IsGround(), out IEnumerable<KeyValuePair<NameVar, Mode>> myFreeDomains);
+      IEnumerable<KeyValuePair<NameVar, Mode>> myGroundDomains, myFreeDomains;
+      (myGroundDomains, myFreeDomains) = this.WhereAndNot(n => n.Key.IsGround());
       var targetDomsToMatch = targetDomains.Except(myGroundDomains);
       if (targetDomains.Count() != targetDomsToMatch.Count() + myGroundDomains.Count())
         return Iterators.Empty<TermReferenceDictionary>();

@@ -78,7 +78,7 @@ namespace CNP.Helper
       }
     }
 
-    public static IEnumerable<T> WhereAndNot<T>(this IEnumerable<T> sourceList, Func<T, bool> predicate, out IEnumerable<T> whereNot)
+    public static (IEnumerable<T>, IEnumerable<T>) WhereAndNot<T>(this IEnumerable<T> sourceList, Func<T, bool> predicate)
     {
       List<T> whereList = new List<T>();
       List<T> whereNotList = new List<T>();
@@ -89,8 +89,7 @@ namespace CNP.Helper
         else
           whereNotList.Add(e);
       }
-      whereNot = whereNotList;
-      return whereList;
+      return (whereList, whereNotList);
     }
 
     // https://stackoverflow.com/questions/577590/pair-wise-iteration-in-c-sharp-or-sliding-window-enumerator
