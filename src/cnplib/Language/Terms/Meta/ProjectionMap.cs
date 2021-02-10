@@ -41,6 +41,11 @@ namespace CNP.Language
       return new ProjectionMap(dict.ToDictionary(kvp => kvp.Key.Clone(plannedParenthood), kvp => kvp.Value.Clone(plannedParenthood)));
     }
 
+    public override string ToString()
+    {
+      return "{" + string.Join(", ", this.Select(nn => nn.Key + ":" + nn.Value)) + "}";
+    }
+
     #region Delegate to this.dict
     public NameVar this[NameVar key] => dict[key];
     public IEnumerable<NameVar> Keys => dict.Keys;

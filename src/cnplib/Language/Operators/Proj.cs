@@ -74,5 +74,10 @@ namespace CNP.Language
       }
       return programs;
     }
+
+    public override string ToString()
+    {
+      return "proj("+Source.ToString()+","+Projection.ToString()+")";
+    }
   }
 }

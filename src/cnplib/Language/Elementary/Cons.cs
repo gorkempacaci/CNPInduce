@@ -31,17 +31,19 @@ namespace CNP.Language
     /// </summary>
     public static IEnumerable<Program> CreateAtFirstHole(Program rootProgram)
     {
-      Program p = rootProgram.Clone();
-      ObservedProgram obs = p.FindFirstHole();
-      if (!valences.FindCompatibleTypes(obs.Valence).Any())
+      ObservedProgram origObs = rootProgram.FindFirstHole();
+      var consTypes = valences.FindCompatibleTypes(origObs.Valence);
+      if (!consTypes.Any())
         return Iterators.Empty<Cons>();
-      //if (!obs.Valence.Names.Contains(new NameVar("ab")))
-      //{
-      //  throw new InvalidOperationException();
-      //}
-      if (obs.Observables.All(at => Term.UnifyInPlace(at["ab"], new TermList(at["a"], at["b"]))))
-        return Iterators.Singleton(p.CloneAndReplaceObservation(obs, ConsProgram));
-      else return Iterators.Empty<Program>();
+      var combs = origObs.Valence.PossibleGroundings(consTypes.First());
+      foreach(var uni in combs)
+      {
+        var cloneRoot = rootProgram.Clone(uni);
+        var cloneObs = cloneRoot.FindFirstHole();
+        if (cloneObs.Observables.All(at => Term.UnifyInPlace(at["ab"], new TermList(at["a"], at["b"]))))
+          return Iterators.Singleton(cloneRoot.CloneAndReplaceObservation(cloneObs, ConsProgram));
+      }
+      return Iterators.Empty<Program>();
     }
 
   }

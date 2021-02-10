@@ -10,6 +10,7 @@
 - Constraint for the proj operator to be not repeated.
 - Instead of Dictionary<int, IEnumerable<ProgramType>>, Lookup can be used. It's immutable but it might suffice.
 - The CreateAtFirstHole parameter type can be changed from Program to IProgramSource that allows an immutable interface and cloning. Useful for extensibility.
+- Having a ObservedProgram.ReplaceInPlace(newProgram) would be helpful to eliminate one cloning in the implementations of CreateAtFirstHole
 == TidyUp
 - foldr and foldl Qs names, and id's names should be {a, a'}, or {e1, e2}, not {a, b} because their types are the same.
 - Would a context reduce variable mistreatment bugs in the future? An AlphaTuple would have a FreeContext, 

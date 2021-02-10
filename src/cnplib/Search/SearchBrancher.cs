@@ -63,12 +63,12 @@ namespace CNP.Search
       List<Program> programs = new List<Program>();
       var fillers = new List<Func<Program, IEnumerable<Program>>>
       {
-                Id.CreateAtFirstHole,
-                Cons.CreateAtFirstHole,
-                Const.CreateAtFirstHole,
-                FoldR.CreateAtFirstHole,
-                FoldL.CreateAtFirstHole,
-                Proj.CreateAtFirstHole
+                Id.CreateAtFirstHole
+                ,Cons.CreateAtFirstHole
+                ,Const.CreateAtFirstHole
+                ,FoldR.CreateAtFirstHole
+                ,FoldL.CreateAtFirstHole
+                //,Proj.CreateAtFirstHole
       };
       foreach (var filler in fillers)
       {

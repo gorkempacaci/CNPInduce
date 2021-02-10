@@ -44,7 +44,8 @@ namespace CNP.Language
     /// </summary>
     public static IEnumerable<Program> CreateAtFirstHole(Program rootProgram)
     {
-      return Fold.CreateAtFirstHole(rootProgram, valences as TypeStore<FoldValence>, (rec, bas) => new FoldR(rec, bas), unfoldFoldrToPQ);
+      Func<Program, Program, Fold> factoryFoldR = (rec, bas) => new FoldR(rec, bas);
+      return Fold.CreateAtFirstHole(rootProgram, valences as TypeStore<FoldValence>, factoryFoldR, unfoldFoldrToPQ);
     }
 
     /*

@@ -42,7 +42,8 @@ namespace CNP.Language
     /// </summary>
     public static IEnumerable<Program> CreateAtFirstHole(Program rootProgram)
     {
-      return Fold.CreateAtFirstHole(rootProgram, valences, (rec, bas) => new FoldL(rec, bas), unfoldFoldlToPQ);
+      Func<Program, Program, Fold> factoryFoldL = (rec, bas) => new FoldL(rec, bas);
+      return Fold.CreateAtFirstHole(rootProgram, valences, factoryFoldL, unfoldFoldlToPQ);
     }
     /*
         with names indicating types:

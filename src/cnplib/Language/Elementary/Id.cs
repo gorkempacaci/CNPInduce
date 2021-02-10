@@ -35,21 +35,24 @@ namespace CNP.Language
     /// <summary>
     /// Does not modify the given program, returns alternative cloned programs if they exist.
     /// </summary>
-    public static IEnumerable<Program> CreateAtFirstHole(Program rootProgram)
+    public static IEnumerable<Program> CreateAtFirstHole(Program rootProgramOriginal)
     {
-      rootProgram = rootProgram.Clone();
-      ObservedProgram obs = rootProgram.FindFirstHole();
-      var idTypesCompatible = valences.FindCompatibleTypes(obs.Valence);
+
+      ObservedProgram obsOriginal = rootProgramOriginal.FindFirstHole();
+      var idTypesCompatible = valences.FindCompatibleTypes(obsOriginal.Valence);
       if (!idTypesCompatible.Any())
         return Iterators.Empty<Id>();
-        //TODO: this only binds names in a,b order. Is it necessary to also do it the other way around?
-      var combs = obs.Valence.PossibleGroundings(idTypesCompatible.First());
-      obs.Valence.First().Key.BindName("a");
-      obs.Valence.Skip(1).First().Key.BindName("b");
-      if (obs.Observables.All(at => Term.UnifyInPlace(at["a"], at["b"])))
+      var combs = obsOriginal.Valence.PossibleGroundings(idTypesCompatible.First());
+      foreach (var uni in combs)
       {
-        return Iterators.Singleton(rootProgram.CloneAndReplaceObservation(obs, IdProgram));
-      } else return Iterators.Empty<Id>();
+        Program clonedRoot = rootProgramOriginal.Clone(uni);
+        ObservedProgram clonedObs = clonedRoot.FindFirstHole();
+        if (clonedObs.Observables.All(at => Term.UnifyInPlace(at["a"], at["b"])))
+        {
+          return Iterators.Singleton(clonedRoot.CloneAndReplaceObservation(clonedObs, IdProgram));
+        }
+      }
+      return Iterators.Empty<Id>();
     }
   }
 }

@@ -135,6 +135,9 @@ namespace CNP.Language
     {
       IEnumerable<KeyValuePair<NameVar, Mode>> myGroundDomains, myFreeDomains;
       (myGroundDomains, myFreeDomains) = this.WhereAndNot(n => n.Key.IsGround());
+      // if this valence is already ground, just return empty cloning map
+      if (!myFreeDomains.Any())
+        return Iterators.Singleton(new TermReferenceDictionary());
       var targetDomsToMatch = targetDomains.Except(myGroundDomains);
       if (targetDomains.Count() != targetDomsToMatch.Count() + myGroundDomains.Count())
         return Iterators.Empty<TermReferenceDictionary>();

@@ -49,7 +49,7 @@ public class TestBase
   }
 
   protected void assertSingleResultFor(string domains, string atusStr, Program elementaryProgramExpected, string programName)
-  {
+  { 
     NameVarDictionary namevars = new();
     Valence namesModes = Parser.ParseNameModeMap(domains, namevars);
     IEnumerable<AlphaTuple> atus = Parser.ParseAlphaTupleSet(atusStr, namevars);
