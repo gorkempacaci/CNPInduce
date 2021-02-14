@@ -13,5 +13,10 @@ namespace Synthesis
       string atusStr = "{{u:1, v:1}}";
       assertFirstResultFor(typeStr, atusStr, proj(id, ("a", "u"), ("b", "v")), "proj_id");
     }
+
+    public void proj_negative()
+    {
+      
+    }
   }
 }

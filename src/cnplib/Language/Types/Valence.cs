@@ -162,10 +162,16 @@ namespace CNP.Language
       var targetOutPerms = targetGroundOuts.Permutations();
       var inBindings = targetInPerms.Select(gs => myFreeIns.Zip(gs, (f, g) => new KeyValuePair<Term, Term>(f.Key, g.Key)));
       var outBindings = targetOutPerms.Select(gs => myFreeOuts.Zip(gs, (f, g) => new KeyValuePair<Term, Term>(f.Key, g.Key)));
-      var allBindings = inBindings.Cartesian(outBindings, (@is, os) => @is.Concat(os));
+      var allBindings = (myFreeIns.Count(), myFreeOuts.Count()) switch
+      {
+        (0, _) => outBindings,
+        (_, 0) => inBindings,
+        (_, _) => inBindings.Cartesian(outBindings, (@is, os) => @is.Concat(os))
+      };
       var allMaps = allBindings.Select(o => new TermReferenceDictionary(o));
       return allMaps;
     }
 
   }
 }
+

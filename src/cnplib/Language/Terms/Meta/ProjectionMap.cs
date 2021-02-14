@@ -46,6 +46,18 @@ namespace CNP.Language
       return "{" + string.Join(", ", this.Select(nn => nn.Key + ":" + nn.Value)) + "}";
     }
 
+    public override int GetHashCode()
+    {
+      return Count;
+    }
+
+    public override bool Equals(object obj)
+    {
+      if (obj is not ProjectionMap otherMap)
+        return false;
+      return this.EqualsAsDictionary(otherMap);
+    }
+
     #region Delegate to this.dict
     public NameVar this[NameVar key] => dict[key];
     public IEnumerable<NameVar> Keys => dict.Keys;

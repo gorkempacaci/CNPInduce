@@ -159,9 +159,16 @@ namespace CNP.Helper
       else return false;
     }
 
-    public static string ToMappingString<TKey, TValue>(this IDictionary<TKey, TValue> dict)
+    public static string ToMappingString<TKey, TValue>(this IEnumerable<KeyValuePair<TKey, TValue>> dict)
     {
       return string.Join(", ", dict.Select(kv => kv.Key.ToString() + ":" + kv.Value.ToString()));
+    }
+
+    public static bool EqualsAsDictionary<TKey, TValue>(this IReadOnlyDictionary<TKey, TValue> dict1, IReadOnlyDictionary<TKey, TValue> dict2)
+    {
+      if (dict1.Count != dict2.Count)
+        return false;
+      return dict1.All(kv => dict2.ContainsKey(kv.Key) && dict2[kv.Key].Equals(kv.Value));
     }
 
     public static IEnumerable<TSource> Clone<TSource>(this IEnumerable<TSource> source, TermReferenceDictionary plannedParenthood) where TSource : Term

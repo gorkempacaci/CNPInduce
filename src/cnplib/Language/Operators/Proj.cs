@@ -60,14 +60,14 @@ namespace CNP.Language
         TermReferenceDictionary plnprn = new();
         var rootProgram = originalProgram.Clone(plnprn);
         ObservedProgram obs = rootProgram.FindFirstHole();
-        // terms are needed for the eliminated domains for the new observation
-        Func<IEnumerable<NameVar>, Dictionary<NameVar, Term>> makeFreeTerms = doms => doms.ToDictionary(d => d, _ => new Free() as Term);
         // projections map the domains(non-eliminated) of the new observation to the domains of proj expression.
         var projection = obs.Valence.Keys.ToDictionary(n => NameVar.NewUnbound(), n => n);
         // inverse projection maps the domains of proj to domains of observation
         var invProjection = projection.ToDictionary(kv => kv.Value, kv => kv.Key);
         // proj may have eliminated some domains, these will have free names and Out modes.
         var eliminatedDoms = Enumerable.Range(0, i_outs).ToDictionary(_ => NameVar.NewUnbound(), _ => Mode.Out);
+        // terms are needed for the eliminated domains for the new observation
+        Func<IEnumerable<NameVar>, Dictionary<NameVar, Term>> makeFreeTerms = doms => doms.ToDictionary(d => d, _ => new Free() as Term);
         // function returns a new alpha tuple where the terms are the same but domains are replaced with those in the source.
         Func<AlphaTuple, AlphaTuple> projToSource = patu => new AlphaTuple(patu.Terms.ToDictionary(t => invProjection[t.Key], t => t.Value.Clone(plnprn)).Concat(makeFreeTerms(eliminatedDoms.Keys)));
         var sourceTuples = obs.Observables.Select(projToSource);
@@ -78,6 +78,18 @@ namespace CNP.Language
         programs.Add(rootProgram);
       }
       return programs;
+    }
+
+    public override int GetHashCode()
+    {
+      return Projection.GetHashCode();
+    }
+
+    public override bool Equals(object obj)
+    {
+      if (obj is not Proj otherProj)
+        return false;
+      return Projection.EqualsAsDictionary(otherProj.Projection) && Source.Equals(otherProj.Source);
     }
 
     public override string ToString()
