@@ -68,7 +68,7 @@ namespace CNP.Search
                 ,Const.CreateAtFirstHole
                 ,FoldR.CreateAtFirstHole
                 ,FoldL.CreateAtFirstHole
-                //,Proj.CreateAtFirstHole
+                ,Proj.CreateAtFirstHole
       };
       foreach (var filler in fillers)
       {

@@ -10,7 +10,7 @@ namespace Synthesis
     {
       string typeStr = "{b0:in, as:in, b:out}";
       string atusStr = "{{b0:[], as:[1,2,3], b:[3,2,1]}}";
-      assertSingleResultFor(typeStr, atusStr, foldl(cons, id), "reverse3");
+      assertFirstResultFor(typeStr, atusStr, foldl(cons, id), "reverse3");
     }
 
 

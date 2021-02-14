@@ -13,9 +13,7 @@ namespace CNP.Language
   /// </summary>
   public class Valence : IReadOnlyDictionary<NameVar, Mode>, IEnumerable<KeyValuePair<NameVar,Mode>>
   {
-    readonly int modeNumber; // persists as the names become ground
     readonly IReadOnlyDictionary<NameVar, Mode> dict;
-
 
     public Valence(params (NameVar, Mode)[] tups)
         : this(tups.ToDictionary(x => x.Item1, x => x.Item2))
@@ -31,17 +29,25 @@ namespace CNP.Language
     public Valence(IDictionary<NameVar, Mode> dic)
     {
       dict = new Dictionary<NameVar, Mode>(dic);
-      int ins = dic.Count(kv => kv.Value == Mode.In);
-      int outs = dic.Count(kv => kv.Value == Mode.Out);
-      modeNumber = ins * 23 + outs * 17;
+      InsCount = dic.Count(kv => kv.Value == Mode.In);
+      OutsCount = dic.Count(kv => kv.Value == Mode.Out);
+      ModeNumber = InsCount * 23 + OutsCount * 17;
     }
 
     public int Count => dict.Count;
     public IEnumerable<NameVar> Keys => dict.Keys;
     /// <summary>
-    /// A number obtained by number of input(I)/output(O) arguments. Always same for the same I and O, and different for any different I and O. Independent from names.
+    /// A number obtained by number of input(I)/output(O) arguments. Always same for the same I and O, and different for any different I and O. Independent from names, therefore persists as the names become ground.
     /// </summary>
-    public int ModeNumber => modeNumber;
+    public readonly int ModeNumber;
+    /// <summary>
+    /// Number of In domains
+    /// </summary>
+    public readonly int InsCount;
+    /// <summary>
+    /// Number of Out domains
+    /// </summary>
+    public readonly int OutsCount;
     public IEnumerable<NameVar> Names => dict.Keys;
     public IEnumerable<Mode> Values => dict.Values;
     public Mode this[string name] => dict[new NameVar(name)];
@@ -110,6 +116,9 @@ namespace CNP.Language
       else return false;
     }
 
+    /// <summary>
+    /// Checks, against a given list of names and modes, that this and the given list maps all names to same modes. Requires all names to be ground.
+    /// </summary>
     public bool MapsAllNamesToSameMode(IEnumerable<KeyValuePair<NameVar,Mode>> groundNamesAndModes)
     {
       return groundNamesAndModes.All(g =>

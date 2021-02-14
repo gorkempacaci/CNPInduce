@@ -48,7 +48,7 @@ public class TestBase
     return t;
   }
 
-  protected void assertSingleResultFor(string domains, string atusStr, Program elementaryProgramExpected, string programName)
+  protected void assertFirstResultFor(string domains, string atusStr, Program elementaryProgramExpected, string programName)
   { 
     NameVarDictionary namevars = new();
     Valence namesModes = Parser.ParseNameModeMap(domains, namevars);
@@ -57,7 +57,7 @@ public class TestBase
     var measurement = benchmark.StartNew();
     var programs = job.FindAllPrograms();
     measurement.TakeFinishTime();
-    Assert.AreEqual(1, programs.Count(), "A program should be found.");
+    //Assert.AreEqual(1, programs.Count(), "A program should be found.");
     Assert.AreEqual(elementaryProgramExpected, programs.First());
     measurement.ReportFinish(programName, elementaryProgramExpected.ToString());
   }

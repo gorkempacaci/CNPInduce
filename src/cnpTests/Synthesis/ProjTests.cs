@@ -11,7 +11,7 @@ namespace Synthesis
     {
       string typeStr = "{u:in, v:in}";
       string atusStr = "{{u:1, v:1}}";
-      assertSingleResultFor(typeStr, atusStr, proj(id, ("a", "u"), ("b", "v")), "proj_id");
+      assertFirstResultFor(typeStr, atusStr, proj(id, ("a", "u"), ("b", "v")), "proj_id");
     }
   }
 }

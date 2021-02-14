@@ -14,28 +14,28 @@ namespace Synthesis
     {
       string typeStr = "{b0:in, as:in, b:out}";
       string atusStr = "{{b0:[4,5,6], as:[1,2,3], b:[1,2,3,4,5,6]}}";
-      assertSingleResultFor(typeStr, atusStr, foldr(cons, id), "append");
+      assertFirstResultFor(typeStr, atusStr, foldr(cons, id), "append");
     }
     [TestMethod]
     public void AppendToUnit()
     {
       string typeStr = "{b0:in, as:in, b:out}";
       string atusStr = "{{b0:[4], as:[1,2,3], b:[1,2,3,4]}}";
-      assertSingleResultFor(typeStr, atusStr, foldr(cons, id), "append");
+      assertFirstResultFor(typeStr, atusStr, foldr(cons, id), "append");
     }
     [TestMethod]
     public void AppendToEmpty()
     {
       string typeStr = "{b0:in, as:in, b:out}";
       string atusStr = "{{b0:[], as:[1,2,3], b:[1,2,3]}}";
-      assertSingleResultFor(typeStr, atusStr, foldr(cons, id), "append");
+      assertFirstResultFor(typeStr, atusStr, foldr(cons, id), "append");
     }
     [TestMethod]
     public void List_identity()
     {
       string typeStr = "{b0:in, as:in, b:out}";
       string atusStr = "{{b0:[], as:[1,2,3], b:[1,2,3]}}";
-      assertSingleResultFor(typeStr, atusStr, foldr(cons, id), "list_id");
+      assertFirstResultFor(typeStr, atusStr, foldr(cons, id), "list_id");
     }
   }
 

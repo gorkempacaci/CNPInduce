@@ -11,6 +11,8 @@
 - Instead of Dictionary<int, IEnumerable<ProgramType>>, Lookup can be used. It's immutable but it might suffice.
 - The CreateAtFirstHole parameter type can be changed from Program to IProgramSource that allows an immutable interface and cloning. Useful for extensibility.
 - Having a ObservedProgram.ReplaceInPlace(newProgram) would be helpful to eliminate one cloning in the implementations of CreateAtFirstHole
+- A benchmarking system that can run the tests wrt thread count and report the plots as latex code.
+
 == TidyUp
 - foldr and foldl Qs names, and id's names should be {a, a'}, or {e1, e2}, not {a, b} because their types are the same.
 - Would a context reduce variable mistreatment bugs in the future? An AlphaTuple would have a FreeContext, 
@@ -22,4 +24,5 @@
 
 == Optimization
 - Typestore can use multiple indexes at the cost of memory and initialization time. It already indexes by the number of ins and outs, but it could also index by each combination of ground argument names.
-- Search is branching for each valence, for example P{a:in, b:out} and P{a:in, b:in}. Sub-searches for each of these may have overlap. 
+- Search is branching for each valence, for example P{a:in, b:out} and P{a:in, b:in}. Sub-searches for each of these may have overlap.
+- Fold synthesis doesn't need to unfold the examples for each valence.

@@ -24,7 +24,7 @@ namespace Synthesis
     [DataRow("{a:in, b:out}", "{{a:[], b:B}}")]
     public void IdPositive(string typeStr, string atusStr)
     {
-      assertSingleResultFor(typeStr, atusStr, Id.IdProgram, "id");
+      assertFirstResultFor(typeStr, atusStr, Id.IdProgram, "id");
     }
 
     [DataTestMethod]
@@ -34,7 +34,7 @@ namespace Synthesis
     [DataRow("{a:in, b:in, ab:out}", "{{a:0, b:[1,2], ab:[0,1,2]}}")]
     public void ConsPositive(string typeStr, string atusStr)
     {
-      assertSingleResultFor(typeStr, atusStr, Cons.ConsProgram, "cons");
+      assertFirstResultFor(typeStr, atusStr, Cons.ConsProgram, "cons");
     }
 
     [DataTestMethod]
@@ -47,7 +47,7 @@ namespace Synthesis
     public void ConstPositive(string typeStr, string atusStr, string argName, string constValueStr)
     {
       Term grTerm = Parser.ParseTerm(constValueStr, new());
-      assertSingleResultFor(typeStr, atusStr, new Const(new NameVar(argName), grTerm), "const");
+      assertFirstResultFor(typeStr, atusStr, new Const(new NameVar(argName), grTerm), "const");
     }
 
     [DataTestMethod]
