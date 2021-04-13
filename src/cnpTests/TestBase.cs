@@ -1,14 +1,13 @@
 ﻿using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Collections.Generic;
-using System.Linq;
 using CNP.Language;
 using CNP.Parsing;
 using CNP.Helper;
 using CNP.Search;
+using CNP.Helper.EagerLinq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.IO;
-using Helper;
 
 [SuppressMessage("Style", "IDE1006:Naming Styles", Justification = "Convenience")]
 [TestClass]
@@ -16,12 +15,15 @@ public class TestBase
 {
 
   #region Shorthand for Language Constructs
+  protected static Term list() => NilTerm.Instance;
   protected static Term list(params Term[] terms) => TermList.FromEnumerable(terms);
+  protected static Term list(params int[] terms) => TermList.FromEnumerable(Enumerable.Select(terms, t => cnst(t)));
+  protected static Term list(params string[] terms) => TermList.FromEnumerable(Enumerable.Select(terms, t => cnst(t)));
   protected static Term cns(Term head, Term tail) => new TermList(head, tail);
   protected static ConstantTerm cnst(string s) => new ConstantTerm(s);
   protected static ConstantTerm cnst(int i) => new ConstantTerm(i);
-  protected static Id id => Id.IdProgram;
-  protected static Cons cons => Cons.ConsProgram;
+  protected static Id id => new Id();
+  protected static Cons cons => new Cons();
   protected static FoldR foldr(Program rec, Program bas) => new FoldR(recursiveCase: rec, baseCase: bas);
   protected static FoldL foldl(Program rec, Program bas) => new FoldL(recursiveCase: rec, baseCase: bas);
   protected static Proj proj(Program source, params (string, string)[] projections) => new Proj(source, new ProjectionMap(projections.Select(p => (new NameVar(p.Item1), new NameVar(p.Item2)))));
@@ -29,23 +31,47 @@ public class TestBase
 
   static readonly BenchmarkCollation benchmark = new BenchmarkCollation();
 
+  protected static string nietBruijnString(IEnumerable<AlphaTuple> ts)
+  {
+    return string.Join(", ", nietBruijn(ts));
+  }
+
+  protected static IEnumerable<AlphaTuple> nietBruijn(IEnumerable<AlphaTuple> ts)
+  {
+    TermReferenceDictionary trd = new();
+    var newTs = ts.Select(t => t.Clone(trd));
+    ReplaceFreesWithLambdaStrings(GetDistinctNewFreesIn(trd));
+    return newTs;
+  }
+
   /// <summary>
-  /// Converts frees to strings λ0, λ1,... where the number is the order of variables.
+  /// Converts frees _1, _2 to strings λ0, λ1,... where the number is the order of variables.
   /// </summary>
   protected static AlphaTuple nietBruijn(AlphaTuple atu)
   {
-    atu = atu.Clone(new TermReferenceDictionary());
-    var allVarsDistinct = atu.Terms.Values.SelectMany(freesIn).Distinct().ToList();
-    allVarsDistinct.For((Free f, int i) => { f.ReplaceInAllContexts(new ConstantTerm("λ" + i.ToString())); });
+    TermReferenceDictionary trd = new();
+    atu = atu.Clone(trd);
+    ReplaceFreesWithLambdaStrings(GetDistinctNewFreesIn(trd));
     return atu;
   }
 
   protected static Term nietBruijnTerm(Term t)
   {
-    t = t.Clone(new TermReferenceDictionary());
-    var allVarsDistinct = freesIn(t).Distinct();
-    allVarsDistinct.For((Free f, int i) => { f.ReplaceInAllContexts(new ConstantTerm("λ" + i.ToString())); });
+    TermReferenceDictionary trd = new();
+    t = t.Clone(trd);
+    ReplaceFreesWithLambdaStrings(GetDistinctNewFreesIn(trd));
     return t;
+  }
+
+
+  private static IEnumerable<Free> GetDistinctNewFreesIn(TermReferenceDictionary trd)
+  {
+    return trd.Values.Where(t => t is Free).Select(t => t as Free);
+  }
+
+  private static void ReplaceFreesWithLambdaStrings(IEnumerable<Free> distinctFrees)
+  {
+    distinctFrees.For((Free f, int i) => f.ReplaceInAllContexts(new ConstantTerm("λ" + i.ToString())));
   }
 
   protected void assertFirstResultFor(string domains, string atusStr, Program elementaryProgramExpected, string programName)

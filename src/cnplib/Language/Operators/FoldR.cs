@@ -5,7 +5,6 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using CNP.Helper;
 using CNP.Helper.EagerLinq;
-using Helper;
 
 namespace CNP.Language
 {
@@ -27,16 +26,17 @@ namespace CNP.Language
       return "foldr(" + Recursive.ToString() + "," + Base.ToString() + ")";
     }
 
-    internal override FoldR Clone(TermReferenceDictionary plannedParenthood)
+    protected override Program CloneNode(TermReferenceDictionary plannedParenthood)
     {
-      return new FoldR(Recursive.Clone(plannedParenthood),
-          Base.Clone(plannedParenthood));
+      var p = new FoldR(Recursive.CloneAsSubTree(plannedParenthood), Base.CloneAsSubTree(plannedParenthood));
+      return p;
     }
 
-    internal override FoldR CloneAndReplaceObservation(ObservedProgram oldComponent, Program newComponent, TermReferenceDictionary plannedParenthood)
+    protected override FoldR CloneAndReplaceObservationAtNode(ObservedProgram oldComponent, Program newComponent, TermReferenceDictionary plannedParenthood)
     {
-      return new FoldR(Recursive.CloneAndReplaceObservation(oldComponent, newComponent, plannedParenthood),
-        Base.CloneAndReplaceObservation(oldComponent, newComponent, plannedParenthood));
+      var p = new FoldR(Recursive.CloneAndReplaceObservationAsSubTree(oldComponent, newComponent, plannedParenthood),
+        Base.CloneAndReplaceObservationAsSubTree(oldComponent, newComponent, plannedParenthood));
+      return p;
     }
 
     /// <summary>
@@ -69,7 +69,7 @@ namespace CNP.Language
            foldr(Y, [], Z) :- Q(Y, Z).
            foldr(Y, [X|T], W) :- foldr(Y, T, Z), P(X, Z, W).
      */
-    static bool unfoldFoldrToPQ(Term b0, Term @as, Term b, List<AlphaTuple> atusP, NameVarDictionary pNameDict, List<AlphaTuple> atusQ, NameVarDictionary qNameDict)
+    public static bool unfoldFoldrToPQ(Term b0, Term @as, Term b, List<AlphaTuple> atusP, NameVarDictionary pNameDict, List<AlphaTuple> atusQ, NameVarDictionary qNameDict)
     {
       if (@as is TermList li)
       {

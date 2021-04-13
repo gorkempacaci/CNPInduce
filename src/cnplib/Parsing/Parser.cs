@@ -4,7 +4,6 @@ using CNP.Helper;
 using CNP.Language;
 using CNP.Helper.EagerLinq;
 using CNP.Parsing;
-using Helper;
 
 namespace CNP.Parsing
 {

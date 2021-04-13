@@ -11,19 +11,14 @@ namespace CNP.Language
   /// </summary>
   public class Id : ElementaryProgram
   {
-    private Id() { }
+    public Id() { }
 
-    public override string ToString()
+
+    protected override Program CloneNode(TermReferenceDictionary plannedParenthood)
     {
-      return "id";
+      var p = new Id();
+      return p;
     }
-
-    internal override Program Clone(TermReferenceDictionary plannedParenthood)
-    {
-      return this;
-    }
-
-    public static readonly Id IdProgram = new();
 
     private static readonly TypeStore<Valence> valences = TypeHelper.ParseListOfCompactedProgramTypes(new[]
     {
@@ -32,6 +27,21 @@ namespace CNP.Language
             "{a:out, b:in}"
         });
 
+
+    public override string ToString()
+    {
+      return "id";
+    }
+
+    public override int GetHashCode()
+    {
+      return 19;
+    }
+
+    public override bool Equals(object obj)
+    {
+      return obj is Id;
+    }
     /// <summary>
     /// Does not modify the given program, returns alternative cloned programs if they exist.
     /// </summary>
@@ -42,16 +52,20 @@ namespace CNP.Language
       var idTypesCompatible = valences.FindCompatibleTypes(obsOriginal.Valence);
       if (!idTypesCompatible.Any())
         return Iterators.Empty<Id>();
+
       var combs = obsOriginal.Valence.PossibleGroundings(idTypesCompatible.First());
-      foreach (var uni in combs)
+      foreach (TermReferenceDictionary uni in combs)
       {
-        Program clonedRoot = rootProgramOriginal.Clone(uni);
+        Program clonedRoot = rootProgramOriginal.CloneAtRoot(uni);
         ObservedProgram clonedObs = clonedRoot.FindFirstHole();
         if (clonedObs.Observables.All(at => Term.UnifyInPlace(at["a"], at["b"])))
         {
-          return Iterators.Singleton(clonedRoot.CloneAndReplaceObservation(clonedObs, IdProgram));
+          var p = new Id();
+          p.SetFoundingState(rootProgramOriginal.CloneAtRoot());
+          return Iterators.Singleton(clonedRoot.CloneAndReplaceObservation(clonedObs, p));
         }
       }
+
       return Iterators.Empty<Id>();
     }
   }

@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
-using System.Linq;
 using CNP.Helper;
 using CNP.Parsing;
+using CNP.Helper.EagerLinq;
 
 namespace CNP.Language
 {

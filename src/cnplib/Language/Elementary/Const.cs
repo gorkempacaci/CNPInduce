@@ -23,9 +23,10 @@ namespace CNP.Language
       Value = groundTerm;
     }
 
-    internal override Program Clone(TermReferenceDictionary plannedParenthood)
+    protected override Program CloneNode(TermReferenceDictionary plannedParenthood)
     {
-      return new Const(ArgumentName.Clone(plannedParenthood) as NameVar, Value.Clone(plannedParenthood));
+      var p = new Const(ArgumentName.Clone(plannedParenthood) as NameVar, Value.Clone(plannedParenthood));
+      return p;
     }
 
     public override bool Equals(object obj)
@@ -52,13 +53,13 @@ namespace CNP.Language
     /// </summary>
     public static IEnumerable<Program> CreateAtFirstHole(Program rootProgram)
     {
-      rootProgram = rootProgram.Clone();
-      ObservedProgram obs = rootProgram.FindFirstHole();
-      if (obs.Valence.Count() != 1)
+      rootProgram = rootProgram.CloneAtRoot();
+      ObservedProgram cloneObs = rootProgram.FindFirstHole();
+      if (cloneObs.Valence.Count() != 1)
         return Iterators.Empty<Const>();
       Free candidateConstant = new Free();
-      NameVar argName = obs.Valence.Names.First();
-      var allTups = Enumerable.ToList(obs.Observables);
+      NameVar argName = cloneObs.Valence.Names.First();
+      var allTups = Enumerable.ToList(cloneObs.Observables);
       int count = allTups.Count();
       for (int i = 1; i < count; i++)
         if (!Term.UnifyInPlace(allTups[0][argName], allTups[i][argName]))
@@ -66,7 +67,8 @@ namespace CNP.Language
       if (!allTups[0][argName].IsGround())
         return Iterators.Empty<Const>(); // has to be ground otherwise can't use CloneAndReplaceWithClosed
       var constProgram = new Const(argName, allTups[0][argName]);
-      rootProgram = rootProgram.CloneAndReplaceObservation(obs, constProgram);
+      constProgram.SetFoundingState(rootProgram.CloneAtRoot());
+      rootProgram = rootProgram.CloneAndReplaceObservation(cloneObs, constProgram);
       return Iterators.Singleton(rootProgram);
     }
 

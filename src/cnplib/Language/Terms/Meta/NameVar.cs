@@ -27,11 +27,11 @@ namespace CNP.Language
 
     public bool BindName(string name)
     {
-      Validator.AssertArgumentName(name);
       if (IsGround())
         return false;
       else
       {
+        Validator.AssertArgumentName(name);
         _name = name;
         return true;
       }
@@ -72,7 +72,11 @@ namespace CNP.Language
 
     public override string ToString()
     {
+#if Debug
+      return DebugName;
+#else
       return Name;
+#endif
     }
 
     public override NameVar Clone(TermReferenceDictionary plannedParenthood)
@@ -90,6 +94,8 @@ namespace CNP.Language
         return String.Compare(_name, otherName._name, StringComparison.Ordinal);
       else return _argNameId.CompareTo(otherName._argNameId);
     }
+
+    public string DebugName => _name == null ? "_" + _argNameId.ToString() : "_" + _argNameId.ToString() + "(" + _name + ")";
 
     public static NameVar NewUnbound()
     {

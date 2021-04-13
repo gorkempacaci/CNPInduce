@@ -11,9 +11,9 @@ namespace CNP.Language
       
     }
 
-    internal sealed override Program CloneAndReplaceObservation(ObservedProgram oldComponent, Program newComponent, TermReferenceDictionary plannedParenthood)
+    protected sealed override Program CloneAndReplaceObservationAtNode(ObservedProgram oldComponent, Program newComponent, TermReferenceDictionary plannedParenthood)
     {
-      return Clone(plannedParenthood);
+      return CloneNode(plannedParenthood);
     }
 
     internal override ObservedProgram FindFirstHole()

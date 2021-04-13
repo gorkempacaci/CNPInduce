@@ -22,12 +22,7 @@ namespace CNP.Language
 
         public override Term Clone(TermReferenceDictionary plannedParenthood)
         {
-            if (!plannedParenthood.TryGetValue(this, out Term newMe))
-            {
-                newMe = new Free();
-                plannedParenthood.Add(this, newMe);
-            }
-            return newMe;
+            return plannedParenthood.GetOrAdd(this, () => new Free());
         }
 
         public override bool Contains(Free other) => false;

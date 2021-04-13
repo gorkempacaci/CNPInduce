@@ -33,19 +33,26 @@ namespace CNP.Search
         Action<IEnumerable<Program>> queueBack = null;
         try
         {
-          if (queue.TryTake(out Program open, out queueBack))
+          if (queue.TryTake(out Program open, out queueBack, out bool searchCompleted))
           {
-            alternates = AlternateOnFirstHole(open, ref queue.SearchedProgramsCount);
+
+              alternates = AlternateOnFirstHole(open, ref queue.SearchedProgramsCount);
             // if there are no alternatives produced, the open program disappears from search space.
           }
           else
           {
-            Thread.Sleep(50);
+            if (searchCompleted)
+            {
+              stopRequested = true;
+              continue;
+            }
+            else
+              Thread.Sleep(50);
           }
         }
         catch (InvalidOperationException)
         {
-          Stop();
+          stopRequested = true;
         }
         finally
         {

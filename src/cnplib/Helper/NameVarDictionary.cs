@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using CNP.Language;
 using CNP.Helper.EagerLinq;
 
-namespace Helper
+namespace CNP.Helper
 {
   /// <summary>
   /// Maintains a mapping of argument names and the argument name variables they're referenced as.

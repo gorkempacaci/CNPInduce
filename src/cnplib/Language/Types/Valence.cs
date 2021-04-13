@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using CNP.Helper;
 using CNP.Helper.EagerLinq;
-using Enumerable = System.Linq.Enumerable;
 
 namespace CNP.Language
 {

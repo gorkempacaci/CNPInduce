@@ -8,7 +8,7 @@ using System.Diagnostics.CodeAnalysis;
 using CNP.Parsing;
 using CNP.Language;
 using CNP.Search;
-using Helper;
+using CNP.Helper;
 
 namespace Synthesis
 {
@@ -22,9 +22,10 @@ namespace Synthesis
     [DataRow("{a:out, b:in}", "{{a:A, b:0}, {a:A, b:'yello'}}")]
     [DataRow("{a:in, b:in}", "{{a:0, b:0}, {a:'hello', b:'hello'}}")]
     [DataRow("{a:in, b:out}", "{{a:[], b:B}}")]
+    [DataRow("{a:in, b:out}", "{{a:[3,2,1], b:[3,2,1]}}")]
     public void IdPositive(string typeStr, string atusStr)
     {
-      assertFirstResultFor(typeStr, atusStr, Id.IdProgram, "id");
+      assertFirstResultFor(typeStr, atusStr, id, "id");
     }
 
     [DataTestMethod]
@@ -34,7 +35,7 @@ namespace Synthesis
     [DataRow("{a:in, b:in, ab:out}", "{{a:0, b:[1,2], ab:[0,1,2]}}")]
     public void ConsPositive(string typeStr, string atusStr)
     {
-      assertFirstResultFor(typeStr, atusStr, Cons.ConsProgram, "cons");
+      assertFirstResultFor(typeStr, atusStr, cons, "cons");
     }
 
     [DataTestMethod]

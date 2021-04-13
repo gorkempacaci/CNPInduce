@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using CNP.Helper;
 using CNP.Helper.EagerLinq;
-using Helper;
 
 namespace CNP.Language
 {
@@ -24,16 +23,17 @@ namespace CNP.Language
       return "foldl(" + Recursive.ToString() + "," + Base.ToString() + ")";
     }
 
-    internal override FoldL Clone(TermReferenceDictionary plannedParenthood)
+    protected override Program CloneNode(TermReferenceDictionary plannedParenthood)
     {
-      return new FoldL(Recursive.Clone(plannedParenthood),
-          Base.Clone(plannedParenthood));
+      var p = new FoldL(Recursive.CloneAsSubTree(plannedParenthood), Base.CloneAsSubTree(plannedParenthood));
+      return p;
     }
 
-    internal override FoldL CloneAndReplaceObservation(ObservedProgram oldComponent, Program newComponent, TermReferenceDictionary plannedParenthood)
+    protected override FoldL CloneAndReplaceObservationAtNode(ObservedProgram oldComponent, Program newComponent, TermReferenceDictionary plannedParenthood)
     {
-      return new FoldL(Recursive.CloneAndReplaceObservation(oldComponent, newComponent, plannedParenthood),
-        Base.CloneAndReplaceObservation(oldComponent, newComponent, plannedParenthood));
+      var p = new FoldL(Recursive.CloneAndReplaceObservationAsSubTree(oldComponent, newComponent, plannedParenthood),
+        Base.CloneAndReplaceObservationAsSubTree(oldComponent, newComponent, plannedParenthood));
+      return p;
     }
 
 
@@ -70,7 +70,7 @@ namespace CNP.Language
     /// lists atusP and atusQ should be initialized before call, since they're populated by this function.
     /// </summary>
     /// <returns></returns>
-    static bool unfoldFoldlToPQ(Term b0, Term @as, Term b, List<AlphaTuple> atusP, NameVarDictionary pNameDict, List<AlphaTuple> atusQ, NameVarDictionary qNameDict)
+    public static bool unfoldFoldlToPQ(Term b0, Term @as, Term b, List<AlphaTuple> atusP, NameVarDictionary pNameDict, List<AlphaTuple> atusQ, NameVarDictionary qNameDict)
     {
       if (@as is TermList li)
       {

@@ -82,9 +82,12 @@ namespace CNP.Language
 
     public override string ToString()
     {
+#if Debug
+      return "{" + string.Join(", ", _terms.Select(kv => kv.Key.DebugName + ":" + kv.Value.ToString())) + "}";
+#else
       return "{" + string.Join(", ", _terms.Select(kv => kv.Key + ":" + kv.Value.ToString())) + "}";
+#endif
     }
   }
-
 
 }

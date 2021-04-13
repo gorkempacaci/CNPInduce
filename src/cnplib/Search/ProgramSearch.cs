@@ -21,7 +21,7 @@ namespace CNP.Search
     public ProgramSearch(ObservedProgram initialHole, IProgramSearchReceiver receiver, ThreadCount tCount = default)
     {
       searchReceiver = receiver;
-      threadCount = tCount.GetNumberOfThreads();
+      threadCount = 1; // tCount.GetNumberOfThreads();
       maxHeightForPrograms = initialHole.DTL;
       searchQueue.Enqueue(initialHole);
     }
@@ -58,17 +58,26 @@ namespace CNP.Search
     /// True if Take() was successfull. False if there is nothing in the queue.
     /// </summary>
     /// <exception cref="InvalidOperationException">If the search is terminated throws InvalidOperationException.</exception>
-    public bool TryTake(out Program program, out Action<IEnumerable<Program>> queueCallback)
+    public bool TryTake(out Program program, out Action<IEnumerable<Program>> queueCallback, out bool searchCompleted)
     {
+      searchCompleted = false;
       lock (busyThreadCountMonitor)
       {
         if (searchReceiver == null)
         {
+          //program = null;
+          //queueCallback = null;
+          //searchCompleted = true;
+          //return false;
           throw new InvalidOperationException("Search is terminated.");
         }
         else if (busyThreadCount == 0 && searchQueue.Count == 0)
         {
-          throw new InvalidOperationException("Search is finished.");
+          program = null;
+          queueCallback = null;
+          searchCompleted = true;
+          return false;
+          //throw new InvalidOperationException("Search is finished.");
         }
         else if (searchQueue.TryDequeue(out program))
         {

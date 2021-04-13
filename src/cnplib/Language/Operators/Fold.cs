@@ -4,7 +4,6 @@ using System.Reflection;
 using CNP.Parsing;
 using CNP.Helper;
 using CNP.Helper.EagerLinq;
-using Helper;
 
 namespace CNP.Language
 {
@@ -62,7 +61,7 @@ namespace CNP.Language
         var combs = origObservation.Valence.PossibleGroundings(valFPQ);
         foreach(var uni in combs)
         {
-          var cloneProgram = rootProgram.Clone(uni);
+          var cloneProgram = rootProgram.CloneAtRoot(uni);
           var obs = cloneProgram.FindFirstHole();
           // decompose into p and q examples
           List<AlphaTuple> pExamples = new(), qExamples = new();
@@ -71,15 +70,13 @@ namespace CNP.Language
           foreach (AlphaTuple at in obs.Observables)
             if (false == unfold(at["b0"], at["as"], at["b"], pExamples, pNames, qExamples, qNames))
               return Iterators.Empty<Program>(); // if even one of the observations doesn't unfold, this is not a fold.
-          var pp = new TermReferenceDictionary(); // a fresh cloning map from old root to new context
-          var pEx = pExamples.Select(e => e.Clone(pp)); // clone examples
-          var qEx = qExamples.Select(e => e.Clone(pp));
-          var pVal = valFPQ.RecursiveComponent.Clone(pp); // clone valences (maybe arg names aren't ground)
-          var qVal = valFPQ.BaseComponent.Clone(pp);
-          var pObs = new ObservedProgram(pEx, pVal, obs.DTL - 1);
-          var qObs = new ObservedProgram(qEx, qVal, obs.DTL - 1);
+          if (!pExamples.Any() || !qExamples.Any())
+            continue;
+          var pObs = new ObservedProgram(pExamples, valFPQ.RecursiveComponent, obs.DTL - 1);
+          var qObs = new ObservedProgram(qExamples, valFPQ.BaseComponent, obs.DTL - 1);
           var foldProgram = foldFactoryMethod(pObs, qObs);
-          var p = cloneProgram.CloneAndReplaceObservation(obs, foldProgram, pp); // use same cloning scheme for cloning the root program
+          foldProgram.SetFoundingState(rootProgram.CloneAtRoot());
+          var p = cloneProgram.CloneAndReplaceObservation(obs, foldProgram); // use same cloning scheme for cloning the root program
           newRootPrograms.Add(p);
         }
       }

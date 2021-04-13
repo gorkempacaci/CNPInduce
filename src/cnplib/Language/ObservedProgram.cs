@@ -1,11 +1,7 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
-using System.Runtime.CompilerServices;
 using CNP.Helper;
 using CNP.Helper.EagerLinq;
-using Enumerable = System.Linq.Enumerable;
 
 namespace CNP.Language
 {
@@ -15,9 +11,11 @@ namespace CNP.Language
   /// </summary>
   public class ObservedProgram : Program
   {
+    [Flags] public enum Constraint : short { None = 0, NotProjection = 1}
 
     public readonly IEnumerable<AlphaTuple> Observables;
     public readonly Valence Valence;
+    public readonly Constraint Constraints;
     /// <summary>
     /// Decompositions-To-Live. Decreased until 0 and if it's zero then that observation
     /// can only be replaced with an elementary predicate, because it doesn't afford any more
@@ -26,11 +24,14 @@ namespace CNP.Language
     /// </summary>
     public readonly int DTL;
 
-    public ObservedProgram(IEnumerable<AlphaTuple> obsv, Valence vlnc, int dtl) : base(false)
+    public ObservedProgram(IEnumerable<AlphaTuple> obsv, Valence vlnc, int dtl, Constraint cnstrnts = Constraint.None) : base(false)
     {
+      if (!obsv.Any())
+        throw new InvalidOperationException("Empty observation.");
       Observables = obsv;
       Valence = vlnc;
       DTL = dtl;
+      Constraints = cnstrnts;
 #if DEBUG // check that the valence matches the domains on the tuples
       foreach(var o in Observables)
       {
@@ -40,7 +41,7 @@ namespace CNP.Language
 #endif
     }
 
-    internal override Program Clone(TermReferenceDictionary plannedParenthood)
+    protected override Program CloneNode(TermReferenceDictionary plannedParenthood)
     {
       List<AlphaTuple> clonedObservables = new();
       foreach(AlphaTuple at in Observables)
@@ -51,22 +52,22 @@ namespace CNP.Language
       Valence clonedDomains = Valence.Clone(plannedParenthood);
       //var clonedObservables = Observables.Select(o => o.Clone(plannedParenthood));
       //var clonedDomains = Valence.Clone(plannedParenthood);
-      return new ObservedProgram(clonedObservables, clonedDomains, DTL);
+      return new ObservedProgram(clonedObservables, clonedDomains, DTL, Constraints);
     }
 
     /// <summary>
-    /// Replaces itself if it is the oldComponent.
+    /// Replaces itself if it is the oldComponent. The newComponent needs to come from the same context as this object.
     /// </summary>
-    internal override Program CloneAndReplaceObservation(ObservedProgram oldComponent, Program newComponent, TermReferenceDictionary plannedParenthood)
+    protected override Program CloneAndReplaceObservationAtNode(ObservedProgram oldComponent, Program newComponent, TermReferenceDictionary plannedParenthood)
     {
       // If this is the oldComponent they're looking for
       if (object.ReferenceEquals(this, oldComponent))
       {
-        return newComponent;
+        return newComponent.CloneAsSubTree(plannedParenthood);
       }
       else
       {
-        return this.Clone(plannedParenthood);
+        return this.CloneNode(plannedParenthood);
       }
     }
 
@@ -87,5 +88,6 @@ namespace CNP.Language
     {
       return this.Valence.ToString() + "#" + Observables.Count() + "/TL=" + DTL;
     }
+
   }
 }

@@ -1,9 +1,16 @@
+== bugs
+1 thread fails more tests than more threads
+
 == To be discussed
 - both fold's own, recursive and base parameters' names are ground and arbitrary. maybe it's possible to derive these names or make them dynamic by inferring which argument is bound to what using their types? This may apply to CNP language in general by removing argument name mechanics if types are specific enough. 
 - Hamfelt Nilsson folds are unfamiliar to functional programmers, maybe add some akin to those in FP?
 - The search always works with the first hole, searching top-down. If the first hole can't be filled, it disposes of the search node. How does this affect the search exhaustiveness? Maybe it should try each hole in a separate search path.
+- The search always works with the first hole (top-down, left-right). Is avoiding other orders eliminating some results?
+- For an observation such as {{X:1, Y:F1, Z:[1,2,3]}, {X:2, Y:F2, Z:F1}, {X:3, Y:F3, Z:F3}} with a valence {X:in, Y:out, Z:in}, cons might bind X=a,Z=ab
 
 == Improvements
+- double projections such as (proj(proj(cons, ...), ...) should be avoided.
+- identity projections such as (proj(cons, a->a, b->b, ab->ab)) should be avoided.
 - Importing from job files like the CNP that shipped with RICE. Maybe use JSON files instead.
 - Extensibility. Besides the CNP.CoreLanguage package (id, cons, const, and, or, foldr, foldl, map) there may be a CNP.Numerics or CNP.Math as well as CNP.Geometry (for avionics stuff). When running a job you can run the full suite by default, or choose only some for efficiency (Job.SetSearchOptions(CNP.CoreLanguage | CNP.Math) or something like that). This might require some packaging system decisions. Moreover we can allow the client to add their operators by giving a type that inherits from CNP.Program and a type for the reverse semantics (or a static method like we currently have).
 - AND operator: Constraint on ObservableProgram to be different than another program. Useful for and(P, Q). P dif Q is a requirement for efficiency. Once P is bound to, p, Q will be changed to be different to p. When grounding Q, if the new operator is different than p, the constraint is abandoned. if it's same as p, constrained is inherited to Q's arguments as P.i diff to Q.i for all arguments i. Custom constraints like this should possible to add easily without breaking core synthesis. Maybe a Program node has a Constraints list that is manipulated during search and ultimately required to be empty for program to be accepted.
