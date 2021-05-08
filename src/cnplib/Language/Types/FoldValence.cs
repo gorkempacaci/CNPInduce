@@ -13,7 +13,7 @@ namespace CNP.Language
 
     public override bool IsGround()
     {
-      return RecursiveComponent.IsGround() && BaseComponent.IsGround();
+      return base.IsGround() && RecursiveComponent.IsGround() && BaseComponent.IsGround();
     }
 
     public override bool Equals(object obj)

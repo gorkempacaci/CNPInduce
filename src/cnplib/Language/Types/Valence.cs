@@ -171,6 +171,13 @@ namespace CNP.Language
       return allMaps;
     }
 
+    /// <summary>
+    /// Throws if there are shared names among the two valences.
+    /// </summary>
+    public static Valence Combine(Valence val1, Valence val2)
+    {
+      return new Valence(val1.Concat(val2));
+    }
   }
 }
 

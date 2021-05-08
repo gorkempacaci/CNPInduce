@@ -140,6 +140,22 @@ namespace CNP.Helper.EagerLinq
     {
       return Lazy.SequenceEqual(first, second);
     }
+    public static bool SequenceEqualPos<TSource>(this IEnumerable<TSource> first, IEnumerable<TSource> second, out int position)
+    {
+      position = 0;
+      var firstEn = first.GetEnumerator();
+      var secondEn = second.GetEnumerator();
+      bool f = false, s = false;
+      while((f=firstEn.MoveNext()) && (s=secondEn.MoveNext()))
+      {
+        if (!EqualityComparer<TSource>.Default.Equals(firstEn.Current, secondEn.Current))
+          return false;
+        position++;
+      }
+      if (secondEn.MoveNext())
+        return false;
+      else return true;
+    }
     public static bool SequenceEqual<TSource>(this IEnumerable<TSource> first, IEnumerable<TSource> second, IEqualityComparer<TSource> equalityComparer)
     {
       return Lazy.SequenceEqual(first, second, equalityComparer);

@@ -8,6 +8,7 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{0FB392C1-DC4B-42D2-8A6D-1EFDE5059389}"
 	ProjectSection(SolutionItems) = preProject
 		readme.md = readme.md
+		andorargs.txt = andorargs.txt
 	EndProjectSection
 EndProject
 Global

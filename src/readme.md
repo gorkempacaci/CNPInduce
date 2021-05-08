@@ -47,3 +47,7 @@ A Name is ground if it is not a Free name. A valence is ground if all its names 
 
 - Returned list of programs may be open and unground.
 
+### Reversing argument names for logic operators
+
+(i,m) \in V = domains for the and/or expression for 1<=i<=6
+c \in C = common domains to Vp and Vq, found by all unordered combinations of (n,_) \in V

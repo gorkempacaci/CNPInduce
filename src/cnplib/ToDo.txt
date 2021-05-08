@@ -16,9 +16,11 @@
 - AND operator: Constraint on ObservableProgram to be different than another program. Useful for and(P, Q). P dif Q is a requirement for efficiency. Once P is bound to, p, Q will be changed to be different to p. When grounding Q, if the new operator is different than p, the constraint is abandoned. if it's same as p, constrained is inherited to Q's arguments as P.i diff to Q.i for all arguments i. Custom constraints like this should possible to add easily without breaking core synthesis. Maybe a Program node has a Constraints list that is manipulated during search and ultimately required to be empty for program to be accepted.
 - Constraint for the proj operator to be not repeated.
 - Instead of Dictionary<int, IEnumerable<ProgramType>>, Lookup can be used. It's immutable but it might suffice.
+- AndOrValence generation can be more efficient by using bit operations and truth tables for finding combinations
 - The CreateAtFirstHole parameter type can be changed from Program to IProgramSource that allows an immutable interface and cloning. Useful for extensibility.
 - Having a ObservedProgram.ReplaceInPlace(newProgram) would be helpful to eliminate one cloning in the implementations of CreateAtFirstHole
 - A benchmarking system that can run the tests wrt thread count and report the plots as latex code.
+- As search decomposes, it populates redundant holes for the same space, like {a:in, b:out} and {a:in, b:in} separately (for example, for the base case of folds). This gives two separate search paths, but if for example 'id' is not working for this hole, it won't work for either of them. This inefficiency could be improved by grouping multiple valences into one search path. One potential pitfall is to combine valences of component expressions ina functional valence, as they're only searched for that particular valence in the given context. But, for example, for decomposing proj, valences might be able to grouped.
 
 == TidyUp
 - foldr and foldl Qs names, and id's names should be {a, a'}, or {e1, e2}, not {a, b} because their types are the same.

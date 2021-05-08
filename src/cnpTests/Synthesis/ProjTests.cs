@@ -7,7 +7,7 @@ namespace Synthesis
   public class ProjTests : TestBase
   {
     [TestMethod]
-    public void proj_id()
+    public void Proj_id()
     {
       string typeStr = "{u:in, v:in}";
       string atusStr = "{{u:1, v:1}}";
@@ -15,7 +15,7 @@ namespace Synthesis
     }
 
     [TestMethod]
-    public void proj_append()
+    public void Proj_append()
     {
       string typeStr = "{list1:in, list2:in, appended:out}";
       string atusStr = "{{list1:[1,2,3], list2:[4,5,6], appended:[1,2,3,4,5,6]}}";
@@ -23,9 +23,22 @@ namespace Synthesis
 
     }
 
-    public void proj_negative()
+    [TestMethod]
+    public void Proj_reverse_by_foldl()
     {
-      
+      string typeStr = "{nillist:in, inlist:in, outlist:out}";
+      string atusStr = "{{nillist:[], inlist:[3,2,1], outlist:[1,2,3]}}";
+      var expectedProgram = proj(foldl(cons, id), ("b0", "nillist"), ("as", "inlist"), ("b", "outlist"));
+      assertFirstResultFor(typeStr, atusStr, expectedProgram, "Proj_reverse_by_foldl");
     }
+
+
+    public void Proj_and_const_reverse()
+    {
+      string typeStr = "{inlist:in, outlist:out}";
+      string atusStr = "{{inlist:[3,2,1], outlist:[1,2,3]}}";
+
+    }
+
   }
 }

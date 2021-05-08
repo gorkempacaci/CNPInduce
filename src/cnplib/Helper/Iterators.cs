@@ -18,46 +18,6 @@ namespace CNP.Helper
       yield return obj;
     }
 
-
-
-    /// <summary>
-    /// permutations([1]) = [[1]]
-    /// permutations([1,2]) = [[1,2],[2,1]]
-    /// permutations([1,2,3]) = [[1,2,3],[1,3,2],[2,1,3],[2,3,1],[3,1,2],[3,2,1]]
-    /// TODO: Optimize
-    /// </summary>
-    public static IEnumerable<IEnumerable<TSource>> Permutations<TSource>(this IEnumerable<TSource> source)
-    {
-      int len = source.Count();
-      if (len == 0)
-        return Empty<IEnumerable<TSource>>();
-      if (len == 1)
-        return Singleton(source);
-      List<IEnumerable<TSource>> result = new List<IEnumerable<TSource>>();
-      for (int i = 0; i < len; i++)
-      {
-        var enumAtIndex = source.Skip(i);
-        var head = enumAtIndex.First();
-        var tail = source.Take(i).Concat(enumAtIndex.Skip(1));
-        result.AddRange(tail.Permutations().Select(l => Singleton(head).Concat(l)));
-      }
-      return result;
-    }
-
-    public static IEnumerable<TTarget> Cartesian<TSource1, TSource2, TTarget>(this IEnumerable<TSource1> first,
-        IEnumerable<TSource2> second, Func<TSource1, TSource2, TTarget> op)
-    {
-      List<TTarget> allElements = new List<TTarget>();
-      foreach (TSource1 f in first)
-      {
-        foreach (TSource2 s in second)
-        {
-          allElements.Add(op(f, s));
-        }
-      }
-      return allElements;
-    }
-
     /// <summary>
     /// TODO: Replace with Enumerable.Empty
     /// </summary>

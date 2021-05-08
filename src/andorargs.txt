@@ -1,0 +1,136 @@
+
+a, a, a                 a, a
+ab, a, ab               ab, a
+ab, b, ab               ab, b
+ab, ab, ab              ab, ab
+
+For shared arguments:
+- if a is in, P.a and Q.a can be in or out.
+- if a is out, P.a can be only out, Q.a can be in or out.
+
+For arguments on xeither P or Q:
+- if a is in, P/Q.a can be in or out
+- if a is out, P/Q.a can only be out.
+
+Symmetry is not eliminated due to procedural semantics.
+
+if E(and/or) has n args, n>=1, 1<=|sharedargs|<=n.
+
+
+a:in, a:in, a:in                 a, a
+a:in, a:in, a:out                 
+a:in, a:out, a:in
+a:in, a:out, a:out
+a:out, a:out, a:in
+a:out, a:out, a:out                 
+
+a, a, a                 a, a
+a, a, a                 a, a
+a, a, a                 a, a
+
+ab, a, ab               ab, a
+ab, b, ab               ab, b
+ab, ab, a               ab, a       *symmetry
+ab, ab, b               ab, b       *symmetry
+ab, ab, ab              ab, ab
+
+0, 0,1,           0
+1, 0,1,           1
+0,1, 0,           0
+0,1, 1,           1
+0,1, 0,1,          0,1
+
+abc, a, abc             abc, a
+abc, b, abc             abc, b
+abc, c, abc             abc, c
+abc, ab, ac             abc, a
+abc, ab, bc             abc, b
+abc, ab, abc            abc, ab
+abc, ac, ab             abc, a      *symmetry
+abc, ac, bc             abc, c
+abc, ac, abc            abc, ac
+abc, bc, ab             abc, b      *symmetry
+abc, bc, ac             abc, c      *symmetry
+abc, bc, abc            abc, bc
+abc, abc, a             abc, a      *symmetry
+abc, abc, b             abc, b      *symmetry
+abc, abc, c             abc, c      *symmetry
+abc, abc, ab            abc, ab     *symmetry
+abc, abc, ac            abc, ac     *symmetry
+abc, abc, bc            abc, bc     *symmetry
+abc, abc, abc           abc, abc    *
+
+
+abc, a, abc             abc, a
+abc, ab, ac             abc, a
+abc, ac, ab             abc, a      *symmetry
+abc, abc, a             abc, a      *symmetry
+
+
+
+abc          3
+
+a, b, c      3
+
+ab, ac, bc   3
+
+abc          1
+
+
+abcd                       x4
+
+a, b, c, d                 4
+
+ab, ac, ad, bc, bd, cd     6
+
+abc, abd, acd, bcd         4
+
+abcd                       1
+
+
+n! / k!(n-k)!
+
+
+1! = 1
+2! = 2
+3! = 6
+4! = 24
+5! = 120
+6! = 720
+
+(4 1) = 4! / 1!(4-1)! = 24 / 6 = 4
+(4 2) = 4! / 2!(4-2)! = 24 / 4 = 6
+(4 3) = 4! / 3!(4-3)! = 24 / 6 = 4
+(4 4) = 4! / 4!(4-4)! = 24 / 24 = 1
+
+
+abc
+
+a
+b
+c
+ab
+ac
+bc
+abc
+
+
+a
+a * bc.each
+
+
+
+
+[head] ++ comb(tail) ++ cart([head], comb(tail))
+
+comb([c]) = [c]
+comb([b,c]) = [b] ++ [c] ++ [b, c]
+comb([a,b,c]) = [a] ++ [b] ++ [c] ++ [b, c] ++ [a, b] ++ [a, c] ++ [a, b, c]
+
+a
+b
+c
+bc
+ab
+ac
+abc
