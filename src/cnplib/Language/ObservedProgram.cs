@@ -41,33 +41,25 @@ namespace CNP.Language
 #endif
     }
 
-    protected override Program CloneNode(TermReferenceDictionary plannedParenthood)
-    {
-      List<AlphaTuple> clonedObservables = new();
-      foreach(AlphaTuple at in Observables)
-      {
-        AlphaTuple net = at.Clone(plannedParenthood);
-        clonedObservables.Add(net);
-      }
-      Valence clonedDomains = Valence.Clone(plannedParenthood);
-      //var clonedObservables = Observables.Select(o => o.Clone(plannedParenthood));
-      //var clonedDomains = Valence.Clone(plannedParenthood);
-      return new ObservedProgram(clonedObservables, clonedDomains, DTL, Constraints);
-    }
-
-    /// <summary>
-    /// Replaces itself if it is the oldComponent. The newComponent needs to come from the same context as this object.
-    /// </summary>
-    protected override Program CloneAndReplaceObservationAtNode(ObservedProgram oldComponent, Program newComponent, TermReferenceDictionary plannedParenthood)
+    internal override Program CloneAsSubTree(TermReferenceDictionary plannedParenthood, (ObservedProgram, Program) replaceObservation = default)
     {
       // If this is the oldComponent they're looking for
-      if (object.ReferenceEquals(this, oldComponent))
+      if (object.ReferenceEquals(this, replaceObservation.Item1))
       {
-        return newComponent.CloneAsSubTree(plannedParenthood);
+        return replaceObservation.Item2.CloneAsSubTree(plannedParenthood, (null,null));
       }
       else
       {
-        return this.CloneNode(plannedParenthood);
+        List<AlphaTuple> clonedObservables = new();
+        foreach (AlphaTuple at in Observables)
+        {
+          AlphaTuple net = at.Clone(plannedParenthood);
+          clonedObservables.Add(net);
+        }
+        Valence clonedDomains = Valence.Clone(plannedParenthood);
+        //var clonedObservables = Observables.Select(o => o.Clone(plannedParenthood));
+        //var clonedDomains = Valence.Clone(plannedParenthood);
+        return new ObservedProgram(clonedObservables, clonedDomains, DTL, Constraints);
       }
     }
 

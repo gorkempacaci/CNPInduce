@@ -22,7 +22,7 @@ namespace Helpers
         }
     }
     [TestClass]
-    public class Enumerable
+    public class EnumerableTests
     {
 
         [TestMethod]

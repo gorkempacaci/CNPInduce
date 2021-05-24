@@ -11,15 +11,6 @@ namespace CNP.Language
   /// </summary>
   public class Id : ElementaryProgram
   {
-    public Id() { }
-
-
-    protected override Program CloneNode(TermReferenceDictionary plannedParenthood)
-    {
-      var p = new Id();
-      return p;
-    }
-
     private static readonly TypeStore<Valence> valences = TypeHelper.ParseListOfCompactedProgramTypes(new[]
     {
             "{a:in, b:in}",
@@ -27,6 +18,12 @@ namespace CNP.Language
             "{a:out, b:in}"
         });
 
+    public Id() { }
+
+    internal override Program CloneAsSubTree(TermReferenceDictionary plannedParenthood, (ObservedProgram, Program) replaceObservation)
+    {
+      return new Id();
+    }
 
     public override string ToString()
     {
@@ -61,8 +58,7 @@ namespace CNP.Language
         if (clonedObs.Observables.All(at => Term.UnifyInPlace(at["a"], at["b"])))
         {
           var p = new Id();
-          p.SetFoundingState(rootProgramOriginal.CloneAtRoot());
-          return Iterators.Singleton(clonedRoot.CloneAndReplaceObservation(clonedObs, p));
+          return Iterators.Singleton(clonedRoot.CloneAtRoot((clonedObs, p)));
         }
       }
 

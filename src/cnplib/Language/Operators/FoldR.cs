@@ -26,16 +26,9 @@ namespace CNP.Language
       return "foldr(" + Recursive.ToString() + "," + Base.ToString() + ")";
     }
 
-    protected override Program CloneNode(TermReferenceDictionary plannedParenthood)
+    internal override Program CloneAsSubTree(TermReferenceDictionary plannedParenthood, (ObservedProgram, Program) replaceObservation = default)
     {
-      var p = new FoldR(Recursive.CloneAsSubTree(plannedParenthood), Base.CloneAsSubTree(plannedParenthood));
-      return p;
-    }
-
-    protected override FoldR CloneAndReplaceObservationAtNode(ObservedProgram oldComponent, Program newComponent, TermReferenceDictionary plannedParenthood)
-    {
-      var p = new FoldR(Recursive.CloneAndReplaceObservationAsSubTree(oldComponent, newComponent, plannedParenthood),
-        Base.CloneAndReplaceObservationAsSubTree(oldComponent, newComponent, plannedParenthood));
+      var p = new FoldR(Recursive.CloneAsSubTree(plannedParenthood, replaceObservation), Base.CloneAsSubTree(plannedParenthood, replaceObservation));
       return p;
     }
 

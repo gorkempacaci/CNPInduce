@@ -23,7 +23,7 @@ namespace CNP.Language
       Value = groundTerm;
     }
 
-    protected override Program CloneNode(TermReferenceDictionary plannedParenthood)
+    internal override Program CloneAsSubTree(TermReferenceDictionary plannedParenthood, (ObservedProgram, Program) replaceObservation)
     {
       var p = new Const(ArgumentName.Clone(plannedParenthood) as NameVar, Value.Clone(plannedParenthood));
       return p;
@@ -67,8 +67,7 @@ namespace CNP.Language
       if (!allTups[0][argName].IsGround())
         return Iterators.Empty<Const>(); // has to be ground otherwise can't use CloneAndReplaceWithClosed
       var constProgram = new Const(argName, allTups[0][argName]);
-      constProgram.SetFoundingState(rootProgram.CloneAtRoot());
-      rootProgram = rootProgram.CloneAndReplaceObservation(cloneObs, constProgram);
+      rootProgram = rootProgram.CloneAtRoot((cloneObs, constProgram));
       return Iterators.Singleton(rootProgram);
     }
 

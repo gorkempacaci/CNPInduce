@@ -75,8 +75,7 @@ namespace CNP.Language
           var pObs = new ObservedProgram(pExamples, valFPQ.RecursiveComponent, obs.DTL - 1);
           var qObs = new ObservedProgram(qExamples, valFPQ.BaseComponent, obs.DTL - 1);
           var foldProgram = foldFactoryMethod(pObs, qObs);
-          foldProgram.SetFoundingState(rootProgram.CloneAtRoot());
-          var p = cloneProgram.CloneAndReplaceObservation(obs, foldProgram); // use same cloning scheme for cloning the root program
+          var p = cloneProgram.CloneAtRoot((obs, foldProgram)); // use same cloning scheme for cloning the root program
           newRootPrograms.Add(p);
         }
       }

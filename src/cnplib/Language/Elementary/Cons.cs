@@ -16,11 +16,9 @@ namespace CNP.Language
 
     public Cons() { }
 
- 
-    protected override Program CloneNode(TermReferenceDictionary plannedParenthood)
+    internal override Program CloneAsSubTree(TermReferenceDictionary plannedParenthood, (ObservedProgram, Program) replaceObservation)
     {
-      var p = new Cons();
-      return p;
+      return new Cons();
     }
 
     public override bool Equals(object obj)
@@ -59,8 +57,7 @@ namespace CNP.Language
           if (cloneObs.Observables.All(at => Term.UnifyInPlace(at["ab"], new TermList(at["a"], at["b"]))))
           {
             var p = new Cons();
-            p.SetFoundingState(rootProgram.CloneAtRoot());
-            var newRoot = cloneRoot.CloneAndReplaceObservation(cloneObs, p);
+            var newRoot = cloneRoot.CloneAtRoot((cloneObs, p));
             programs.Add(newRoot);
           }
         }

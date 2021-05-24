@@ -31,15 +31,9 @@ namespace CNP.Language
       Source.SetAllRootsTo(newRoot);
     }
 
-    protected override Program CloneNode(TermReferenceDictionary trd)
+    internal override Program CloneAsSubTree(TermReferenceDictionary plannedParenthood, (ObservedProgram, Program) replaceObservation = default)
     {
-      var p = new Proj(this.Source.CloneAsSubTree(trd), this.Projection.Clone(trd));
-      return p;
-    }
-
-    protected override Program CloneAndReplaceObservationAtNode(ObservedProgram oldComponent, Program newComponent, TermReferenceDictionary plannedParenthood)
-    {
-      var p = new Proj(Source.CloneAndReplaceObservationAsSubTree(oldComponent, newComponent, plannedParenthood), Projection.Clone(plannedParenthood));
+      var p = new Proj(this.Source.CloneAsSubTree(plannedParenthood, replaceObservation), this.Projection.Clone(plannedParenthood));
       return p;
     }
 
@@ -78,9 +72,7 @@ namespace CNP.Language
         var sourceDoms = obs.Valence.ToDictionary(nv => invProjection[nv.Key], nv => nv.Value).Concat(eliminatedDoms);
         var sourceProgram = new ObservedProgram(sourceTuples, new Valence(sourceDoms), obs.DTL - 1, ObservedProgram.Constraint.NotProjection);
         var program = new Proj(sourceProgram, new(projection));
-        program.SetFoundingState(originalProgram.CloneAtRoot());
-        rootProgram = rootProgram.CloneAndReplaceObservation(obs, program);
-        program.DebugTag = rootProgram.CloneAtRoot();
+        rootProgram = rootProgram.CloneAtRoot((obs, program));
         programs.Add(rootProgram);
       }
       return programs;

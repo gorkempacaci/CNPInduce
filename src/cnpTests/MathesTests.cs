@@ -6,7 +6,7 @@ using CNP.Parsing;
 using CNP.Language;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace Tests
+namespace Helpers
 {
   [TestClass]
   public class MathesTests : TestBase
