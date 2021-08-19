@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
 using CNP.Helper;
+using CNP.Helper.EagerLinq;
 
 namespace CNP.Language.Operators
 {
@@ -29,6 +31,26 @@ namespace CNP.Language.Operators
     public override string ToString()
     {
       return "and(" + LHOperand.ToString() + ", " + RHOperand.ToString() + ")";
+    }
+
+    public static IEnumerable<Program> CreateAtFirstHole(Program originalProgram)
+    {
+      var origObservation = originalProgram.FindFirstHole();
+      if (origObservation.DTL == 0)
+        return Iterators.Empty<Program>();
+      IEnumerable<AndOrValence> allValenceCombs = AndOrValence.Generate(origObservation.Valence);
+      if (!allValenceCombs.Any())
+        return Iterators.Empty<Program>();
+      List<Program> programs = new List<Program>(allValenceCombs.Count());
+      foreach(AndOrValence valComb in allValenceCombs)
+      {
+        var pObs = new ObservedProgram(origObservation.Observables, valComb.LHDoms, origObservation.DTL-1);
+        var qObs = new ObservedProgram(origObservation.Observables, valComb.RHDoms, origObservation.DTL - 1);
+        var andProg = new And(pObs, qObs);
+        var program = originalProgram.CloneAtRoot((origObservation, andProg));
+        programs.Add(program);
+      }
+      return programs;
     }
   }
 }

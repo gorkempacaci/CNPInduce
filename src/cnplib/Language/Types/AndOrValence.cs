@@ -42,7 +42,7 @@ namespace CNP.Language
     /// <summary>
     /// Given the operation valence for an and/or expression, generates combinations of p,q valences, considering well-modedness constraints.
     /// </summary>
-    /// TODO: inefficient. use truth table logic and bitwise ops to find the combinations
+    /// TODO: inefficient. use truth table logic and bitwise ops to find the combinations?
     public static IEnumerable<AndOrValence> Generate(Valence opVal)
     {
       List<AndOrValence> allValences = new List<AndOrValence>(opVal.Count*5);

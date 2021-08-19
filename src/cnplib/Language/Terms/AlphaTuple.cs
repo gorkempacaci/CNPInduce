@@ -9,6 +9,7 @@ namespace CNP.Language
 {
   public class AlphaTuple : IEnumerable<KeyValuePair<NameVar, Term>>, IFreeContext
   {
+    private int hashCode = -1;
     private readonly SortedList<NameVar, Term> _terms;
     public IReadOnlyDictionary<NameVar, Term> Terms => _terms;
 
@@ -34,6 +35,13 @@ namespace CNP.Language
         {
           freeValue.AddAContext(this);
         }
+      }
+      // combine hashcodes for domains in-order to obtain a hashcode for the alphatuple.
+      foreach(var kv in _terms)
+      {
+        if (hashCode == -1)
+          hashCode = kv.Key.GetHashCode();
+        else hashCode = HashCode.Combine(hashCode, kv.Key.GetHashCode());
       }
     }
 
@@ -79,6 +87,24 @@ namespace CNP.Language
     public Term this[string name] => Terms[new NameVar(name)];
 
     public Term this[NameVar name] => Terms[name];
+
+    public override bool Equals(object that)
+    {
+      if (ReferenceEqualityComparer.Instance.Equals(this, that))
+        return true;
+      if (that is not AlphaTuple thatTuple)
+        return false;
+      if (!DomainNames.SequenceEqual(thatTuple.DomainNames))
+        return false;
+      if (!Terms.SequenceEqual(thatTuple.Terms))
+        return false;
+      return true;
+    }
+
+    public override int GetHashCode()
+    {
+      return hashCode;
+    }
 
     public override string ToString()
     {

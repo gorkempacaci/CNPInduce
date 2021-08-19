@@ -140,6 +140,14 @@ namespace CNP.Helper.EagerLinq
     {
       return Lazy.SequenceEqual(first, second);
     }
+    public static bool SequenceEqual<TSource>(this IEnumerable<TSource> first, IEnumerable<TSource> second, IEqualityComparer<TSource> comparer)
+    {
+      return Lazy.SequenceEqual(first, second, comparer);
+    }
+    /// <summary>
+    /// Like SequenceEqual but outputs the index the sequences were not equal.
+    /// </summary>
+    /// <returns></returns>
     public static bool SequenceEqualPos<TSource>(this IEnumerable<TSource> first, IEnumerable<TSource> second, out int position)
     {
       position = 0;
@@ -155,10 +163,6 @@ namespace CNP.Helper.EagerLinq
       if (secondEn.MoveNext())
         return false;
       else return true;
-    }
-    public static bool SequenceEqual<TSource>(this IEnumerable<TSource> first, IEnumerable<TSource> second, IEqualityComparer<TSource> equalityComparer)
-    {
-      return Lazy.SequenceEqual(first, second, equalityComparer);
     }
   }
 

@@ -134,8 +134,9 @@ namespace CNP.Language
     }
 
     /// <summary>
-    /// Takes a ground name mode map, and returns all the possible assignments for free domains in this
+    /// Takes a ground(?) name mode map, and returns all the possible assignments for free domains in this
     /// one to those in the given one.
+    /// ?: nothing in the code requires the given valence to be ground. If it's partially ground, and its ground domains match some of the free domains in this valence, the returning unifications are a bit more ground-ing. Otherwise, if none of the domains in the given valence is ground, the returned unification only produces an alpha-equivalent valence.
     /// </summary>
     /// <param name="targetDomains"></param>
     /// <returns></returns>
