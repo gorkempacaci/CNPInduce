@@ -38,7 +38,15 @@ namespace CNP.Language
 
     public ProjectionMap Clone(TermReferenceDictionary plannedParenthood)
     {
-      return new ProjectionMap(dict.ToDictionary(kvp => kvp.Key.Clone(plannedParenthood), kvp => kvp.Value.Clone(plannedParenthood)));
+      //var newDict = dict.ToDictionary(kvp => kvp.Key.Clone(plannedParenthood), kvp => kvp.Value.Clone(plannedParenthood));
+      var newDict = new Dictionary<NameVar, NameVar>();
+      foreach(var kvp in dict)
+      {
+        var newKey = kvp.Key.Clone(plannedParenthood);
+        var newValue = kvp.Value.Clone(plannedParenthood);
+        newDict.Add(newKey, newValue);
+      }
+      return new ProjectionMap(newDict);
     }
 
     public override string ToString()

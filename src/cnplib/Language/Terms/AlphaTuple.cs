@@ -50,6 +50,19 @@ namespace CNP.Language
       return new AlphaTuple(_terms.Select(e => new KeyValuePair<NameVar, Term>(e.Key.Clone(plannedParenthood), e.Value.Clone(plannedParenthood))));
     }
 
+    /// <summary>
+    /// Returns a cropped copy of this AlphaTuple where only domain-term pairs for the given domains exist.
+    /// For example: {a:1, b:2, c:3}.Crop([a,b]) returns {a:1, b:2}.
+    /// </summary>
+    /// <param name="someDomains"></param>
+    /// <returns></returns>
+    public AlphaTuple Crop(IEnumerable<NameVar> someDomains)
+    {
+      var domAndTerms = someDomains.Select(d => new KeyValuePair<NameVar, Term>(d, _terms[d]));
+      var atup = new AlphaTuple(domAndTerms);
+      return atup;
+    }
+
     public IEnumerator<KeyValuePair<NameVar, Term>> GetEnumerator()
     {
       return Terms.GetEnumerator();

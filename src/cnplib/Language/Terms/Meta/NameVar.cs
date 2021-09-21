@@ -49,11 +49,13 @@ namespace CNP.Language
     /// </summary>
     public override bool Equals(object obj)
     {
-      if (obj is string sName && this.IsGround())
+      if (obj is string sName)// && this.IsGround())
       {
-        return sName == _name;
+        throw new Exception("NameVar can't be compared to string.");
+        //return sName == _name;
       }
-      else if (!(obj is NameVar other))
+      else
+      if (!(obj is NameVar other))
       {
         return false;
       }
@@ -61,11 +63,11 @@ namespace CNP.Language
       {
         return Name == other.Name;
       }
-      else if (!this.IsGround() && !other.IsGround())
+      else //if (!this.IsGround() && !other.IsGround())
       {
-        return object.ReferenceEquals(this, other);
+        return object.ReferenceEquals(this, obj);
       }
-      else return false;
+      //else return false;
     }
 
     public override int GetHashCode() => Name.GetHashCode();

@@ -62,7 +62,7 @@ namespace Language
     public void NietBruijn_String()
     {
       Free A = new Free(), B = new Free();
-      AlphaTuple atu = new AlphaTuple((new("a"), cnst("aa")), (new("b"), list(A, list(A), list(B, cnst("b"), A))));
+      AlphaTuple atu = new AlphaTuple((new("a"), constterm("aa")), (new("b"), list(A, list(A), list(B, constterm("b"), A))));
       AlphaTuple atuNb = nietBruijn(atu);
       Assert.AreEqual("{a:'aa', b:['λ0', ['λ0'], ['λ1', 'b', 'λ0']]}", atuNb.ToString());
     }

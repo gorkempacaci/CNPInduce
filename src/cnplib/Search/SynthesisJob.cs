@@ -12,7 +12,7 @@ namespace CNP.Search
   // TODO: Add job constants.
   public class SynthesisJob : IProgramSearchReceiver
   {
-    const int DEFAULT_MAX_HEIGHT = 5;
+    const int DEFAULT_MAX_HEIGHT = 2;
     ProgramSearch search;
     SearchOptions searchOptions;
     ConcurrentQueue<Program> programs = new ConcurrentQueue<Program>();

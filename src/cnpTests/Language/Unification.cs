@@ -32,8 +32,8 @@ namespace Language
     [TestMethod]
     public void ListUnifiesWithConsToFormUngroundTerm()
     {
-      Term left = list(cnst(1), new Free(), cnst(3));
-      Term right = cns(cnst(1), new Free());
+      Term left = list(constterm(1), new Free(), constterm(3));
+      Term right = cns(constterm(1), new Free());
       var success = Term.UnifyInPlace(left, right);
       Assert.AreEqual(true, success, "List unifies with cons to unground");
       string unifier = "[1, 'λ0', 3]";
@@ -45,8 +45,8 @@ namespace Language
     public void ListUnifiesWithConsToFormGroundTerm()
     {
       Free a = new Free();
-      Term left = list(a, list(cnst("u"), a, cnst("y")), cnst(3));
-      Term right = cns(cnst(1), new Free());
+      Term left = list(a, list(constterm("u"), a, constterm("y")), constterm(3));
+      Term right = cns(constterm(1), new Free());
       var success = Term.UnifyInPlace(left, right);
       Assert.AreEqual(true, success, "List unifies with cons to ground");
       string unifier = "[1, ['u', 1, 'y'], 3]";
@@ -61,8 +61,8 @@ namespace Language
     public void FreeIsSubstitutedWhileInsideList()
     {
       Free a = new Free();
-      Term t = list(cnst(1), list(cnst("a"), list(cnst("i"), a, cnst("iii")), cnst("c")), cnst(3));
-      a.ReplaceInAllContexts(cnst("ii"));
+      Term t = list(constterm(1), list(constterm("a"), list(constterm("i"), a, constterm("iii")), constterm("c")), constterm(3));
+      a.ReplaceInAllContexts(constterm("ii"));
       Assert.AreEqual("[1, ['a', ['i', 'ii', 'iii'], 'c'], 3]", t.ToString(), "Free is unified without tuple.");
     }
 
@@ -72,8 +72,8 @@ namespace Language
     public void FreeIsSubstitutedInNestedListTail()
     {
       Free a = new Free();
-      Term t = list(cnst(1), list(cnst("a"), list(cnst("i"), cnst("ii"), a), cnst("c")), cnst(3));
-      a.ReplaceInAllContexts(cnst("iii"));
+      Term t = list(constterm(1), list(constterm("a"), list(constterm("i"), constterm("ii"), a), constterm("c")), constterm(3));
+      a.ReplaceInAllContexts(constterm("iii"));
       Assert.AreEqual("[1, ['a', ['i', 'ii', 'iii'], 'c'], 3]", t.ToString(), "Free is unified without tuple.");
     }
 

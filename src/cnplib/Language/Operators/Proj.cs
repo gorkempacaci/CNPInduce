@@ -61,7 +61,7 @@ namespace CNP.Language
         // projections map the domains(non-eliminated) of the new observation to the domains of proj expression.
         var projection = obs.Valence.Keys.ToDictionary(n => NameVar.NewUnbound(), n => n);
         // inverse projection maps the domains of proj to domains of observation
-        var invProjection = projection.ToDictionary(kv => kv.Value, kv => kv.Key);
+        var invProjection = projection.ToReferenceDictionary(kv => kv.Value, kv => kv.Key);
         // proj may have eliminated some domains, these will have free names and Out modes.
         var eliminatedDoms = Enumerable.Range(0, i_outs).ToDictionary(_ => NameVar.NewUnbound(), _ => Mode.Out);
         // terms are needed for the eliminated domains for the new observation

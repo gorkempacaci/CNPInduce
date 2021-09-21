@@ -16,9 +16,9 @@ namespace Synthesis
     {
       Free f1 = new(), f2 = new(), f3 = new(), f4 = new();
       NameVar a = new("a"), b = new("b"), ab = new("ab");
-      AlphaTuple[] consTups = {   new((a, cnst(1)), (b, f1), (ab, list(1, 2, 3))),
-                                  new((a, cnst(2)), (b, f2), (ab, f1)),
-                                  new((a, cnst(3)), (b, f3), (ab, f2)) };
+      AlphaTuple[] consTups = {   new((a, constterm(1)), (b, f1), (ab, list(1, 2, 3))),
+                                  new((a, constterm(2)), (b, f2), (ab, f1)),
+                                  new((a, constterm(3)), (b, f3), (ab, f2)) };
       Valence consVal = new Valence((a, Mode.In), (b, Mode.Out), (ab, Mode.In));
       NameVar ida = new("a"), idb = new("b");
       AlphaTuple[] idTups = { new((ida, list()), (idb, f3)) };

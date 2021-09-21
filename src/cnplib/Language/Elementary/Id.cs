@@ -58,6 +58,15 @@ namespace CNP.Language
         if (clonedObs.Observables.All(at => Term.UnifyInPlace(at["a"], at["b"])))
         {
           var p = new Id();
+          if (rootProgramOriginal.ToString().StartsWith("proj(and("))
+          {
+            And ann = (rootProgramOriginal as Proj).Source as And;
+            if ((ann.LHOperand as ObservedProgram).Valence.Count()==2 &&
+                (ann.RHOperand as ObservedProgram).Valence.Count()==2)
+            {
+
+            }
+          }
           return Iterators.Singleton(clonedRoot.CloneAtRoot((clonedObs, p)));
         }
       }

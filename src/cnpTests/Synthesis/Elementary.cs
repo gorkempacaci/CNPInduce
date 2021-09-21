@@ -45,6 +45,7 @@ namespace Synthesis
     [DataRow("{a:in}", "{{a:[1|X]}, {a:[1,2|[3|F]]}, {a:L}, {a:[1,2,T|4]}}", "a", "[1, 2, 3|4]")]
     [DataRow("{a:out}", "{{a:[1|X]}, {a:[1,2|[3|F]]}, {a:L}, {a:[1,2,T|4]}}", "a", "[1, 2, 3|4]")]
     [DataRow("{a:in}", "{{a:[1|X]}, {a:[1,2|[3,F]]}, {a:L}, {a:[1,2,T,4]}}", "a", "[1, 2, 3, 4]")]
+    //[DataRow("{a:in}", "{{a:[]}}")]
     public void ConstPositive(string typeStr, string atusStr, string argName, string constValueStr)
     {
       Term grTerm = Parser.ParseTerm(constValueStr, new());

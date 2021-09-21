@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Threading;
 using CNP.Language;
 using CNP.Helper;
+
 namespace CNP.Search
 {
   /// <summary>
@@ -76,6 +77,7 @@ namespace CNP.Search
                 ,FoldR.CreateAtFirstHole
                 ,FoldL.CreateAtFirstHole
                 ,Proj.CreateAtFirstHole
+                ,And.CreateAtFirstHole
       };
       foreach (var filler in fillers)
       {

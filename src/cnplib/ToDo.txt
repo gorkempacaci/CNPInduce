@@ -1,5 +1,6 @@
 == bugs
-FIXED 1 thread fails more tests than more threads
+FIXED - 1 thread fails more tests than more threads
+- assertSingleResult calls FindAllPrograms which takes a long time and often doesn't terminate. Switch to assertFirstResult for most tests.
 
 == To be discussed
 - both fold's own, recursive and base parameters' names are ground and arbitrary. maybe it's possible to derive these names or make them dynamic by inferring which argument is bound to what using their types? This may apply to CNP language in general by removing argument name mechanics if types are specific enough. 

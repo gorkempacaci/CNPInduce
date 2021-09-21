@@ -17,13 +17,15 @@ public class TestBase
   #region Shorthand for Language Constructs
   protected static Term list() => NilTerm.Instance;
   protected static Term list(params Term[] terms) => TermList.FromEnumerable(terms);
-  protected static Term list(params int[] terms) => TermList.FromEnumerable(Enumerable.Select(terms, t => cnst(t)));
-  protected static Term list(params string[] terms) => TermList.FromEnumerable(Enumerable.Select(terms, t => cnst(t)));
+  protected static Term list(params int[] terms) => TermList.FromEnumerable(Enumerable.Select(terms, t => constterm(t)));
+  protected static Term list(params string[] terms) => TermList.FromEnumerable(Enumerable.Select(terms, t => constterm(t)));
   protected static Term cns(Term head, Term tail) => new TermList(head, tail);
-  protected static ConstantTerm cnst(string s) => new ConstantTerm(s);
-  protected static ConstantTerm cnst(int i) => new ConstantTerm(i);
+  protected static ConstantTerm constterm(string s) => new ConstantTerm(s);
+  protected static ConstantTerm constterm(int i) => new ConstantTerm(i);
   protected static Id id => new Id();
   protected static Cons cons => new Cons();
+  protected static Const constant(NameVar dom, ConstantTerm t) => new Const(dom, t);
+  protected static And and(Program p, Program q) => new And(p, q);
   protected static FoldR foldr(Program rec, Program bas) => new FoldR(recursiveCase: rec, baseCase: bas);
   protected static FoldL foldl(Program rec, Program bas) => new FoldL(recursiveCase: rec, baseCase: bas);
   protected static Proj proj(Program source, params (string, string)[] projections) => new Proj(source, new ProjectionMap(projections.Select(p => (new NameVar(p.Item1), new NameVar(p.Item2)))));
@@ -84,6 +86,7 @@ public class TestBase
     var programs = job.FindAllPrograms();
     measurement.TakeFinishTime();
     //Assert.AreEqual(1, programs.Count(), "A program should be found.");
+    Assert.IsTrue(programs.Any(), "There should be at least one program.");
     Assert.AreEqual(elementaryProgramExpected, programs.First());
     measurement.ReportFinish(programName, elementaryProgramExpected.ToString());
   }

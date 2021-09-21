@@ -48,4 +48,19 @@ namespace CNP.Helper
     }
   }
 
+  public static class ReferenceDictionaryExtension
+  {
+    public static ReferenceDictionary<T_Key, T_Value> ToReferenceDictionary<TSource, T_Key, T_Value>(this IEnumerable<TSource> source, Func<TSource, T_Key> keyMaker, Func<TSource, T_Value> valueMaker)
+    {
+      ReferenceDictionary<T_Key, T_Value> refs = new ReferenceDictionary<T_Key, T_Value>();
+      foreach (TSource el in source)
+      {
+        T_Key key = keyMaker(el);
+        T_Value value = valueMaker(el);
+        refs.Add(key, value);
+      }
+      return refs;
+    }
+  }
+
 }
