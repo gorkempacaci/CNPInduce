@@ -52,18 +52,20 @@ namespace CNP.Helper
       return (whereList, whereNotList);
     }
 
-    // https://stackoverflow.com/questions/577590/pair-wise-iteration-in-c-sharp-or-sliding-window-enumerator
-    public static IEnumerable<TResult> Pairwise<TSource, TResult>(this IEnumerable<TSource> source, Func<TSource, TSource, TResult> resultSelector)
+    /// <summary>
+    /// Iterates through the list in pairs (1, 2), (2, 3), (3, 4). Does not iterate if there is just one item.
+    /// https://stackoverflow.com/questions/577590/pair-wise-iteration-in-c-sharp-or-sliding-window-enumerator
+    /// </summary>
+    public static IEnumerable<(T, T)> Pairwise<T>(this IEnumerable<T> source)
     {
-      TSource previous = default(TSource);
-
+      var previous = default(T);
       using (var it = source.GetEnumerator())
       {
         if (it.MoveNext())
           previous = it.Current;
 
         while (it.MoveNext())
-          yield return resultSelector(previous, previous = it.Current);
+          yield return (previous, previous = it.Current);
       }
     }
 

@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using CNP.Helper.EagerLinq;
 using CNP.Helper;
 
 namespace CNP.Language
@@ -9,11 +11,15 @@ namespace CNP.Language
   public class NameVar : Term, IComparable
   {
     private string _name;
-    public readonly int _argNameId = System.Threading.Interlocked.Increment(ref _argNameCounter);
     private static int _argNameCounter = 0;
 
-
+    /// <summary>
+    /// When bound to a name, the name has to be different to all those in this list. Helps with checking the names to be different, for example for the operands of the and operator when needed.
+    /// </summary>
+    public List<NameVar> _nameConstraints = new List<NameVar>();
+    public IEnumerable<NameVar> NameConstraints => _nameConstraints;
     public string Name => _name ?? ("#" + _argNameId.ToString());
+    public readonly int _argNameId = System.Threading.Interlocked.Increment(ref _argNameCounter);
 
     private NameVar()
     {
@@ -22,27 +28,61 @@ namespace CNP.Language
 
     public NameVar(string name)
     {
-      BindName(name);
+      Validator.AssertArgumentName(name);
+      _name = name;
     }
 
-    public bool BindName(string name)
+    public void AddNameConstraint(NameVar otherNameVar)
     {
-      if (IsGround())
-        return false;
-      else
-      {
-        Validator.AssertArgumentName(name);
-        _name = name;
-        return true;
-      }
+      if (otherNameVar.IsGround() && this.IsGround() && this.Name == otherNameVar.Name)
+        throw new Exception("Cannot add a NameVar constraint which is violated to start with.");
+      _nameConstraints.Add(otherNameVar);
     }
 
-    public override bool IsGround() => _name != null;
+    public static void AddReciprocalNameConstraints(NameVar n1, NameVar n2)
+    {
+      n1.AddNameConstraint(n2);
+      n2.AddNameConstraint(n1);
+    }
+
+    /// <summary>
+    /// Adds cross constraints so that every name in list1 has to be differently named to every name in list2 and vice versa,
+    /// </summary>
+    /// <param name="list1"></param>
+    /// <param name="list2"></param>
+    public static void AddNameConstraintsAcross(IEnumerable<NameVar> list1, IEnumerable<NameVar> list2)
+    {
+      Mathes.Cartesian<NameVar,NameVar>(list1, list2, AddReciprocalNameConstraints);
+    }
+
+    /// <summary>
+    /// Adds name constraints so that each NameVar in this list has to be differently named to every other name in the list.
+    /// </summary>
+    /// <param name="list"></param>
+    public static void AddNameConstraintsWithin(IEnumerable<NameVar> list)
+    {
+      throw new NotImplementedException();
+    }
+
+    public bool NameConstraintsCheck(string name)
+    {
+      foreach(NameVar foe in NameConstraints)
+      {
+        if (foe.IsGround() && foe.Name == name)
+          return false;
+      }
+      return true;
+    }
+
 
     public override bool Contains(Free other)
     {
       return false;
     }
+
+
+    public override bool IsGround() => _name != null;
+
 
     /// <summary>
     /// Returns true if both names are ground and have the same name, or if they're the same object.
