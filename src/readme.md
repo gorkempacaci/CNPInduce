@@ -52,7 +52,7 @@ The names that appear in the tuples of a relation are the 'names' of that relati
 
 Open-CNP, as CNP implemented in the accompanying code, is an extended version of CNP to carry along search parameters in the syntax tree. 
 
-### AST
+## AST
 
 ```
 Name = Name string | FreeName
