@@ -29,16 +29,6 @@ namespace CNP.Helper
       return fd;
     }
 
-    public TValue GetOrAdd(TKey key, Func<TValue> valueGenerator)
-    {
-      if (!TryGetValue(key, out TValue value))
-      {
-        value = valueGenerator();
-        Add(key, value);
-      }
-      return value;
-    }
-
     public ReferenceDictionary(IEnumerable<KeyValuePair<TKey, TValue>> kvps)
     {
       foreach (var kvp in kvps)

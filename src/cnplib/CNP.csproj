@@ -6,19 +6,22 @@
     <NoStdLib>true</NoStdLib>
   </PropertyGroup>
   <ItemGroup>
-    <Folder Include="Search\" />
     <Folder Include="Parsing\" />
     <Folder Include="Helper\EagerLinq\" />
     <Folder Include="Language\Terms\" />
     <Folder Include="Language\Operators\" />
     <Folder Include="Language\Elementary\" />
     <Folder Include="Language\Terms\Meta\" />
+    <Folder Include="Display\" />
   </ItemGroup>
   <ItemGroup>
     <Compile Remove="Helper\ReferenceEqualityComparer.cs" />
     <Compile Remove="Helper\ReferenceEqualityComparer.cs" />
     <Compile Remove="Helper\OrderlyBlockingQueue.cs" />
     <Compile Remove="Language\Elementary\True.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Remove="Printing\" />
   </ItemGroup>
   <ProjectExtensions>
     <MonoDevelop>

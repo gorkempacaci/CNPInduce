@@ -1,4 +1,5 @@
 ﻿using System;
+using CNP.Language;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Synthesis
@@ -12,6 +13,9 @@ namespace Synthesis
       string typeStr = "{u:in, v:in}";
       string atusStr = "{{u:1, v:1}}";
       assertFirstResultFor(typeStr, atusStr, proj(id, ("a", "u"), ("b", "v")), "proj_id");
+
+
+
     }
 
     [TestMethod]
@@ -32,12 +36,14 @@ namespace Synthesis
       assertFirstResultFor(typeStr, atusStr, expectedProgram, "Proj_reverse_by_foldl");
     }
 
-
+    [TestMethod]
     public void Proj_and_const_reverse()
     {
       string typeStr = "{inlist:in, outlist:out}";
-      string atusStr = "{{inlist:[3,2,1], outlist:[1,2,3]}}";
+      string atusStr = "{{inlist:[3,2,1], outlist:[1,2,3]}, {inlist:[4,5,6], outlist:[6,5,4]}}";
+      var expectedProgram = proj(and(foldl(cons, id), constant(new NameVar("b0"), NilTerm.Instance)), ("as", "inlist"), ("b", "outlist"));
 
+      assertFirstResultFor(typeStr, atusStr, expectedProgram, "Proj_and_const_reverse2");
     }
 
   }

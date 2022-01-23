@@ -67,6 +67,13 @@ namespace Helpers
     }
 
     [TestMethod]
+    public void Combinations_K_2_from_length_3()
+    {
+      int[][] expected = new int[][] { new[] { 1, 2 }, new[] { 1, 3 }, new[] { 2, 3 } };
+      assert_combinations_k_from_length_n(2, 3, expected);
+    }
+
+    [TestMethod]
     public void Combinations_K_2_from_length_4()
     {
       int[][] expected = new int[][] { new[]{ 1, 2 }, new[]{ 1, 3 }, new[]{ 1, 4 }, new[]{ 2, 3 }, new[]{ 2, 4 }, new[]{ 3, 4 } };

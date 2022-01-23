@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel.Design;
 using System.Net.Http;
 using System.Threading.Tasks;
+using CNP.Display;
 using CNP.Helper;
 using CNP.Helper.EagerLinq;
 
@@ -21,9 +22,10 @@ namespace CNP.Language
             });
 
     public FoldR(Program recursiveCase, Program baseCase) : base(recursiveCase, baseCase) { }
-    public override string ToString()
+
+    public override string Pretty(PrettyStringer ps)
     {
-      return "foldr(" + Recursive.ToString() + "," + Base.ToString() + ")";
+      return ps.PrettyString(this);
     }
 
     internal override Program CloneAsSubTree(TermReferenceDictionary plannedParenthood, (ObservedProgram, Program) replaceObservation = default)
@@ -68,36 +70,19 @@ namespace CNP.Language
       {
         Free f = new();
         atusP.Add(new AlphaTuple((pNameDict.GetOrAdd("a"), li.Head),
-                                 (pNameDict.GetOrAdd("b"),f),
-                                 (pNameDict.GetOrAdd("ab"),b)));
+                                 (pNameDict.GetOrAdd("b"), f),
+                                 (pNameDict.GetOrAdd("ab"), b)));
         return unfoldFoldrToPQ(b0, li.Tail, f, atusP, pNameDict, atusQ, qNameDict);
       }
       else if (@as is NilTerm)
       {
         atusQ.Add(new AlphaTuple((qNameDict.GetOrAdd("a"), b0),
-                                 (qNameDict.GetOrAdd("b"),b)));
+                                 (qNameDict.GetOrAdd("b"), b)));
         return true;
       }
       else return false;
     }
-    //static bool unfoldFoldrToPQ(Term b0, Term @as, Term b, List<AlphaTuple> atusP, List<AlphaTuple> atusQ, Term acc = null)
-    //{
-    //  if (acc == null)
-    //  {
-    //    acc = b;
-    //  }
-    //  if (@as is TermList li)
-    //  {
-    //    Free f = new Free();
-    //    atusP.Add(new AlphaTuple(("a", li.Head), ("b", f), ("ab", acc)));
-    //    return unfoldFoldrToPQ(b0, li.Tail, b, atusP, atusQ, f);
-    //  }
-    //  else if (@as is NilTerm)
-    //  {
-    //    atusQ.Add(new AlphaTuple(("a", b0), ("b", acc)));
-    //    return true;
-    //  }
-    //  else return false;
-    //}
+
+
   }
 }

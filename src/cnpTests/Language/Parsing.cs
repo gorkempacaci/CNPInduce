@@ -12,6 +12,7 @@ namespace Language
   [TestClass]
   public class Parsing : TestBase
   {
+
     [TestMethod]
     public void Tokenizer()
     {
@@ -108,12 +109,13 @@ namespace Language
     public void AlphaTupleSet()
     {
       string atuStr = "{{a:'aa', b:B}, {a:B, b:[B,'a']}, {a:'aa', c:B, d:0}}";
-      List<AlphaTuple> atu = Parser.ParseAlphaTupleSet(atuStr, new()).ToList();
+      List<AlphaTuple> atu = Parser.ParseAlphaTupleSet(atuStr,new()).ToList();
       var t0 = atu[0];
       var t1 = atu[1];
       var t2 = atu[2];
       Assert.AreEqual(3, atu.Count);
-      Assert.AreEqual("{a:'aa', b:'λ0'}", nietBruijn(t0).ToString());
+      Assert.AreEqual("{a:'aa', b:'λ0'}", 
+        nietBruijn(t0).ToString());
       Assert.AreEqual("{a:'λ0', b:['λ0', 'a']}", nietBruijn(t1).ToString());
       Assert.AreEqual("{a:'aa', c:'λ0', d:0}", nietBruijn(t2).ToString());
     }

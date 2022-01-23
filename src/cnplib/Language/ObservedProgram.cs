@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using CNP.Display;
 using CNP.Helper;
 using CNP.Helper.EagerLinq;
 
@@ -11,31 +12,50 @@ namespace CNP.Language
   /// </summary>
   public class ObservedProgram : Program
   {
-    [Flags] public enum Constraint : short { None = 0, NotProjection = 1}
+    [Flags] public enum Constraint : short { None = 0, NotProjection = 1, NotAnd = 2}
 
     public readonly IEnumerable<AlphaTuple> Observables;
     public readonly Valence Valence;
     public readonly Constraint Constraints;
-    /// <summary>
-    /// Decompositions-To-Live. Decreased until 0 and if it's zero then that observation
-    /// can only be replaced with an elementary predicate, because it doesn't afford any more
-    /// height to the program tree. It's used to limit the search to a maximum depth.
-    /// For example, if an OP with DTL=3 is replaced with a foldr(op1, op2), DTLs for op1 and op2 should be 2. If this value is not decreased then the search may not terminate.
-    /// </summary>
-    public readonly int DTL;
 
-    public ObservedProgram(IEnumerable<AlphaTuple> obsv, Valence vlnc, int dtl, Constraint cnstrnts = Constraint.None) : base(false)
+    /// <summary>
+    /// Sub-tree depth allowed for this hole. 0 should not exist, 1 would only match elementary predicates, higher values would match operators as well.
+    /// </summary>
+    internal readonly int _remainingSearchDepth;
+
+    public override string Pretty(PrettyStringer ps)
+    {
+      return ps.PrettyString(this);
+    }
+
+    public static ObservedProgram CreateInitial(IEnumerable<AlphaTuple> obsv, Valence vlnc, int searchDepth)
+    {
+      return new ObservedProgram(obsv, vlnc, searchDepth);
+    }
+
+    /// <summary>
+    /// Parent observation is passed in so the RemainingSearchDepth of this observation is one less than the parent.
+    /// </summary>
+    public ObservedProgram(IEnumerable<AlphaTuple> obsv, Valence vlnc, ObservedProgram parentObservation, Constraint cnstrnts = Constraint.None) : this(obsv, vlnc, parentObservation._remainingSearchDepth-1, cnstrnts)
+    {
+
+    }
+
+    private ObservedProgram(IEnumerable<AlphaTuple> obsv, Valence vlnc, int remainingSearchDepth, Constraint cnstrnts = Constraint.None) : base(false)
     {
       if (!obsv.Any())
         throw new InvalidOperationException("Empty observation.");
       Observables = obsv;
       Valence = vlnc;
-      DTL = dtl;
+      _remainingSearchDepth = remainingSearchDepth;
       Constraints = cnstrnts;
-#if DEBUG // check that the valence matches the domains on the tuples
+#if DEBUG
+      if (_remainingSearchDepth <= 0)
+        throw new ArgumentOutOfRangeException("Remaining search depth should not reach 0.");
+      // check that the valence matches the domains on the tuples
       foreach(var o in Observables)
       {
-        if (!o.DomainNames.OrderBy(d=>d.Name).SequenceEqual(Valence.Keys.OrderBy(d=>d.Name), ReferenceEqualityComparer.Instance))
+        if (!o.DomainNames.OrderBy(n=>n.GetHashCode()).SequenceEqual(Valence.Keys.OrderBy(n=>n.GetHashCode()), ReferenceEqualityComparer.Instance))
           throw new ArgumentException("Observation: domain names and tuple domain names don't match. ");
       }
 #endif
@@ -46,7 +66,7 @@ namespace CNP.Language
       // If this is the oldComponent they're looking for
       if (object.ReferenceEquals(this, replaceObservation.Item1))
       {
-        return replaceObservation.Item2.CloneAsSubTree(plannedParenthood, (null,null));
+        return replaceObservation.Item2.CloneAsSubTree(plannedParenthood,  (null,null));
       }
       else
       {
@@ -57,29 +77,47 @@ namespace CNP.Language
           clonedObservables.Add(net);
         }
         Valence clonedDomains = Valence.Clone(plannedParenthood);
-        //var clonedObservables = Observables.Select(o => o.Clone(plannedParenthood));
-        //var clonedDomains = Valence.Clone(plannedParenthood);
-        return new ObservedProgram(clonedObservables, clonedDomains, DTL, Constraints);
+        return new ObservedProgram(clonedObservables, clonedDomains, _remainingSearchDepth, Constraints);
       }
     }
 
-    internal override ObservedProgram FindFirstHole()
+    internal override ObservedProgram FindLeftmostHole()
     {
       return this;
     }
+
+    internal override (ObservedProgram, int) FindRootmostHole(int calleesDistanceToRoot = 0)
+    {
+      return (this, calleesDistanceToRoot);
+    }
+
     public override int GetHeight()
     {
       return 0;
     }
+
+    public override bool NameConstraintsHold()
+    {
+      return Valence.NameConstraintsHold();
+    }
+
     public override void SetAllRootsTo(Program newRoot)
     {
       Root = newRoot;
     }
 
-    public override string ToString()
+    public override string GetTreeQualifier()
     {
-      return this.Valence.ToString() + "#" + Observables.Count() + "/TL=" + DTL;
+      return "O";
     }
 
+    /// <summary>
+    /// Remaining search depth allows matching operators (depth>=2)
+    /// </summary>
+    /// <returns></returns>
+    public bool RSD_AllowsOperators()
+    {
+      return _remainingSearchDepth >= 2;
+    }
   }
 }

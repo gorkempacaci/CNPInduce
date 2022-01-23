@@ -104,6 +104,10 @@ namespace CNP.Helper.EagerLinq
     {
       return Lazy.ToList(Lazy.OrderByDescending(source, keySelector));
     }
+    public static IEnumerable<(TSource1, TSource2)> Zip<TSource1, TSource2>(this IEnumerable<TSource1> source1, IEnumerable<TSource2> source2)
+    {
+      return Lazy.ToList(Lazy.Zip(source1, source2));
+    }
     public static IEnumerable<TResult> Zip<TSource1, TSource2, TResult>(this IEnumerable<TSource1> source1, IEnumerable<TSource2> source2, Func<TSource1, TSource2, TResult> zipper)
     {
       return Lazy.ToList(Lazy.Zip(source1, source2, zipper));

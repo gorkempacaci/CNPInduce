@@ -3,14 +3,14 @@ using System.Collections.Generic;
 using System.Collections;
 using CNP.Helper;
 using CNP.Helper.EagerLinq;
-
+using CNP.Display;
 
 namespace CNP.Language
 {
-  public class AlphaTuple : IEnumerable<KeyValuePair<NameVar, Term>>, IFreeContext
+  public class AlphaTuple : IEnumerable<KeyValuePair<NameVar, Term>>, IFreeContext, IPrettyStringable
   {
     private int hashCode = -1;
-    private readonly SortedList<NameVar, Term> _terms;
+    private readonly Dictionary<NameVar, Term> _terms;
     public IReadOnlyDictionary<NameVar, Term> Terms => _terms;
 
     public IEnumerable<NameVar> DomainNames => _terms.Keys;
@@ -27,7 +27,7 @@ namespace CNP.Language
     /// <param name="terms"></param>
     public AlphaTuple(IEnumerable<KeyValuePair<NameVar, Term>> terms)
     {
-      _terms = new SortedList<NameVar, Term>();
+      _terms = new Dictionary<NameVar, Term>(NameVar.StringComparer.Instance);
       foreach (KeyValuePair<NameVar, Term> nv in terms)
       {
         _terms.Add(nv.Key, nv.Value);
@@ -119,14 +119,16 @@ namespace CNP.Language
       return hashCode;
     }
 
+    public string Pretty(PrettyStringer ps)
+    {
+      return ps.PrettyString(this);
+    }
+
     public override string ToString()
     {
-#if Debug
-      return "{" + string.Join(", ", _terms.Select(kv => kv.Key.DebugName + ":" + kv.Value.ToString())) + "}";
-#else
-      return "{" + string.Join(", ", _terms.Select(kv => kv.Key + ":" + kv.Value.ToString())) + "}";
-#endif
+      return "(Contextless) " + Pretty(new());
     }
+
   }
 
 }

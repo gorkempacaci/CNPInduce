@@ -8,11 +8,31 @@ using CNP.Search;
 using CNP.Helper.EagerLinq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.IO;
+using CNP.Display;
 
 [SuppressMessage("Style", "IDE1006:Naming Styles", Justification = "Convenience")]
 [TestClass]
 public class TestBase
 {
+
+  const int TEST_SEARCH_DEPTH = 3;
+  const int TEST_THREAD_COUNT = 2; // ideal 4 on mbp 2019 8q
+  /*  Threads Time to run Tests.Synthesis.Elementary
+   *                   D3W under load   D3W D3W-i D3W-iR
+      1	      34.50    2.2              1.4 1.5   1.3
+      2       25.91    1.5              1.1 1.2   1.1
+      3       23.46    1.2              1.1 1.2   1.1
+      4       22.00    1.2              1.1 1.2   1.3
+      5       21.20
+      6       21.20
+      7       21.44
+      8       21.96                     1.6 1.6   1.4
+      16                                          23
+
+                    1t    2t    3t    4t    8t
+  W D3 with intlck  2.2   1.5   1.2   1.2   2.1
+
+   */
 
   #region Shorthand for Language Constructs
   protected static Term list() => NilTerm.Instance;
@@ -25,6 +45,7 @@ public class TestBase
   protected static Id id => new Id();
   protected static Cons cons => new Cons();
   protected static Const constant(NameVar dom, ConstantTerm t) => new Const(dom, t);
+  protected static Const constant(NameVar dom, NilTerm t) => new Const(dom, t);
   protected static And and(Program p, Program q) => new And(p, q);
   protected static FoldR foldr(Program rec, Program bas) => new FoldR(recursiveCase: rec, baseCase: bas);
   protected static FoldL foldl(Program rec, Program bas) => new FoldL(recursiveCase: rec, baseCase: bas);
@@ -35,7 +56,8 @@ public class TestBase
 
   protected static string nietBruijnString(IEnumerable<AlphaTuple> ts)
   {
-    return string.Join(", ", nietBruijn(ts));
+    PrettyStringer ps = new();
+    return string.Join(", ", nietBruijn(ts).Select(at => at.Pretty(ps)));
   }
 
   protected static IEnumerable<AlphaTuple> nietBruijn(IEnumerable<AlphaTuple> ts)
@@ -81,13 +103,13 @@ public class TestBase
     NameVarDictionary namevars = new();
     Valence namesModes = Parser.ParseNameModeMap(domains, namevars);
     IEnumerable<AlphaTuple> atus = Parser.ParseAlphaTupleSet(atusStr, namevars);
-    SynthesisJob job = new SynthesisJob(atus, namesModes);
+    SynthesisJob job = new SynthesisJob(atus, namesModes, TEST_SEARCH_DEPTH, new ThreadCount(TEST_THREAD_COUNT), SearchOptions.FindOnlyFirstProgram);
     var measurement = benchmark.StartNew();
-    var programs = job.FindAllPrograms();
+    var programs = job.FindPrograms();
     measurement.TakeFinishTime();
     //Assert.AreEqual(1, programs.Count(), "A program should be found.");
     Assert.IsTrue(programs.Any(), "There should be at least one program.");
-    Assert.AreEqual(elementaryProgramExpected, programs.First());
+    Assert.AreEqual(elementaryProgramExpected.ToString(), programs.First().ToString());
     measurement.ReportFinish(programName, elementaryProgramExpected.ToString());
   }
 
@@ -96,8 +118,8 @@ public class TestBase
     NameVarDictionary namevars = new();
     Valence namesModes = Parser.ParseNameModeMap(domains, namevars);
     IEnumerable<AlphaTuple> atus = Parser.ParseAlphaTupleSet(atusStr, namevars);
-    SynthesisJob job = new SynthesisJob(atus, namesModes);
-    var programs = job.FindAllPrograms();
+    SynthesisJob job = new SynthesisJob(atus, namesModes, TEST_SEARCH_DEPTH, new ThreadCount(TEST_THREAD_COUNT), SearchOptions.FindAllPrograms);
+    var programs = job.FindPrograms();
     Assert.AreEqual(0, programs.Count(), "A program should not have been found.");
   }
 
@@ -119,6 +141,8 @@ public class TestBase
     }
     throw new Exception("freesIn: Term not recognized:" + t.ToString());
   }
+
+
 
   [AssemblyCleanup]
   public static void WriteBenchmarksToFile()

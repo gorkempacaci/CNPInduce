@@ -1,3 +1,5 @@
+using CNP.Display;
+
 namespace CNP.Language
 {
   public class FoldValence : FunctionalValence
@@ -30,9 +32,9 @@ namespace CNP.Language
       return base.GetHashCode();
     }
 
-    public override string ToString()
+    public override string Pretty(PrettyStringer ps)
     {
-      return RecursiveComponent.ToString() + "->" + BaseComponent.ToString() + "->" + base.ToString();
+      return ps.PrettyString(this);
     }
   }
 

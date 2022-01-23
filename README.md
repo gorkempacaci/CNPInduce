@@ -21,7 +21,7 @@ P = id
   | map(P)
   | proj(P, M)
 
-The language is similar to Relational Algebra, where the construction of expressions is compositional, much like functional languages, but any constructed expression is relation-valued: it stands for a relation, that is, a set of tuples. This relation is called the 'relational extension' of the constructed expression. Extensions of the elementary constructs id, cons, and const are ground and terminal, while the extensions of the operators are given in relation to the extensions of their operands.
+The language is similar to Relational Algebra, where the construction of expressions is compositional, much like functional languages, but any constructed expression is relation-valued: it stands for a relation, that is, a set of tuples. This relation is called the 'relational extension' of the constructed expression. Extensions of the terminal constructs "elementary predicates" id, cons, and const are ground, while the extensions of the operators are given in relation to the extensions of their operands.
 Predicate Expressions are built from these constructs, and a Predicate Expression is said to be true, or that it 'succeeds' with regard to a given tuple, if the tuple exists in its relational extension. This is the concept of relational extension from Predicate Logic. CNP is a compositional interpretation of Predicate Logic, or more specifically Definite Clauses, built on earlier work called COMBILOG.
 
 - id is a set of tuples {a:X, b:Y}, where X and Y are identical. It's the identity relation, therefore it's an infinite set. id succeeds for tuples such as {a:1, b:1}, or {a:'hello', b:'hello'}.
@@ -52,8 +52,6 @@ The names that appear in the tuples of a relation are the 'names' of that relati
 
 Open-CNP, as CNP implemented in the accompanying code, is an extended version of CNP to carry along search parameters in the syntax tree. 
 
-## AST
-
 ```
 Name = Name string | FreeName
 GroundTerm = Value integer | Value string
@@ -76,6 +74,8 @@ Expression
   | Observation(Valence, TupleSet) 
 ```
 
+### Other definitions and implementation notes
+
 #### Open/Closed expressions/programs
 
 A program is closed if it doesn't contain any observations.
@@ -84,7 +84,7 @@ A program is closed if it doesn't contain any observations.
 
 A Name is ground if it is not a Free name. A valence is ground if all its names are ground. A program is ground if it does not contain any observations, and all its names appearing in projections and consts are ground.
 
-*Note: Observations may contain Free terms, which would make them not ground, but this is not of concern since if a program does contain observations, it's not closed, and won't be considered as a correct solution anyway. *
+Note: Observations may contain Free terms, which would make them not ground, but this is not of concern since if a program does contain observations, it's not closed, and won't be considered as a correct solution anyway. 
 
 ### Implementing CreateAtFirstHole
 

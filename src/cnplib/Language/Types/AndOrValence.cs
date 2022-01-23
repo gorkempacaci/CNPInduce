@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using CNP.Helper.EagerLinq;
 using CNP.Helper;
+using CNP.Display;
 
 namespace CNP.Language
 {
@@ -34,9 +35,9 @@ namespace CNP.Language
       return base.GetHashCode();
     }
 
-    public override string ToString()
+    public override string Pretty(PrettyStringer ps)
     {
-      return LHDoms.ToString() + "->" + RHDoms.ToString() + "->" + base.ToString();
+      return ps.PrettyString(this);
     }
 
     /// <summary>

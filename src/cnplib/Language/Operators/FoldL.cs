@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using CNP.Display;
 using CNP.Helper;
 using CNP.Helper.EagerLinq;
 
@@ -18,11 +19,11 @@ namespace CNP.Language
 
     public FoldL(Program recursiveCase, Program baseCase) : base(recursiveCase, baseCase) { }
 
-    public override string ToString()
-    {
-      return "foldl(" + Recursive.ToString() + "," + Base.ToString() + ")";
-    }
 
+    public override string Pretty(PrettyStringer ps)
+    {
+      return ps.PrettyString(this);
+    }
 
     internal override Program CloneAsSubTree(TermReferenceDictionary plannedParenthood, (ObservedProgram, Program) replaceObservation = default)
     {

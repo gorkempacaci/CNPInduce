@@ -85,7 +85,7 @@ namespace Synthesis
     public void Identity_Fails_If_Initial_Is_Wrong()
     {
       string typeStr = "{a0:in, as:in, b:out}";
-      string atusStr = "{{a0:1, as:[1,2,3], b:[1,2,3]}}";
+      string atusStr = "{{a0:0, as:[1,2,3], b:[1,2,3]}, {a0:0, as:[3,2,1], b:[3,2,1]}}";
       assertNoResultFor(typeStr, atusStr);
     }
 

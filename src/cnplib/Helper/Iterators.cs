@@ -28,6 +28,9 @@ namespace CNP.Helper
       return lists.Aggregate((l1, l2) => l1.Concat(l2));
     }
 
+    /// <summary>
+    /// Iterates through the given enumerable in order while giving indices. 
+    /// </summary>
     public static void For<TSource>(this IEnumerable<TSource> source, Action<TSource, int> action)
     {
       IEnumerator<TSource> it = source.GetEnumerator();
@@ -38,6 +41,13 @@ namespace CNP.Helper
       }
     }
 
+    /// <summary>
+    /// Splits an enumeration into two, according to a given predicate: one containing elements the predicate holds, and one with the ones it doesn't hold.
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    /// <param name="sourceList"></param>
+    /// <param name="predicate"></param>
+    /// <returns></returns>
     public static (IEnumerable<T>, IEnumerable<T>) WhereAndNot<T>(this IEnumerable<T> sourceList, Func<T, bool> predicate)
     {
       List<T> whereList = new List<T>();
@@ -133,24 +143,71 @@ namespace CNP.Helper
       return dict1.All(kv => dict2.ContainsKey(kv.Key) && dict2[kv.Key].Equals(kv.Value));
     }
 
+    public static TValue GetOrAdd<TKey,TValue>(this IDictionary<TKey,TValue> source, TKey key, Func<TValue> valueGenerator)
+    {
+      return GetOrAdd(source, key, valueGenerator, out _);
+    }
+
+    public static TValue GetOrAdd<TKey, TValue>(this IDictionary<TKey, TValue> source, TKey key, Func<TValue> valueGenerator, out bool added)
+    {
+      if (!source.TryGetValue(key, out TValue value))
+      {
+        value = valueGenerator();
+        source.Add(key, value);
+        added = true;
+      }
+      else added = false;
+      return value;
+    }
+
+    public static void AddAll<TKey,TValue>(this IDictionary<TKey,TValue> dic, IEnumerable<KeyValuePair<TKey,TValue>> pairs)
+    {
+      foreach(var pair in pairs)
+      {
+        dic.Add(pair.Key, pair.Value);
+      }
+    }
+
     public static IEnumerable<TSource> Clone<TSource>(this IEnumerable<TSource> source, TermReferenceDictionary plannedParenthood) where TSource : Term
     {
       return source.Select(e => (TSource)e.Clone(plannedParenthood));
     }
 
+    /// <summary>
+    /// Creates a ValueTuple2 from a source enumeration with exactly 2 elements.
+    /// </summary>
     public static (TSource, TSource) ToValueTuple2<TSource>(this IEnumerable<TSource> source)
     {
-      var vals = Enumerable.ToArray(source);
-      if (vals.Length != 2)
-        throw new Exception("ToValueTuple2: IEnumerable has more than 2 elements.");
-      return ValueTuple.Create(vals[0], vals[1]);
+      var en = source.GetEnumerator();
+      if (!en.MoveNext())
+        throw new Exception("ToValueTuple2: There are no elements in the source.");
+      var el1 = en.Current;
+      if (!en.MoveNext())
+        throw new Exception("ToValueTuple2: There is no second element in the source.");
+      var el2 = en.Current;
+      if (en.MoveNext())
+        throw new Exception("ToValueTuple2: There are more than 2 elements in the source.");
+      return ValueTuple.Create(el1, el2);
     }
+
+    /// <summary>
+    /// Creates a ValueTuple3 from a source enumeration with exactly 3 elements.
+    /// </summary>
     public static (TSource, TSource, TSource) ToValueTuple3<TSource>(this IEnumerable<TSource> source)
     {
-      var vals = Enumerable.ToArray(source);
-      if (vals.Length != 3)
-        throw new Exception("ToValueTuple3: IEnumerable has more than 3 elements.");
-      return ValueTuple.Create(vals[0], vals[1], vals[2]);
+      var en = source.GetEnumerator();
+      if (!en.MoveNext())
+        throw new Exception("ToValueTuple3: There are no elements in the source.");
+      var el1 = en.Current;
+      if (!en.MoveNext())
+        throw new Exception("ToValueTuple3: There is no second element in the source.");
+      var el2 = en.Current;
+      if (!en.MoveNext())
+        throw new Exception("ToValueTuple3: There is no third element in the source.");
+      var el3 = en.Current;
+      if (en.MoveNext())
+        throw new Exception("ToValueTuple3: There are more than three elements in the source.");
+      return ValueTuple.Create(el1, el2, el3);
     }
     public static IEnumerable<TResult> New<TResult, T1>(this IEnumerable<T1> source)
     {

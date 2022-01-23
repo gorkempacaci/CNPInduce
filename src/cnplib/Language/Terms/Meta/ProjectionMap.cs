@@ -5,6 +5,7 @@ using System.Diagnostics.CodeAnalysis;
 using CNP.Language;
 using CNP.Helper.EagerLinq;
 using CNP.Helper;
+using CNP.Display;
 
 namespace CNP.Language
 {
@@ -12,7 +13,7 @@ namespace CNP.Language
   /// Maps source argument names to target argument names.
   /// in a program like proj(id, {a:u, b:v}), represents the {a:u, b:v}. Therefore keys belong to the inner expression and values to the outer one.
   /// </summary>
-  public class ProjectionMap : IReadOnlyDictionary<NameVar, NameVar>
+  public class ProjectionMap : IReadOnlyDictionary<NameVar, NameVar>, IPrettyStringable
   {
     private Dictionary<NameVar, NameVar> dict;
 
@@ -49,11 +50,6 @@ namespace CNP.Language
       return new ProjectionMap(newDict);
     }
 
-    public override string ToString()
-    {
-      return "{" + string.Join(", ", this.Select(nn => nn.Key + ":" + nn.Value)) + "}";
-    }
-
     public override int GetHashCode()
     {
       return Count;
@@ -64,6 +60,11 @@ namespace CNP.Language
       if (obj is not ProjectionMap otherMap)
         return false;
       return this.EqualsAsDictionary(otherMap);
+    }
+
+    public string Pretty(PrettyStringer ps)
+    {
+      return ps.PrettyString(this);
     }
 
     #region Delegate to this.dict

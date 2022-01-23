@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Text;
+using CNP.Display;
 using CNP.Helper;
 using CNP.Helper.EagerLinq;
 
@@ -98,26 +99,7 @@ namespace CNP.Language
       }
     }
 
-    private static string _internalListString(TermList li)
-    {
-      if (li.Tail is TermList tailList)
-      {
-        return li.Head.ToString() + ", " + _internalListString(tailList);
-      }
-      else if (li.Tail is NilTerm)
-      {
-        return li.Head.ToString();
-      }
-      else // tail is another term (unusual case)
-      {
-        return li.Head.ToString() + "|" + li.Tail.ToString();
-      }
-    }
 
-    public override string ToString()
-    {
-      return "[" + _internalListString(this) + "]";
-    }
 
     public override bool Equals(object obj)
     {
@@ -129,6 +111,11 @@ namespace CNP.Language
     public override int GetHashCode()
     {
       return HashCode.Combine(Head, Tail);
+    }
+
+    public override string Pretty(PrettyStringer ps)
+    {
+      return ps.PrettyString(this);
     }
 
     /// <summary>

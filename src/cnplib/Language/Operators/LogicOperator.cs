@@ -15,9 +15,16 @@ namespace CNP.Language
       RHOperand = rhOperand;
     }
 
-    internal sealed override ObservedProgram FindFirstHole()
+    internal sealed override ObservedProgram FindLeftmostHole()
     {
-      return LHOperand.FindFirstHole() ?? RHOperand.FindFirstHole();
+      return LHOperand.FindLeftmostHole() ?? RHOperand.FindLeftmostHole();
+    }
+
+    internal override (ObservedProgram, int) FindRootmostHole(int calleesDistanceToRoot = 0)
+    {
+      var lh = LHOperand.FindRootmostHole(calleesDistanceToRoot + 1);
+      var rh = RHOperand.FindRootmostHole(calleesDistanceToRoot + 1);
+      if (lh.Item2 <= rh.Item2) return lh; else return rh;
     }
 
     public override int GetHashCode()
@@ -28,6 +35,11 @@ namespace CNP.Language
     public sealed override int GetHeight()
     {
       return Math.Max(LHOperand.GetHeight(), RHOperand.GetHeight()) + 1;
+    }
+
+    public override bool NameConstraintsHold()
+    {
+      return LHOperand.NameConstraintsHold() && RHOperand.NameConstraintsHold();
     }
 
     public sealed override void SetAllRootsTo(Program newRoot)

@@ -23,16 +23,7 @@ namespace CNP.Helper
     }
     public NameVar GetOrAdd(string domainName)
     {
-      if (TryGetValue(domainName, out NameVar v))
-      {
-        return v;
-      }
-      else
-      {
-        NameVar nv = new NameVar(domainName);
-        this.Add(domainName, nv);
-        return nv;
-      }
+      return this.GetOrAdd(domainName, () => new NameVar(domainName));
     }
   }
 }

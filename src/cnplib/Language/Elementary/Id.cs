@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using CNP.Helper.EagerLinq;
 using CNP.Helper;
+using CNP.Display;
 
 namespace CNP.Language
 {
@@ -25,11 +26,6 @@ namespace CNP.Language
       return new Id();
     }
 
-    public override string ToString()
-    {
-      return "id";
-    }
-
     public override int GetHashCode()
     {
       return 19;
@@ -39,13 +35,18 @@ namespace CNP.Language
     {
       return obj is Id;
     }
+
+    public override string Pretty(PrettyStringer ps)
+    {
+      return ps.PrettyString(this);
+    }
+
     /// <summary>
     /// Does not modify the given program, returns alternative cloned programs if they exist.
     /// </summary>
     public static IEnumerable<Program> CreateAtFirstHole(Program rootProgramOriginal)
     {
-
-      ObservedProgram obsOriginal = rootProgramOriginal.FindFirstHole();
+      ObservedProgram obsOriginal = rootProgramOriginal.FindHole();
       var idTypesCompatible = valences.FindCompatibleTypes(obsOriginal.Valence);
       if (!idTypesCompatible.Any())
         return Iterators.Empty<Id>();
@@ -54,19 +55,21 @@ namespace CNP.Language
       foreach (TermReferenceDictionary uni in combs)
       {
         Program clonedRoot = rootProgramOriginal.CloneAtRoot(uni);
-        ObservedProgram clonedObs = clonedRoot.FindFirstHole();
+        if (!clonedRoot.NameConstraintsHold())
+          continue; //rollback
+        ObservedProgram clonedObs = clonedRoot.FindHole();
         if (clonedObs.Observables.All(at => Term.UnifyInPlace(at["a"], at["b"])))
         {
           var p = new Id();
-          if (rootProgramOriginal.ToString().StartsWith("proj(and("))
-          {
-            And ann = (rootProgramOriginal as Proj).Source as And;
-            if ((ann.LHOperand as ObservedProgram).Valence.Count()==2 &&
-                (ann.RHOperand as ObservedProgram).Valence.Count()==2)
-            {
+          //if (rootProgramOriginal.ToString().StartsWith("proj(and("))
+          //{
+          //  And ann = (rootProgramOriginal as Proj).Source as And;
+          //  if ((ann.LHOperand as ObservedProgram).Valence.Count()==2 &&
+          //      (ann.RHOperand as ObservedProgram).Valence.Count()==2)
+          //  {
 
-            }
-          }
+          //  }
+          //}
           return Iterators.Singleton(clonedRoot.CloneAtRoot((clonedObs, p)));
         }
       }

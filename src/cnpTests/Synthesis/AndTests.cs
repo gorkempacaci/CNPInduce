@@ -6,7 +6,7 @@ using CNP.Language;
 using CNP.Parsing;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace Tests.Synthesis
+namespace Synthesis
 {
   [TestClass]
   public class AndTests : TestBase
@@ -17,7 +17,7 @@ namespace Tests.Synthesis
       NameVarDictionary names = new NameVarDictionary();
       Valence v = Parser.ParseNameModeMap("{a:in}", names);
       IEnumerable<AlphaTuple> atus = Parser.ParseAlphaTupleSet("{{a:1}, {a:2}}", names);
-      ObservedProgram obs = new ObservedProgram(atus, v, 2, ObservedProgram.Constraint.None);
+      ObservedProgram obs = ObservedProgram.CreateInitial(atus, v, 2);
       var programsInNextStep = And.CreateAtFirstHole(obs);
       Assert.AreEqual(4, programsInNextStep.Count(), "4 alternations");
       foreach(Program p in programsInNextStep)
@@ -45,7 +45,7 @@ namespace Tests.Synthesis
       NameVarDictionary names = new NameVarDictionary();
       Valence v = Parser.ParseNameModeMap("{a:in, b:out}", names);
       IEnumerable<AlphaTuple> atus = Parser.ParseAlphaTupleSet("{{a:1, b:2}, {a:2, b:4}}", names);
-      ObservedProgram obs = new ObservedProgram(atus, v, 2, ObservedProgram.Constraint.None);
+      ObservedProgram obs = ObservedProgram.CreateInitial(atus, v, 2);
       var programsInNextStep = And.CreateAtFirstHole(obs);
       Assert.AreEqual(24, programsInNextStep.Count(), "24 alternations");
       var firstExpectedLH = Parser.ParseAlphaTuple("{a:1}",new());
@@ -53,23 +53,23 @@ namespace Tests.Synthesis
       var firstActual = programsInNextStep.First() as And;
       var firstActualLH = firstActual.LHOperand as ObservedProgram;
       var firstActualRH = firstActual.RHOperand as ObservedProgram;
-      Assert.AreEqual(firstExpectedLH, firstActualLH.Observables.First(), "First valence, LH first tuple");
-      Assert.AreEqual(firstExpectedRH, firstActualRH.Observables.First(), "First valence, RH first tuple");
+      Assert.AreEqual(firstExpectedLH.ToString(), firstActualLH.Observables.First().ToString(), "First valence, LH first tuple");
+      Assert.AreEqual(firstExpectedRH.ToString(), firstActualRH.Observables.First().ToString(), "First valence, RH first tuple");
       var lastExpectedLH = Parser.ParseAlphaTuple("{a:1,b:2}", new());
       var lastExpectedRH = Parser.ParseAlphaTuple("{a:1,b:2}", new());
       var lastActual = programsInNextStep.Last() as And;
       var lastActualLH = lastActual.LHOperand as ObservedProgram;
       var lastActualRH = lastActual.RHOperand as ObservedProgram;
-      Assert.AreEqual(lastExpectedLH, lastActualLH.Observables.First(), "Last valence, LH first tuple");
-      Assert.AreEqual(lastExpectedRH, lastActualRH.Observables.First(), "Last valence, RH first tuple");
+      Assert.AreEqual(lastExpectedLH.ToString(), lastActualLH.Observables.First().ToString(), "Last valence, LH first tuple");
+      Assert.AreEqual(lastExpectedRH.ToString(), lastActualRH.Observables.First().ToString(), "Last valence, RH first tuple");
     }
 
     [TestMethod]
-    public void And_Const_Id()
+    public void And_Cons_Id()
     {
-      var type = "{a:in, b:out}";
-      var atus = "{{a:1, b:[1]}, {a:2, b:[2]}}";
-      assertFirstResultFor(type, atus, and(constant(new NameVar("a"),constterm(1)), id), "const(1)");
+      var type = "{a:in, b:out, ab:out}";
+      var atus = "{{a:[], b:[], ab:[[]]}, {a:1, b:1, ab:[1|1]}}";
+      assertFirstResultFor(type, atus, and(id, cons), "and(id,cons)");
     }
 
   }

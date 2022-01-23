@@ -21,6 +21,7 @@ namespace Synthesis
     [DataRow("{a:in, b:out}", "{{a:0, b:0}, {a:'hello', b:B}}")]
     [DataRow("{a:out, b:in}", "{{a:A, b:0}, {a:A, b:'yello'}}")]
     [DataRow("{a:in, b:in}", "{{a:0, b:0}, {a:'hello', b:'hello'}}")]
+    [DataRow("{a:in, b:in}", "{{a:1, b:1}}")]
     [DataRow("{a:in, b:out}", "{{a:[], b:B}}")]
     [DataRow("{a:in, b:out}", "{{a:[3,2,1], b:[3,2,1]}}")]
     public void IdPositive(string typeStr, string atusStr)
@@ -53,21 +54,20 @@ namespace Synthesis
     }
 
     [DataTestMethod]
-    // id
-    [DataRow("{a:out, b:out}", "{{a:0, b:0}}")]
-    [DataRow("{a:in, b:out}", "{{a:0, b:1}}")]
     // cons
     [DataRow("{a:in, b:in, ab:out}", "{{a:0, b:0, ab:[0,0]}}")]
     // const
     [DataRow("{a:in}", "{{a:[1|X]}, {a:L}, {a:[1,2,T|4]}}")] // not ground
     public void Negative(string typeStr, string atusStr)
     {
-      NameVarDictionary namevars = new();
-      Valence namesModes = Parser.ParseNameModeMap(typeStr, namevars);
-      IEnumerable<AlphaTuple> atus = Parser.ParseAlphaTupleSet(atusStr, namevars);
-      SynthesisJob job = new SynthesisJob(atus, namesModes);
-      var programs = job.FindAllPrograms();
-      Assert.AreEqual(0, programs.Count());
+      assertNoResultFor(typeStr, atusStr);
+      //NameVarDictionary namevars = new();
+      //Valence namesModes = Parser.ParseNameModeMap(typeStr, namevars);
+      //IEnumerable<AlphaTuple> atus = Parser.ParseAlphaTupleSet(atusStr, namevars);
+      //assertNoResultFor(namesModes, atus);
+      //SynthesisJob job = new SynthesisJob(atus, namesModes);
+      //var programs = job.FindAllPrograms();
+      //Assert.AreEqual(0, programs.Count());
     }
   }
 

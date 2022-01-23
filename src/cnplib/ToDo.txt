@@ -1,6 +1,9 @@
 == bugs
+- static counters like argNameCounter on NameVar are not thread-safe.
 FIXED - 1 thread fails more tests than more threads
-- assertSingleResult calls FindAllPrograms which takes a long time and often doesn't terminate. Switch to assertFirstResult for most tests.
+- AND operator should insert constaints for NameVars
+- AND operator should(?) allow operands with no common columns?
+FIXED - assertSingleResult calls FindAllPrograms which takes a long time and often doesn't terminate. Switch to assertFirstResult for most tests.
 
 == To be discussed
 - both fold's own, recursive and base parameters' names are ground and arbitrary. maybe it's possible to derive these names or make them dynamic by inferring which argument is bound to what using their types? This may apply to CNP language in general by removing argument name mechanics if types are specific enough. 
@@ -10,6 +13,8 @@ FIXED - 1 thread fails more tests than more threads
 - For an observation such as {{X:1, Y:F1, Z:[1,2,3]}, {X:2, Y:F2, Z:F1}, {X:3, Y:F3, Z:F3}} with a valence {X:in, Y:out, Z:in}, cons might bind X=a,Z=ab
 
 == Improvements
+- Interlocked.Increment probably drops CPU core cashes so indirectly causes synchronization time
+- candidates can be put on a separate collection according to their depth, so shallower candidates get processed first.
 - double projections such as (proj(proj(cons, ...), ...) should be avoided.
 - identity projections such as (proj(cons, a->a, b->b, ab->ab)) should be avoided.
 - Importing from job files like the CNP that shipped with RICE. Maybe use JSON files instead.
@@ -22,6 +27,7 @@ FIXED - 1 thread fails more tests than more threads
 - Having a ObservedProgram.ReplaceInPlace(newProgram) would be helpful to eliminate one cloning in the implementations of CreateAtFirstHole
 - A benchmarking system that can run the tests wrt thread count and report the plots as latex code.
 - Pretty-printing system to replace the use of ToString
+- AndOrValence and FoldValence inheriting from Valence and still having it as a sort-of component is not healthy abstraction.
 
 == TidyUp
 - foldr and foldl Qs names, and id's names should be {a, a'}, or {e1, e2}, not {a, b} because their types are the same.

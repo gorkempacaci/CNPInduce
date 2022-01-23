@@ -4,16 +4,19 @@ using System.Collections.Generic;
 using System.Threading;
 using CNP.Helper;
 using CNP.Language;
+using CNP.Helper.EagerLinq;
+using System.Threading.Tasks;
+using System.Threading.Channels;
+
 namespace CNP.Search
 {
   public class ProgramSearch
   {
-    readonly int threadCount;
-    readonly int maxHeightForPrograms;
-    int busyThreadCount = 0;
-    object busyThreadCountMonitor = new object();
-    public int SearchedProgramsCount = 0;
-    ConcurrentQueue<Program> searchQueue = new ConcurrentQueue<Program>();
+    //public int BusyThreadCount = 0;
+    public readonly int ThreadCount;
+    ConcurrentQueue<Program> searchQueue = new();
+    object searchQueueDequeueLock = new();
+    CancellationTokenSource CancellationSource = new();
     List<SearchBrancher> threadObjects;
     List<Thread> systemThreads;
     IProgramSearchReceiver searchReceiver;
@@ -21,8 +24,7 @@ namespace CNP.Search
     public ProgramSearch(ObservedProgram initialHole, IProgramSearchReceiver receiver, ThreadCount tCount = default)
     {
       searchReceiver = receiver;
-      threadCount = 1; // tCount.GetNumberOfThreads();
-      maxHeightForPrograms = initialHole.DTL;
+      ThreadCount = tCount.GetNumberOfThreads();
       searchQueue.Enqueue(initialHole);
     }
     public void WaitUntilDone()
@@ -39,16 +41,20 @@ namespace CNP.Search
         }
       }
     }
-    public void Start()
+    public void StartThreads()
     {
-      threadObjects = new List<SearchBrancher>(threadCount);
-      systemThreads = new List<Thread>(threadCount);
-      for (int i = 0; i < threadCount; i++)
+      threadObjects = new List<SearchBrancher>(ThreadCount);
+      systemThreads = new List<Thread>(ThreadCount);
+      Terminator hungerTracker = new Terminator(CancellationSource, ThreadCount);
+      for (int i = 0; i < ThreadCount; i++)
       {
-        SearchBrancher pst = new SearchBrancher(this);
+        SearchBrancher pst = new SearchBrancher(this, searchQueue, hungerTracker, CancellationSource, searchReceiver, i);
         threadObjects.Add(pst);
-        Thread t = new Thread(pst.Start);
+        Thread t = new Thread(pst.ConsumeProduceLoop);
+        t.Priority = ThreadPriority.Highest;
+        t.Name = "Synth" + i;
         systemThreads.Add(t);
+        //Interlocked.Increment(ref BusyThreadCount);
         t.Start();
       }
     }
@@ -58,64 +64,45 @@ namespace CNP.Search
     /// True if Take() was successfull. False if there is nothing in the queue.
     /// </summary>
     /// <exception cref="InvalidOperationException">If the search is terminated throws InvalidOperationException.</exception>
-    public bool TryTake(out Program program, out Action<IEnumerable<Program>> queueCallback, out bool searchCompleted)
-    {
-      searchCompleted = false;
-      lock (busyThreadCountMonitor)
-      {
-        if (searchReceiver == null)
-        {
-          //program = null;
-          //queueCallback = null;
-          //searchCompleted = true;
-          //return false;
-          throw new InvalidOperationException("Search is terminated.");
-        }
-        else if (busyThreadCount == 0 && searchQueue.Count == 0)
-        {
-          program = null;
-          queueCallback = null;
-          searchCompleted = true;
-          return false;
-          //throw new InvalidOperationException("Search is finished.");
-        }
-        else if (searchQueue.TryDequeue(out program))
-        {
-          busyThreadCount++;
-          queueCallback = new JustOnce<IEnumerable<Program>>(queue).Invoke;
-          return true;
-        }
-        else
-        {
-          program = null;
-          queueCallback = null;
-          return false;
-        }
-      }
-    }
-    void queue(IEnumerable<Program> ps)
-    {
-      lock (busyThreadCountMonitor)
-      {
-        busyThreadCount--;
-      }
-      if (searchReceiver == null)
-      {
-        return;
-      }
-      foreach (Program p in ps)
-      {
-        if (p.IsClosed)
-        {
-          searchReceiver?.FoundNewProgram(p);
-        }
-        else
-        {
-          if (p.GetHeight() <= maxHeightForPrograms)
-            searchQueue.Enqueue(p);
-          // else that search node is 
-        }
-      }
-    }
+//    public bool TryTake___(out Program program, out Action<IEnumerable<Program>> queueCallback, out bool searchCompleted)
+//    {
+//      searchCompleted = false;
+//      lock (busyThreadCountMonitor)
+//      {
+//        if (searchReceiver == null)
+//        {
+//          //program = null;
+//          //queueCallback = null;
+//          //searchCompleted = true;
+//          //return false;
+//          throw new InvalidOperationException("Search is terminated.");
+//        }
+//        else if (busyThreadCount == 0 && searchQueue.Count == 0)
+//        {
+//          program = null;
+//          queueCallback = null;
+//          searchCompleted = true;
+//          return false;
+//          //throw new InvalidOperationException("Search is finished.");
+//        }
+//        else if (searchQueue.TryTake(out program))
+//        {
+//          busyThreadCount++;
+//          queueCallback = new JustOnce<IEnumerable<Program>>(queue).Invoke;
+//#if DEBUG
+//          Interlocked.Increment(ref Debugging.CountDequeued);
+//          Debugging.ThreadDequeueCounter.Increase(Thread.CurrentThread.ManagedThreadId);
+//#endif
+//          return true;
+//        }
+//        else
+//        {
+//          program = null;
+//          queueCallback = null;
+//          return false;
+//        }
+//      }
+//    }
+
   }
 }

@@ -1,4 +1,5 @@
 ﻿using System;
+using CNP.Display;
 using CNP.Language;
 
 namespace CNP.Language
@@ -13,5 +14,8 @@ namespace CNP.Language
     protected FunctionalValence(Valence domains) : base(domains)
     {
     }
+
+    public abstract override string Pretty(PrettyStringer ps);
+
   }
 }

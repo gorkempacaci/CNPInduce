@@ -11,9 +11,14 @@ namespace CNP.Language
       
     }
 
-    internal override ObservedProgram FindFirstHole()
+    internal override ObservedProgram FindLeftmostHole()
     {
       return null;
+    }
+
+    internal override (ObservedProgram, int) FindRootmostHole(int calleesDistanceToRoot = 0)
+    {
+      return (null, int.MaxValue);
     }
 
     public override int GetHeight()
@@ -21,9 +26,19 @@ namespace CNP.Language
       return 0;
     }
 
+    public override bool NameConstraintsHold()
+    {
+      return true;
+    }
+
     public sealed override void SetAllRootsTo(Program newRoot)
     {
       Root = newRoot;
+    }
+
+    public override string GetTreeQualifier()
+    {
+      return "p";
     }
   }
 }

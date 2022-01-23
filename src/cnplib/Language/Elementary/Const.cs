@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using CNP.Display;
 using CNP.Helper;
 using CNP.Helper.EagerLinq;
 
@@ -43,9 +44,9 @@ namespace CNP.Language
       return this.Value.GetHashCode();
     }
 
-    public override string ToString()
+    public override string Pretty(PrettyStringer ps)
     {
-      return "const(" + ArgumentName + ", " + Value.ToString() + ")";
+      return ps.PrettyString(this);
     }
 
     /// <summary>
@@ -54,7 +55,7 @@ namespace CNP.Language
     public static IEnumerable<Program> CreateAtFirstHole(Program rootProgram)
     {
       rootProgram = rootProgram.CloneAtRoot();
-      ObservedProgram cloneObs = rootProgram.FindFirstHole();
+      ObservedProgram cloneObs = rootProgram.FindHole();
       if (cloneObs.Valence.Count() != 1)
         return Iterators.Empty<Const>();
       Free candidateConstant = new Free();
