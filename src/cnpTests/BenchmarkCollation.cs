@@ -50,15 +50,15 @@ public class BenchmarkCollation
   {
     Func<string, string> mdClean = (s) => Regex.Replace(s, @"([|\\*])", @"\$1"); // https://stackoverflow.com/questions/39146164/how-to-escape-string-while-programmatically-generating-markdown-table
     StringBuilder sb = new StringBuilder();
-    sb.AppendLine("Search depth:" + TestBase.TEST_SEARCH_DEPTH);
-    sb.AppendLine("Search thread count:" + TestBase.TEST_THREAD_COUNT);
-    sb.AppendLine("Name | CNP | Examples | Min | Max");
+    sb.AppendLine("# Depth:" + TestBase.TEST_SEARCH_DEPTH + ", Threads:" + TestBase.TEST_THREAD_COUNT);
+    sb.AppendLine("Name | Program | Examples | Min | Max");
     sb.AppendLine("--- | --- | --- | ---: | ---:");
     foreach (BenchmarkEntry en in benchmarks.Values)
     {
       sb.AppendLine(string.Format("{0} | {1} | {2} | {3:F4}s | {4:F4}s",
           mdClean(en.ProgramName),
-          string.Join("<br/>", en.programStringsAndExamples.Select(ss => mdClean(ss.Item1)+" | "+mdClean(ss.Item2))),
+          string.Join("<br/>", en.programStringsAndExamples.Select(ss => mdClean(ss.Item1))),
+          string.Join("<br/>", en.programStringsAndExamples.Select(ss => mdClean(ss.Item2))),
           en.MinTime,
           en.MaxTime));
     }

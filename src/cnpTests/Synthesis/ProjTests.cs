@@ -36,15 +36,15 @@ namespace Synthesis
       assertFirstResultFor(typeStr, atusStr, expectedProgram, "Proj_reverse_by_foldl");
     }
 
-    [TestMethod]
-    public void Proj_and_const_reverse()
-    {
-      string typeStr = "{inlist:in, outlist:out}";
-      string atusStr = "{{inlist:[3,2,1], outlist:[1,2,3]}, {inlist:[4,5,6], outlist:[6,5,4]}}";
-      var expectedProgram = proj(and(foldl(cons, id), constant(new NameVar("b0"), NilTerm.Instance)), ("as", "inlist"), ("b", "outlist"));
+    //[TestMethod] DEPTH 4
+    //public void Proj_and_const_reverse()
+    //{
+    //  string typeStr = "{inlist:in, outlist:out}";
+    //  string atusStr = "{{inlist:[3,2,1], outlist:[1,2,3]}, {inlist:[4,5,6], outlist:[6,5,4]}}";
+    //  var expectedProgram = proj(and(foldl(cons, id), constant(new NameVar("b0"), NilTerm.Instance)), ("as", "inlist"), ("b", "outlist"));
 
-      assertFirstResultFor(typeStr, atusStr, expectedProgram, "Proj_and_const_reverse2");
-    }
+    //  assertFirstResultFor(typeStr, atusStr, expectedProgram, "Proj_and_const_reverse2");
+    //}
 
   }
 }

@@ -16,7 +16,7 @@ public class TestBase
 {
 
   public const int TEST_SEARCH_DEPTH = 3;
-  public const int TEST_THREAD_COUNT = 3; // ideal 4 on mbp 2019 8q
+  public const int TEST_THREAD_COUNT = 8; // ideal 4 on mbp 2019 8q
   /*  Threads Time to run Tests.Synthesis.Elementary
    *                   D3W under load   D3W D3W-i D3W-iR
       1	      34.50    2.2              1.4 1.5   1.3
