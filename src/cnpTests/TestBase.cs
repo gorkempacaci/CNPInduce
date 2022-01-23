@@ -15,8 +15,8 @@ using CNP.Display;
 public class TestBase
 {
 
-  const int TEST_SEARCH_DEPTH = 3;
-  const int TEST_THREAD_COUNT = 2; // ideal 4 on mbp 2019 8q
+  public const int TEST_SEARCH_DEPTH = 3;
+  public const int TEST_THREAD_COUNT = 3; // ideal 4 on mbp 2019 8q
   /*  Threads Time to run Tests.Synthesis.Elementary
    *                   D3W under load   D3W D3W-i D3W-iR
       1	      34.50    2.2              1.4 1.5   1.3
@@ -110,7 +110,7 @@ public class TestBase
     //Assert.AreEqual(1, programs.Count(), "A program should be found.");
     Assert.IsTrue(programs.Any(), "There should be at least one program.");
     Assert.AreEqual(elementaryProgramExpected.ToString(), programs.First().ToString());
-    measurement.ReportFinish(programName, elementaryProgramExpected.ToString());
+    measurement.ReportFinish(programName, atusStr, elementaryProgramExpected.ToString());
   }
 
   protected void assertNoResultFor(string domains, string atusStr)

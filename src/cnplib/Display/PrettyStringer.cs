@@ -59,7 +59,9 @@ namespace CNP.Display
 
     public string PrettyString(AlphaTuple at)
     {
-      return "{" + string.Join(", ", at.Terms.Select(kv => kv.Key + ":" + kv.Value.ToString())) + "}";
+      return "{" + string.Join(", ", at.Terms
+        .OrderBy(nv=>nv.Key.Name)
+        .Select(kv => kv.Key + ":" + kv.Value.ToString())) + "}";
     }
 
     // META TERMS
@@ -77,7 +79,7 @@ namespace CNP.Display
 
     public string PrettyString(ProjectionMap pm)
     {
-      return "{" + string.Join(", ", pm.Select(nn => nn.Key.Pretty(this) + ":" + nn.Value.Pretty(this))) + "}";
+      return "{" + string.Join(", ", pm.OrderBy(nn => nn.Key).Select(nn => nn.Key.Pretty(this) + ":" + nn.Value.Pretty(this))) + "}";
     }
 
     // PROGRAM TERMS

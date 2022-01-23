@@ -24,11 +24,6 @@ namespace Synthesis
       Assert.AreEqual("{a:1, ab:'λ0', b:[]}, {a:2, ab:'λ1', b:'λ0'}, {a:3, ab:'λ2', b:'λ1'}, {a:'λ2', b:[3, 2, 1]}", nietBruijnString(allAtus));
     }
 
-    /*
-
-    Expected:<{a:1, ab:'λ0', b:[]}, {a:2, ab:'λ1', b:'λ0'}, {a:3, ab:'λ2', b:'λ1'}, {a:'λ2', b:[3, 2, 1]}>.
-    Actual:<(Contextless) {a:1, ab:'λ0', b:[]}, (Contextless) {a:2, ab:'λ1', b:'λ0'}, (Contextless) {a:3, ab:'λ2', b:'λ1'}, (Contextless) {a:'λ2', b:[3, 2, 1]}>. "
-    */
 
     [TestMethod]
     public void Reverse3()

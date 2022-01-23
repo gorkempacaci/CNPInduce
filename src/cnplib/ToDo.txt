@@ -13,7 +13,9 @@ FIXED - assertSingleResult calls FindAllPrograms which takes a long time and oft
 - For an observation such as {{X:1, Y:F1, Z:[1,2,3]}, {X:2, Y:F2, Z:F1}, {X:3, Y:F3, Z:F3}} with a valence {X:in, Y:out, Z:in}, cons might bind X=a,Z=ab
 
 == Improvements
-- Interlocked.Increment probably drops CPU core cashes so indirectly causes synchronization time
+- When workers produce work items, they may keep some to themselves in order to avoid putting them back onto the queue only to get them back again. This hurts the search order, but might improve synchronization time. Or, they may not keep to themselves but insert to queue in groups of N, and dequeue in groups of N.
+- The limiting factor to scaling may not be synchronization but memory. Memory grows quite fast to 10GB.
+FXD - Interlocked.Increment probably drops CPU core cashes so indirectly causes synchronization time. RESULT: No improvement in scaling, only minor general improvement.
 - candidates can be put on a separate collection according to their depth, so shallower candidates get processed first.
 - double projections such as (proj(proj(cons, ...), ...) should be avoided.
 - identity projections such as (proj(cons, a->a, b->b, ab->ab)) should be avoided.
