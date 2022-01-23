@@ -52,13 +52,13 @@ public class BenchmarkCollation
     StringBuilder sb = new StringBuilder();
     sb.AppendLine("Search depth:" + TestBase.TEST_SEARCH_DEPTH);
     sb.AppendLine("Search thread count:" + TestBase.TEST_THREAD_COUNT);
-    sb.AppendLine("Name | CNP Program | Examples Used | Min | Max");
-    sb.AppendLine("--- | --- | ---: | ---:");
+    sb.AppendLine("Name | CNP | Examples | Min | Max");
+    sb.AppendLine("--- | --- | --- | ---: | ---:");
     foreach (BenchmarkEntry en in benchmarks.Values)
     {
-      sb.AppendLine(string.Format("{0} | {1} | {2:F4}s | {3:F4}s",
+      sb.AppendLine(string.Format("{0} | {1} | {2} | {3:F4}s | {4:F4}s",
           mdClean(en.ProgramName),
-          string.Join("<br/>", en.programStringsAndExamples.Select(ss => mdClean(ss.Item1)+"|"+ mdClean(ss.Item2))),
+          string.Join("<br/>", en.programStringsAndExamples.Select(ss => mdClean(ss.Item1)+" | "+mdClean(ss.Item2))),
           en.MinTime,
           en.MaxTime));
     }
@@ -95,12 +95,12 @@ public class BenchmarkMeasurement
   {
     _t1 = DateTime.UtcNow;
   }
-  public void ReportFinish(string programName, string atusStr, string programCNPString)
+  public void ReportFinish(string programName, string programCNPString, string atusStr)
   {
     if (!_t1.HasValue)
       TakeFinishTime();
     double td = (_t1.Value - _t0).TotalSeconds;
-    _target.ReportNewTime(programName, atusStr, programCNPString, td);
+    _target.ReportNewTime(programName, programCNPString, atusStr, td);
   }
 }
 

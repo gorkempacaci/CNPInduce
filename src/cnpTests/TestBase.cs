@@ -110,7 +110,7 @@ public class TestBase
     //Assert.AreEqual(1, programs.Count(), "A program should be found.");
     Assert.IsTrue(programs.Any(), "There should be at least one program.");
     Assert.AreEqual(elementaryProgramExpected.ToString(), programs.First().ToString());
-    measurement.ReportFinish(programName, atusStr, elementaryProgramExpected.ToString());
+    measurement.ReportFinish(programName, elementaryProgramExpected.ToString(), atusStr);
   }
 
   protected void assertNoResultFor(string domains, string atusStr)
