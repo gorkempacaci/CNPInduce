@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
-
+using System.Text.RegularExpressions;
 
 public class BenchmarkCollation
 {
@@ -35,7 +35,7 @@ public class BenchmarkCollation
   }
 
   Dictionary<string, BenchmarkEntry> benchmarks = new Dictionary<string, BenchmarkEntry>();
-  public void ReportNewTime(string programName, string atuplesString, string programCNPString, double time)
+  public void ReportNewTime(string programName, string programCNPString, string atuplesString, double time)
   {
     if (benchmarks.TryGetValue(programName, out BenchmarkEntry be))
     {
@@ -48,7 +48,7 @@ public class BenchmarkCollation
   }
   public string ToMarkdown()
   {
-    Func<string, string> pipeClean = (s) => s.Replace("|", "\\|");
+    Func<string, string> mdClean = (s) => Regex.Replace(s, @"([|\\*])", @"\$1"); // https://stackoverflow.com/questions/39146164/how-to-escape-string-while-programmatically-generating-markdown-table
     StringBuilder sb = new StringBuilder();
     sb.AppendLine("Search depth:" + TestBase.TEST_SEARCH_DEPTH);
     sb.AppendLine("Search thread count:" + TestBase.TEST_THREAD_COUNT);
@@ -57,8 +57,8 @@ public class BenchmarkCollation
     foreach (BenchmarkEntry en in benchmarks.Values)
     {
       sb.AppendLine(string.Format("{0} | {1} | {2:F4}s | {3:F4}s",
-          pipeClean(en.ProgramName),
-          string.Join("<br/>", en.programStringsAndExamples.Select(ss => pipeClean(ss.Item1)+pipeClean(ss.Item2))),
+          mdClean(en.ProgramName),
+          string.Join("<br/>", en.programStringsAndExamples.Select(ss => mdClean(ss.Item1)+"|"+ mdClean(ss.Item2))),
           en.MinTime,
           en.MaxTime));
     }
