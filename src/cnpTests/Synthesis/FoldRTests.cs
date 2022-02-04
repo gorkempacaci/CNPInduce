@@ -86,7 +86,7 @@ namespace Synthesis
     {
       string typeStr = "{a0:in, as:in, b:out}";
       string atusStr = "{{a0:0, as:[1,2,3], b:[1,2,3]}, {a0:0, as:[3,2,1], b:[3,2,1]}}";
-      assertNoResultFor(typeStr, atusStr);
+      assertNoResultFor(typeStr, atusStr, "neg id");
     }
 
     [TestMethod]
@@ -94,7 +94,7 @@ namespace Synthesis
     {
       string typeStr = "{a0:in, as:in, b:out}";
       string atusStr = "{{a0:[], as:[1,2,3], b:[1,2,3,4]}}";
-      assertNoResultFor(typeStr, atusStr);
+      assertNoResultFor(typeStr, atusStr, "neg id");
     }
 
     [TestMethod]
@@ -102,7 +102,7 @@ namespace Synthesis
     {
       string typeStr = "{a0:in, as:in, b:out}";
       string atusStr = "{{a0:[], as:[1], b:[1,2]}}";
-      assertNoResultFor(typeStr, atusStr);
+      assertNoResultFor(typeStr, atusStr, "neg id");
     }
 
     [TestMethod]
@@ -110,7 +110,7 @@ namespace Synthesis
     {
       string typeStr = "{a0:in, as:in, b:out}";
       string atusStr = "{{a0:[], as:[], b:[1]}}";
-      assertNoResultFor(typeStr, atusStr);
+      assertNoResultFor(typeStr, atusStr, "neg id");
     }
 
     [TestMethod]
@@ -118,7 +118,7 @@ namespace Synthesis
     {
       string typeStr = "{a0:in, as:in, b:out}";
       string atusStr = "{{a0:[4,5,6], as:[1,2,3], b:[1,2,3]}}";
-      assertNoResultFor(typeStr, atusStr);
+      assertNoResultFor(typeStr, atusStr, "neg append");
     }
   }
 }

@@ -60,7 +60,7 @@ namespace Synthesis
     [DataRow("{a:in}", "{{a:[1|X]}, {a:L}, {a:[1,2,T|4]}}")] // not ground
     public void Negative(string typeStr, string atusStr)
     {
-      assertNoResultFor(typeStr, atusStr);
+      assertNoResultFor(typeStr, atusStr, "neg cons");
       //NameVarDictionary namevars = new();
       //Valence namesModes = Parser.ParseNameModeMap(typeStr, namevars);
       //IEnumerable<AlphaTuple> atus = Parser.ParseAlphaTupleSet(atusStr, namevars);

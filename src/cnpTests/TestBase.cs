@@ -16,7 +16,7 @@ public class TestBase
 {
 
   public const int TEST_SEARCH_DEPTH = 3;
-  public const int TEST_THREAD_COUNT = 8; // ideal 4 on mbp 2019 8q
+  public const int TEST_THREAD_COUNT = 2; // ideal 4 on mbp 2019 8q
   /*  Threads Time to run Tests.Synthesis.Elementary
    *                   D3W under load   D3W D3W-i D3W-iR
       1	      34.50    2.2              1.4 1.5   1.3
@@ -113,14 +113,17 @@ public class TestBase
     measurement.ReportFinish(programName, elementaryProgramExpected.ToString(), atusStr);
   }
 
-  protected void assertNoResultFor(string domains, string atusStr)
+  protected void assertNoResultFor(string domains, string atusStr, string programName)
   {
     NameVarDictionary namevars = new();
     Valence namesModes = Parser.ParseNameModeMap(domains, namevars);
     IEnumerable<AlphaTuple> atus = Parser.ParseAlphaTupleSet(atusStr, namevars);
     SynthesisJob job = new SynthesisJob(atus, namesModes, TEST_SEARCH_DEPTH, new ThreadCount(TEST_THREAD_COUNT), SearchOptions.FindAllPrograms);
+    var measurement = benchmark.StartNew();
     var programs = job.FindPrograms();
+    measurement.TakeFinishTime();
     Assert.AreEqual(0, programs.Count(), "A program should not have been found.");
+    measurement.ReportFinish(programName, "N/A", atusStr);
   }
 
   private static IEnumerable<Free> freesIn(Term t)

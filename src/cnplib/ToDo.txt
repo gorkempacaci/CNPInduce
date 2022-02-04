@@ -1,3 +1,7 @@
+== scaling
+- A theory is maybe complete search tasks do not scale but positive ones do? NO, they also stop scaling after 2nd thread.
+- Maybe running benchmarks under tests is problemmatic?
+
 == bugs
 - static counters like argNameCounter on NameVar are not thread-safe.
 FIXED - 1 thread fails more tests than more threads

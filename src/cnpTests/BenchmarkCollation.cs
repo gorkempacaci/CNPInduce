@@ -13,11 +13,11 @@ public class BenchmarkCollation
     public double MinTime { get; private set; }
     public double MaxTime { get; private set; }
     public List<(string, string)> programStringsAndExamples = new();
-    public BenchmarkEntry(string programName, string programCNPString, double firstTime)
+    public BenchmarkEntry(string programName, double firstTime, string cnpProgramString, string atusString)
     {
       ProgramName = programName;
-      //cnpStrings = new List<string> { programCNPString };
       MinTime = MaxTime = firstTime;
+      programStringsAndExamples.Add((cnpProgramString, atusString));
     }
     public override int GetHashCode()
     {
@@ -43,7 +43,7 @@ public class BenchmarkCollation
     }
     else
     {
-      benchmarks.Add(programName, new BenchmarkEntry(programName, programCNPString, time));
+      benchmarks.Add(programName, new BenchmarkEntry(programName, time, programCNPString, atuplesString));
     }
   }
   public string ToMarkdown()
