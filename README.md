@@ -1,4 +1,4 @@
-﻿# TCNP
+﻿# Parallel CombInduce
 
 CNP synthesizer implemented in C#.
 - Object-level mutable unification for efficiency
