@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Text;
 using CNP.Helper;
-using CNP.Helper.EagerLinq;
+using System.Linq;
 using CNP.Language;
 
 namespace CNP

@@ -1,0 +1,20 @@
+[
+    {
+        "Name": "append",
+        "Valence": "{b0:in, as:in, b:out}",
+        "Examples": "{{b0:[3,4], as:[1,2], b:[1,2,3,4]}}",
+        "ExpectedProgram": "foldr(cons, id)"
+    },
+    {
+        "Name": "reverse3",
+        "Valence": "{b0:in, as:in, b:out}",
+        "Examples": "{{b0:[], as:[1,2,3], b:[3,2,1]}}",
+        "ExpectedProgram": "foldl(cons, id)"
+    },
+    {
+        "Name": "proj-foldr-cons",
+        "Valence": "{list1:in, list2:in, list3:out}",
+        "Examples": "{{list1:['a','b'], list2:['c','d'], list3:['a','b','c','d']}}",
+        "ExpectedProgram": "proj(foldr(cons, id), {as->list1, b0->list2, b->list3})"
+    }
+]

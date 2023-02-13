@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Security.Cryptography;
 using CNP.Helper;
-using CNP.Helper.EagerLinq;
+using System.Linq;
 using System.Collections;
 
 namespace CNP.Language
@@ -255,7 +255,7 @@ namespace CNP.Language
             Array.Copy(baseAlternative, anAlternative, baseAlternative.Length);
             for (int fvi = 0; fvi < aCandidatePerm.Length; fvi++)
             {
-              anAlternative[fvi] = candidateAllNames[aCandidatePerm[fvi]];
+              anAlternative[freeVarPositions[fvi]] = candidateAllNames[aCandidatePerm[fvi]];
             }
             allAlternatives.Add(anAlternative);
           }

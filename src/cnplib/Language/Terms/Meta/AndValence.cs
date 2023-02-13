@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using CNP.Helper.EagerLinq;
+using System.Linq;
 using CNP.Helper;
 using System.Net;
 

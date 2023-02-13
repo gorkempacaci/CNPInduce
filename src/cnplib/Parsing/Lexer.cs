@@ -1,8 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
+
 using CNP.Helper;
-using CNP.Helper.EagerLinq;
+using System.Linq;
 
 namespace CNP.Parsing
 {

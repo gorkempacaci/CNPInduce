@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using CNP;
 using CNP.Helper;
-using CNP.Helper.EagerLinq;
+using System.Linq;
 using CNP.Language;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 

@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 using CNP.Helper;
-using CNP.Helper.EagerLinq;
+using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Helpers
@@ -35,7 +35,7 @@ namespace Helpers
     [DataRow(new int[] {1,2,3}, new int[] {2,3,1}, true)]
     public void EqualsAsSet(int[] aas, int[] bs, bool equal)
     {
-      Assert.AreSame(equal, aas.EqualsAsSet(bs));
+      Assert.AreEqual(equal, aas.EqualsAsSet(bs));
     }
   }
 }

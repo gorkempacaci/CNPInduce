@@ -2,7 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using CNP.Helper;
-using CNP.Helper.EagerLinq;
+using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 namespace Helpers
 {
@@ -34,7 +34,7 @@ namespace Helpers
                 new object[] {7, "yedi"}
             };
             IEnumerable<ConstructorExample> ce = li.New<ConstructorExample>();
-            var li2 = CNP.Helper.EagerLinq.Enumerable.ToList(ce);
+            var li2 = Enumerable.ToList(ce);
             Assert.AreEqual(li2[0].A, 5);
             Assert.AreEqual(li2[0].B, "bes");
             Assert.AreEqual(li2[1].A, 7);
@@ -60,7 +60,7 @@ namespace Helpers
                 new Tuple<int, string>(7, "yedi")
             };
             IEnumerable<ConstructorExample> ce = li.New<ConstructorExample,int,string>();
-            var li2 = CNP.Helper.EagerLinq.Enumerable.ToList(ce);
+            var li2 = Enumerable.ToList(ce);
             Assert.AreEqual(li2[0].A, 5);
             Assert.AreEqual(li2[0].B, "bes");
             Assert.AreEqual(li2[1].A, 7);
@@ -76,7 +76,7 @@ namespace Helpers
                 (7, "yedi")
             };
             IEnumerable<ConstructorExample> ce = li.New<ConstructorExample,int,string>();
-            var li2 = CNP.Helper.EagerLinq.Enumerable.ToList(ce);
+            var li2 = Enumerable.ToList(ce);
             Assert.AreEqual(li2[0].A, 5);
             Assert.AreEqual(li2[0].B, "bes");
             Assert.AreEqual(li2[1].A, 7);

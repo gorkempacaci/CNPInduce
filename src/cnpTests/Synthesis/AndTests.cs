@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using CNP;
 using CNP.Helper;
-using CNP.Helper.EagerLinq;
+using System.Linq;
 using CNP.Language;
 using CNP.Parsing;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -34,7 +34,7 @@ namespace Synthesis
               Assert.AreEqual(lhObs.Observables.TuplesCount, rhObs.Observables.TuplesCount, "LH and RH tuple counts should be equal.");
               for (int ri=0; ri<lhObs.Observables.Tuples.Length; ri++)
               {
-                bool LRequal = Enumerable.SequenceEqualPos(lhObs.Observables.Tuples[ri], rhObs.Observables.Tuples[ri], out int whereNot);
+                bool LRequal = Iterators.SequenceEqualPos(lhObs.Observables.Tuples[ri], rhObs.Observables.Tuples[ri], out int whereNot);
                 Assert.IsTrue(LRequal, "LH and RH observations should be equal.");
               }
             }

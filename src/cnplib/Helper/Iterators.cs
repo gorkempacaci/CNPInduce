@@ -2,7 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Globalization;
-using CNP.Helper.EagerLinq;
+using System.Linq;
 using CNP.Language;
 
 namespace CNP.Helper
@@ -162,7 +162,30 @@ namespace CNP.Helper
       return true;
     }
 
-    public static bool EqualsAsDictionary<TKey, TValue>(this IReadOnlyDictionary<TKey, TValue> dict1, IReadOnlyDictionary<TKey, TValue> dict2)
+
+    /// <summary>
+    /// Like SequenceEqual but outputs the index the sequences were not equal.
+    /// </summary>
+    /// <returns></returns>
+    public static bool SequenceEqualPos<TSource>(this IEnumerable<TSource> first, IEnumerable<TSource> second, out int position)
+    {
+      position = 0;
+      var firstEn = first.GetEnumerator();
+      var secondEn = second.GetEnumerator();
+      bool f = false, s = false;
+      while ((f = firstEn.MoveNext()) && (s = secondEn.MoveNext()))
+      {
+        if (!EqualityComparer<TSource>.Default.Equals(firstEn.Current, secondEn.Current))
+          return false;
+        position++;
+      }
+      if (secondEn.MoveNext())
+        return false;
+      else return true;
+    }
+  
+
+  public static bool EqualsAsDictionary<TKey, TValue>(this IReadOnlyDictionary<TKey, TValue> dict1, IReadOnlyDictionary<TKey, TValue> dict2)
     {
       if (dict1.Count != dict2.Count)
         return false;
@@ -299,5 +322,7 @@ namespace CNP.Helper
     {
       return source.Select(s => (TResult)Activator.CreateInstance(typeof(TResult), new object[] { s.Item1, s.Item2, s.Item3, s.Item4, s.Item5, s.Item6, s.Item7, s.Rest }));
     }
+
+
   }
 }

@@ -1,5 +1,5 @@
 ﻿using System.Collections.Generic;
-using CNP.Helper.EagerLinq;
+using System.Linq;
 using CNP;
 using CNP.Helper;
 using CNP.Language;

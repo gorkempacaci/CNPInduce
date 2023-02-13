@@ -4,7 +4,7 @@ using System.ComponentModel.Design;
 using System.Net.Http;
 using System.Threading.Tasks;
 using CNP.Helper;
-using CNP.Helper.EagerLinq;
+using System.Linq;
 
 namespace CNP.Language
 {

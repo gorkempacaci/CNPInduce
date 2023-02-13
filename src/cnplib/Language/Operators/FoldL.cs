@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using CNP.Language;
 using CNP.Helper;
-using CNP.Helper.EagerLinq;
+using System.Linq;
 
 namespace CNP.Language
 {

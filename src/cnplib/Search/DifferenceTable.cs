@@ -6,6 +6,7 @@ namespace CNP.Search
   //Records and allows to query a record of which NameVar should be different from which other namevars.
   public struct DifferenceTable
   {
+
     private BitArray[] diffArr; // when a bit is set to false at (y,x), it means namevars with these two indices have to be different to each other.
     /*
      diffArr structure:

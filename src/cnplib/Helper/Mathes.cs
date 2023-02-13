@@ -2,6 +2,7 @@
 using CNP.Helper;
 using CNP.Helper.EagerLinq;
 using System.Collections.Generic;
+using System.Linq;
 namespace CNP.Helper
 {
   public static class Mathes

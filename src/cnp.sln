@@ -13,6 +13,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		folds.md = folds.md
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Benchit", "Benchit\Benchit.csproj", "{7E31BD26-65F2-4EF3-A05F-005BDC9D08DC}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -32,6 +34,12 @@ Global
 		{1C356B45-9A19-459F-A4EE-46326108650C}.DebugWithInfo|Any CPU.Build.0 = Debug|Any CPU
 		{1C356B45-9A19-459F-A4EE-46326108650C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1C356B45-9A19-459F-A4EE-46326108650C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7E31BD26-65F2-4EF3-A05F-005BDC9D08DC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7E31BD26-65F2-4EF3-A05F-005BDC9D08DC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7E31BD26-65F2-4EF3-A05F-005BDC9D08DC}.DebugWithInfo|Any CPU.ActiveCfg = Debug|Any CPU
+		{7E31BD26-65F2-4EF3-A05F-005BDC9D08DC}.DebugWithInfo|Any CPU.Build.0 = Debug|Any CPU
+		{7E31BD26-65F2-4EF3-A05F-005BDC9D08DC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7E31BD26-65F2-4EF3-A05F-005BDC9D08DC}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

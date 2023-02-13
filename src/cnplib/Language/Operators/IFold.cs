@@ -1,4 +1,4 @@
-﻿using System;using System.Collections.Generic;using System.Reflection;using CNP.Parsing;using CNP.Helper;using CNP.Helper.EagerLinq;
+﻿using System;using System.Collections.Generic;using System.Reflection;using CNP.Parsing;using CNP.Helper;using System.Linq;
 namespace CNP.Language{  public interface IFold : IProgram  {    public IProgram Base { get; }    public IProgram Recursive { get; }
 
     bool IProgram.IsClosed => Recursive.IsClosed && Base.IsClosed;    ObservedProgram IProgram.FindLeftmostHole()    {      return Recursive.FindLeftmostHole() ?? Base.FindLeftmostHole();    }    (ObservedProgram, int) IProgram.FindRootmostHole(int calleesDistanceToRoot)

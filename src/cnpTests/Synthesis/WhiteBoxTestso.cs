@@ -1,6 +1,6 @@
 ﻿using System;
 using CNP.Language;
-using CNP.Helper.EagerLinq;
+using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 
