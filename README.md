@@ -1,4 +1,4 @@
-﻿# TCNP
+﻿# Parallel CombInduce
 
 CNP synthesizer implemented in C#.
 - Object-level mutable unification for efficiency
@@ -48,9 +48,9 @@ The names that appear in the tuples of a relation are the 'names' of that relati
 
 - proj(P, M) is projection of a predicate expression P, where names are changed according to the projection map given in M. For example, proj(cons, {a:head, b:tail, ab:list}) succeeds for any list in the form {head:1, tail:[2,3], list:[1,2,3]}, because cons succeeds for {a:1, b:[2,3], ab:[1,2,3]}.
 
-## Open-CNP, Searchable language
+## Searchable-CNP, Searchable language
 
-Open-CNP, as CNP implemented in the accompanying code, is an extended version of CNP to carry along search parameters in the syntax tree. 
+Searchable-CNP, as CNP implemented in the accompanying code, is an extended version of CNP to carry along search parameters in the syntax tree. 
 
 ```
 Name = Name string | FreeName
