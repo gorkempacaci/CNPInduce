@@ -15,22 +15,21 @@ namespace CNP.Search
     const int DEFAULT_MAX_DEPTH = 3;
     ProgramSearch search;
     SearchOptions searchOptions;
-    ConcurrentQueue<Program> programs = new ConcurrentQueue<Program>();
+    ConcurrentQueue<ProgramEnvironment> programs = new ConcurrentQueue<ProgramEnvironment>();
 
     /// <param name="tuples">Tuples of the program observation.</param>
     /// <param name="valence">Valence of the program</param>
     /// <param name="maxTreeDepth">Depth=1 only gives elementary programs. Depth=2 gives programs like foldr(cons, id), and so on. </param>
-    public SynthesisJob(IEnumerable<AlphaTuple> tuples, Valence valence, int maxTreeDepth = DEFAULT_MAX_DEPTH, ThreadCount tCount = default, SearchOptions sOpt = SearchOptions.FindOnlyFirstProgram)
+    public SynthesisJob(ProgramEnvironment env, ThreadCount tCount = default, SearchOptions sOpt = SearchOptions.FindOnlyFirstProgram)
     {
-      ObservedProgram initialObservation = ObservedProgram.CreateInitial(tuples, valence, maxTreeDepth);
-      search = new ProgramSearch(initialObservation, this, tCount);
+      search = new ProgramSearch(env, this, tCount);
       searchOptions = sOpt;
     }
 
     /// <summary>
     /// Finds all programs up to depth with given search options. Blocks until search is complete. Guarantees that in the returned list, shallower programs come first.
     /// </summary> 
-    public IEnumerable<Program> FindPrograms()
+    public IEnumerable<ProgramEnvironment> FindPrograms()
     {
       search.StartThreads();
       search.WaitUntilDone();
@@ -38,7 +37,7 @@ namespace CNP.Search
       return programs;
     }
 
-    public bool FoundNewProgram(Program p)
+    public bool FoundNewProgram(ProgramEnvironment p)
     {
       programs.Enqueue(p);
       if (searchOptions == SearchOptions.FindOnlyFirstProgram)

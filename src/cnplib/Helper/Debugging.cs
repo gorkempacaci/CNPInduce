@@ -20,12 +20,12 @@ namespace CNP.Helper
       public KeyCounter ThreadDequeueCounter => Debugging.ThreadDequeueCounter;
     }
 
-    public static SearchTreeStats ProduceSearchTreeStats(IEnumerable<Program> programs)
+    public static SearchTreeStats ProduceSearchTreeStats(IEnumerable<IProgram> programs)
     {
-      Dictionary<string, List<Program>> categorizedPrograms = new();
-      foreach(Program p in programs)
+      Dictionary<string, List<IProgram>> categorizedPrograms = new();
+      foreach(IProgram p in programs)
       {
-        if (!categorizedPrograms.TryGetValue(p.GetTreeQualifier(), out List<Program> bag))
+        if (!categorizedPrograms.TryGetValue(p.GetTreeQualifier(), out List<IProgram> bag))
         {
           bag = new();
           categorizedPrograms.Add(p.GetTreeQualifier(), bag);

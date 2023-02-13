@@ -25,5 +25,17 @@ namespace Helpers
         Assert.IsTrue(eq, "Permutations are correct.");
       }
     }
+
+    [DataTestMethod]
+    [DataRow(new int[] {}, new int[] {}, true)]
+    [DataRow(new int[] {1}, new int[] {1}, true)]
+    [DataRow(new int[] {1}, new int[] {2}, false)]
+    [DataRow(new int[] {1}, new int[] {1,2}, false)]
+    [DataRow(new int[] {1,2}, new int[] {2,1}, true)]
+    [DataRow(new int[] {1,2,3}, new int[] {2,3,1}, true)]
+    public void EqualsAsSet(int[] aas, int[] bs, bool equal)
+    {
+      Assert.AreSame(equal, aas.EqualsAsSet(bs));
+    }
   }
 }

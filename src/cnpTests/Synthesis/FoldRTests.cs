@@ -14,15 +14,20 @@ namespace Synthesis
     [TestMethod]
     public void DecomposeFoldR()
     {
-      var atusP = new List<AlphaTuple>();
-      var atusQ = new List<AlphaTuple>();
-      var namesP = new NameVarDictionary();
-      var namesQ = new NameVarDictionary();
-      FoldR.unfoldFoldrToPQ(list(), list(1, 2, 3), list(1, 2, 3), atusP, namesP, atusQ, namesQ);
-
-      var allTupsAnon = atusP.Concat(atusQ);
-
-      Assert.AreEqual("{a:1, ab:[1, 2, 3], b:'λ0'}, {a:2, ab:'λ0', b:'λ1'}, {a:3, ab:'λ1', b:'λ2'}, {a:[], b:'λ2'}", nietBruijnString(allTupsAnon));
+      NameVarBindings nvb = new();
+      NameVar b0 = nvb.AddNameVar("b0");
+      NameVar @as = nvb.AddNameVar("as");
+      NameVar b = nvb.AddNameVar("b");
+      var names = new NameVar[] { b0, @as, b };
+      var tups = new ITerm[][] { new ITerm[] { list(), list(1, 2, 3), list(1, 2, 3) } };
+      var foldrel = new AlphaRelation(names, tups);
+      var freeFact = new FreeFactory();
+      FoldR.UnFoldR(foldrel, (0, 1, 2), freeFact, out var pTuples, out var qTuples);
+      var stringer = new PrettyStringer(nvb);
+      var pTuplesString = stringer.PrettyString(pTuples, FoldR.FoldRValences.RecursiveCaseNames);
+      var qTuplesString = stringer.PrettyString(qTuples, FoldR.FoldRValences.BaseCaseNames);
+      Assert.AreEqual("{{a:1, b:F0, ab:[1, 2, 3]}, {a:2, b:F1, ab:F0}, {a:3, b:F2, ab:F1}}", pTuplesString, "Recursive case tuples should match");
+      Assert.AreEqual("{{a:[], b:F2}}", qTuplesString, "Base case tuples should match.");
     }
 
     [TestMethod]
@@ -30,14 +35,14 @@ namespace Synthesis
     {
       string typeStr = "{b0:in, as:in, b:out}";
       string atusStr = "{{b0:[4,5,6], as:[1,2,3], b:[1,2,3,4,5,6]}}";
-      assertFirstResultFor(typeStr, atusStr, foldr(cons, id), "append");
+      assertFirstResultFor(typeStr, atusStr, "foldr(cons, id)", "append");
     }
     [TestMethod]
     public void AppendToUnit()
     {
       string typeStr = "{b0:in, as:in, b:out}";
       string atusStr = "{{b0:[4], as:[1,2,3], b:[1,2,3,4]}}";
-      assertFirstResultFor(typeStr, atusStr, foldr(cons, id), "append");
+      assertFirstResultFor(typeStr, atusStr, "foldr(cons, id)", "append");
     }
 
     [TestMethod]
@@ -45,7 +50,7 @@ namespace Synthesis
     {
       string typeStr = "{b0:in, as:in, b:out}";
       string atusStr = "{{b0:[], as:[1,2,3], b:[1,2,3]}}";
-      assertFirstResultFor(typeStr, atusStr, foldr(cons, id), "append");
+      assertFirstResultFor(typeStr, atusStr, "foldr(cons, id)", "append");
     }
 
     [TestMethod]
@@ -53,7 +58,7 @@ namespace Synthesis
     {
       string typeStr = "{b0:in, as:in, b:out}";
       string atusStr = "{{b0:[], as:[1,2,3], b:[1,2,3]}}";
-      assertFirstResultFor(typeStr, atusStr, foldr(cons, id), "list_id");
+      assertFirstResultFor(typeStr, atusStr, "foldr(cons, id)", "list_id");
     }
   }
 

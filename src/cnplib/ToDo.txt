@@ -1,12 +1,14 @@
 == scaling
+- The search queue grows too large, so maybe the threads should stop populating the queue after for example height=3 and keep working on an internal queue that doesn't grow much.
 - A theory is maybe complete search tasks do not scale but positive ones do? NO, they also stop scaling after 2nd thread.
-- Maybe running benchmarks under tests is problemmatic?
 
 == bugs
+- foldr(P,Q) argument b0 should be a0, but foldr(P) argument should be b0 because there is not Q to transform it.
 - static counters like argNameCounter on NameVar are not thread-safe.
 FIXED - 1 thread fails more tests than more threads
 - AND operator should insert constaints for NameVars
 - AND operator should(?) allow operands with no common columns?
+- 4 threads sometimes does not terminate.
 FIXED - assertSingleResult calls FindAllPrograms which takes a long time and often doesn't terminate. Switch to assertFirstResult for most tests.
 
 == To be discussed

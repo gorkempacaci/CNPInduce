@@ -1,88 +1,147 @@
 ﻿using System;
 using System.Collections.Generic;
-using CNP.Display;
+using CNP.Language;
 using CNP.Helper;
 using CNP.Helper.EagerLinq;
 
 namespace CNP.Language
 {
-  public class FoldL : Fold
+  public class FoldL : IFold
   {
-    private static TypeStore<FoldValence> valences =
-        TypeHelper.ParseListOfCompactedComposedTypes<FoldValence>(new[]
-        {
-                 "{a:*, b:*, ab:out} -> {a:*, b:out} -> {b0:in, as:in, b:out}",
-                 "{a:*, b:*, ab:out} -> {a:out, b:out} -> {b0:out, as:in, b:out}",
-                 "{a:out, b:*, ab:out} -> {a:*, b:out} -> {b0:in, as:out, b:out}",
-                 "{a:out, b:*, ab:out} -> {a:out, b:out} -> {b0:out, as:out, b:out}"
-        });
+    private const Mode In = Mode.In;
+    private const Mode Out = Mode.Out;
 
-    public FoldL(Program recursiveCase, Program baseCase) : base(recursiveCase, baseCase) { }
+    //BUG: FOLDL valences are same as foldr
+    public readonly static GroundValence.FoldValenceSeries FoldLValences = GroundValence.FoldSerieFromArrays(
+      new[] { "b0", "as", "b" }, new[] { "a", "b", "ab" }, new[] { "a", "b" },
+      new[] {
+        (new[]{In, In, Out}, new[]{In, In, Out }, new[]{In, Out }),
+        (new[]{In, In, Out}, new[]{In, Out, Out }, new[]{In, Out }),
+        (new[]{In, In, Out}, new[]{Out, In, Out }, new[]{In, Out }),
+        (new[]{In, In, Out}, new[]{Out, Out, Out }, new[]{In, Out }),
+        (new[]{In, In, Out}, new[]{In, In, Out }, new[]{Out, Out }),
+        (new[]{In, In, Out}, new[]{In, Out, Out }, new[]{Out, Out }),
+        (new[]{In, In, Out}, new[]{Out, In, Out }, new[]{Out, Out }),
+        (new[]{In, In, Out}, new[]{Out, Out, Out }, new[]{Out, Out }),
 
+        (new[]{Out,In,Out}, new[]{In,In,Out}, new[]{Out, Out }),
+        (new[]{Out,In,Out}, new[]{In,Out,Out}, new[]{Out, Out }),
+        (new[]{Out,In,Out}, new[]{Out,In,Out}, new[]{Out, Out }),
+        (new[]{Out,In,Out}, new[]{Out,Out,Out}, new[]{Out, Out }),
 
-    public override string Pretty(PrettyStringer ps)
+        (new[]{In, Out, Out}, new[]{Out, In, Out}, new[]{In, Out}),
+        (new[]{In, Out, Out}, new[]{Out, Out, Out}, new[]{In, Out}),
+        (new[]{In, Out, Out}, new[]{Out, In, Out}, new[]{Out, Out}),
+        (new[]{In, Out, Out}, new[]{Out, Out, Out}, new[]{Out, Out}),
+
+        (new[]{Out, Out, Out}, new[]{Out, In, Out}, new[]{Out, Out}),
+        (new[]{Out, Out, Out}, new[]{Out, Out, Out}, new[]{Out, Out})
+      });
+
+    public IProgram Recursive { get; }
+    public IProgram Base { get; }
+
+    public FoldL(IProgram recursiveCase, IProgram baseCase)
+    {
+      Recursive = recursiveCase;
+      Base = baseCase;
+    }
+
+    public void ReplaceFree(Free free, ITerm term)
+    {
+      Recursive.ReplaceFree(free, term);
+      Base.ReplaceFree(free, term);
+    }
+
+    public string Pretty(PrettyStringer ps)
     {
       return ps.PrettyString(this);
     }
 
-    internal override Program CloneAsSubTree(TermReferenceDictionary plannedParenthood, (ObservedProgram, Program) replaceObservation = default)
+    public IProgram Clone(CloningContext cc)
     {
-      var p = new FoldL(Recursive.CloneAsSubTree(plannedParenthood, replaceObservation), Base.CloneAsSubTree(plannedParenthood, replaceObservation));
-      return p;
+      return cc.Clone(this);
     }
 
+    public string GetTreeQualifier()
+    {
+      return "foldl(" + Recursive.GetTreeQualifier() + "," + Base.GetTreeQualifier() + ")";
+    }
 
     /// <summary>
     /// Does not modify the given program, returns alternative cloned programs if they exist.
     /// </summary>
-    public static IEnumerable<Program> CreateAtFirstHole(Program rootProgram)
+    public static IEnumerable<ProgramEnvironment> CreateAtFirstHole(ProgramEnvironment env)
     {
-      Func<Program, Program, Fold> factoryFoldL = (rec, bas) => new FoldL(rec, bas);
-      return Fold.CreateAtFirstHole(rootProgram, valences, factoryFoldL, unfoldFoldlToPQ);
+      return IFold.CreateAtFirstHole(env, FoldLValences, factoryFoldL, UnFoldL);
     }
+
+    static IFold.CreateFold factoryFoldL = (rec, bas) => new FoldL(rec, bas);
+
+
+    public static bool UnFoldL(AlphaRelation foldRel, (short b0, short @as, short b) nameIndices, FreeFactory freeFac, out ITerm[][] pTuples, out ITerm[][] qTuples)
+    {
+      List<ITerm[]> pTuplesList = new();
+      List<ITerm[]> qTuplesList = new();
+      for(int ri=0; ri<foldRel.TuplesCount; ri++)
+      {
+        ITerm b0 = foldRel.Tuples[ri][nameIndices.b0];
+        ITerm @as = foldRel.Tuples[ri][nameIndices.@as];
+        ITerm b = foldRel.Tuples[ri][nameIndices.b];
+        if (!unfoldFoldlToPQ(b0, @as, b, freeFac, pTuplesList, qTuplesList))
+        {
+          pTuples = null;
+          qTuples = null;
+          return false;
+        }
+      }
+      pTuples = pTuplesList.ToArray();
+      qTuples = qTuplesList.ToArray();
+      if (pTuples.Any() && qTuples.Any())
+        return true;
+      else return false;
+    }
+
     /*
-        with names indicating types:
-         foldl(Bn, [], B) :- Q(Bn, B).
-         foldl(B0, [A|As], B) :- P(A, B0, B1), foldl(B1, As, B).
-          if B is int, A is char, P is (char > int > int), P(a,0,1), P(b,0,2), P(c,0,3), Q=id.
-          foldl(0, [a, b, c], B) :- P(a, 0, B1), foldl(B1, [b, c], B)
-            :- P(a, 0, B1), P(b, B1, B2), foldl(B2, [c], B)
-            :- P(a, 0, B1), P(b, B1, B2), P(B2, c, B3), foldl(B3, [], B)
-            :- P(a, 0, B1), P(b, B1, B2), P(B2, c, B3), Q(B3, B).
-                                :- P(a, 0, 1),  P(b, 1, 3),   P(3, c, 6),   Q(6, 6).
-                                :- foldl(0, [a, b, c], 6).
-    reverse3([], [1,2,3], Bz)
-    == foldl(cons, id)([], [1,2,3], Bz)
-    == cons(1, [], B1), foldl(cons, id)(B1, [2,3], Bz)
-    == cons(1, [], B1), cons(2, B1, B2), foldl(cons, id)(B2, [3], Bz)
-    == cons(1, [], B1), cons(2, B1, B2), cons(3, B2, B3), foldl(cons, id)(B3, [], Bz)
-    == cons(1, [], B1), cons(2, B1, B2), cons(3, B2, B3), id(B3, Bz)
-    == cons(1, [], [1]), cons(2, [1], [2,1]), cons(3, [2,1], [3,2,1]), id([3,2,1], [3,2,1]).
-    == foldl(cons, id)([], [1,2,3], [3,2,1])
-    reverse3([], [1,2,3], [3,2,1])
-    */
+with names indicating types:
+foldl(Bn, [], B) :- Q(Bn, B).
+foldl(B0, [A|As], B) :- P(A, B0, B1), foldl(B1, As, B).
+if B is int, A is char, P is (char > int > int), P(a,0,1), P(b,0,2), P(c,0,3), Q=id.
+foldl(0, [a, b, c], B) :- P(a, 0, B1), foldl(B1, [b, c], B)
+ :- P(a, 0, B1), P(b, B1, B2), foldl(B2, [c], B)
+ :- P(a, 0, B1), P(b, B1, B2), P(B2, c, B3), foldl(B3, [], B)
+ :- P(a, 0, B1), P(b, B1, B2), P(B2, c, B3), Q(B3, B).
+                     :- P(a, 0, 1),  P(b, 1, 3),   P(3, c, 6),   Q(6, 6).
+                     :- foldl(0, [a, b, c], 6).
+reverse3([], [1,2,3], Bz)
+== foldl(cons, id)([], [1,2,3], Bz)
+== cons(1, [], B1), foldl(cons, id)(B1, [2,3], Bz)
+== cons(1, [], B1), cons(2, B1, B2), foldl(cons, id)(B2, [3], Bz)
+== cons(1, [], B1), cons(2, B1, B2), cons(3, B2, B3), foldl(cons, id)(B3, [], Bz)
+== cons(1, [], B1), cons(2, B1, B2), cons(3, B2, B3), id(B3, Bz)
+== cons(1, [], [1]), cons(2, [1], [2,1]), cons(3, [2,1], [3,2,1]), id([3,2,1], [3,2,1]).
+== foldl(cons, id)([], [1,2,3], [3,2,1])
+reverse3([], [1,2,3], [3,2,1])
+*/
     /// <summary>
     /// lists atusP and atusQ should be initialized before call, since they're populated by this function.
     /// </summary>
     /// <returns></returns>
-    public static bool unfoldFoldlToPQ(Term b0, Term @as, Term b, List<AlphaTuple> atusP, NameVarDictionary pNameDict, List<AlphaTuple> atusQ, NameVarDictionary qNameDict)
+    static bool unfoldFoldlToPQ(ITerm b0, ITerm @as, ITerm b, FreeFactory freeFac, List<ITerm[]> atusP, List<ITerm[]> atusQ)
     {
       if (@as is TermList li)
       {
-        Free f = new Free();
-        atusP.Add(new AlphaTuple((pNameDict.GetOrAdd("a"), li.Head),
-                                 (pNameDict.GetOrAdd("b"), b0),
-                                 (pNameDict.GetOrAdd("ab"), f)));
-        return unfoldFoldlToPQ(f, li.Tail, b, atusP, pNameDict, atusQ, qNameDict);
+        Free f = freeFac.NewFree();
+        atusP.Add(new[] { li.Head, b0, f }); //a, b, ab
+        return unfoldFoldlToPQ(f, li.Tail, b, freeFac, atusP, atusQ);
       }
       else if (@as is NilTerm)
       {
-        atusQ.Add(new AlphaTuple((qNameDict.GetOrAdd("a"), b0),
-                                 (qNameDict.GetOrAdd("b"), b)));
+        atusQ.Add(new[] { b0, b }); //a, b
         return true;
       }
       else return false;
-    }
+    }
   }
 }
 // /*

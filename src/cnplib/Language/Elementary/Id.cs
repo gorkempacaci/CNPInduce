@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using CNP.Helper.EagerLinq;
 using CNP.Helper;
-using CNP.Display;
 
 namespace CNP.Language
 {
@@ -10,71 +9,77 @@ namespace CNP.Language
   /// <summary>
   /// Identity program. Immutable object.
   /// </summary>
-  public class Id : ElementaryProgram
+  public struct Id : IProgram
   {
-    private static readonly TypeStore<Valence> valences = TypeHelper.ParseListOfCompactedProgramTypes(new[]
-    {
-            "{a:in, b:in}",
-            "{a:in, b:out}",
-            "{a:out, b:in}"
-        });
+    private static GroundValence.SimpleValenceSeries IdValences =
+      GroundValence.SeriesFromArrays(new[] { "a", "b" },
+                                    new[]
+                                    {
+                                      new[]{  Mode.In,  Mode.In},
+                                      new[]{  Mode.In,  Mode.Out},
+                                      new[]{  Mode.Out, Mode.In}
+                                    });
 
-    public Id() { }
+    public bool IsClosed => true;
 
-    internal override Program CloneAsSubTree(TermReferenceDictionary plannedParenthood, (ObservedProgram, Program) replaceObservation)
-    {
-      return new Id();
-    }
+    public override int GetHashCode() => 19;
 
-    public override int GetHashCode()
-    {
-      return 19;
-    }
+    public override bool Equals(object obj) => obj is Id;
 
-    public override bool Equals(object obj)
-    {
-      return obj is Id;
-    }
+    public void ReplaceFree(Free _, ITerm __) { }
 
-    public override string Pretty(PrettyStringer ps)
+    public string Pretty(PrettyStringer ps)
     {
       return ps.PrettyString(this);
     }
 
+    public IProgram Clone(CloningContext cc)
+    {
+      return cc.Clone(this);
+    }
+
+    public ObservedProgram FindLeftmostHole() => null;
+
+    public (ObservedProgram, int) FindRootmostHole(int calleesDistanceToRoot = 0) => (null, int.MaxValue);
+
+    public int GetHeight() => 0;
+
+    public string GetTreeQualifier() => "p";
+
     /// <summary>
     /// Does not modify the given program, returns alternative cloned programs if they exist.
     /// </summary>
-    public static IEnumerable<Program> CreateAtFirstHole(Program rootProgramOriginal)
+    public static IEnumerable<ProgramEnvironment> CreateAtFirstHole(ProgramEnvironment oldEnv)
     {
-      ObservedProgram obsOriginal = rootProgramOriginal.FindHole();
-      var idTypesCompatible = valences.FindCompatibleTypes(obsOriginal.Valence);
-      if (!idTypesCompatible.Any())
-        return Iterators.Empty<Id>();
-
-      var combs = obsOriginal.Valence.PossibleGroundings(idTypesCompatible.First());
-      foreach (TermReferenceDictionary uni in combs)
+      ObservedProgram oldObs = oldEnv.Root.FindHole();
+      if (oldObs.Observables.TuplesCount == 0)
+        throw new ArgumentException("Id: Observation is empty.");
+      List<ProgramEnvironment> programs = new();
+      IdValences.GroundingAlternatives(oldObs.Valence, oldEnv.NameBindings, out var alts);
+      // at this point we know all rows unified like 'id' should.
+      foreach (var alt in alts)
       {
-        Program clonedRoot = rootProgramOriginal.CloneAtRoot(uni);
-        if (!clonedRoot.NameConstraintsHold())
-          continue; //rollback
-        ObservedProgram clonedObs = clonedRoot.FindHole();
-        if (clonedObs.Observables.All(at => Term.UnifyInPlace(at["a"], at["b"])))
+        var currEnv = oldEnv.Clone();
+        var currObs = currEnv.Root.FindHole();
+        // first try unifying the terms since names don't matter for id
+        for (int ri = 0; ri < currObs.Observables.TuplesCount; ri++)
         {
-          var p = new Id();
-          //if (rootProgramOriginal.ToString().StartsWith("proj(and("))
-          //{
-          //  And ann = (rootProgramOriginal as Proj).Source as And;
-          //  if ((ann.LHOperand as ObservedProgram).Valence.Count()==2 &&
-          //      (ann.RHOperand as ObservedProgram).Valence.Count()==2)
-          //  {
-
-          //  }
-          //}
-          return Iterators.Singleton(clonedRoot.CloneAtRoot((clonedObs, p)));
+          var tuple = currObs.Observables.Tuples[ri];
+          var unifier = new ITerm[2] { tuple[1], tuple[0] };
+          if (!AlphaRelation.UnifyInPlace(tuple, currEnv, unifier))
+            return Array.Empty<ProgramEnvironment>();
+        }
+        if (currEnv.NameBindings.TryBindingAllNamesToGround(currObs.Valence, alt))
+        {
+          ProgramEnvironment newEnv = currEnv.Clone((currObs, new Id()));
+          programs.Add(newEnv);
+          if (newEnv.Root is And and && and.LHOperand is Const c)
+          {
+            ;
+          }
         }
       }
-
-      return Iterators.Empty<Id>();
+      return programs;
     }
   }
 }

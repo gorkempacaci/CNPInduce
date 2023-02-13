@@ -1,38 +1,45 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Text;
-using CNP.Display;
 using CNP.Helper;
 
 namespace CNP.Language
 {
 
-  public class NilTerm : Term
+  public struct NilTerm : ITerm
   {
-    private NilTerm()
-    {
+    public bool IsGround() => true;
+    public bool Contains(Free other) => false;
 
-    }
-    public override bool IsGround()
+    public ITerm Clone(CloningContext cc)
     {
-      return true;
-    }
-    public override NilTerm Clone(TermReferenceDictionary plannedParenthood)
-    {
-      return this;
+      return cc.Clone(this);
     }
 
-    public override bool Contains(Free other)
-    {
-      return false;
-    }
-
-    public override string Pretty(PrettyStringer ps)
+    public string Pretty(PrettyStringer ps)
     {
       return ps.PrettyString(this);
     }
 
-    private static NilTerm _instance = new NilTerm();
-    public static NilTerm Instance => _instance;
+    public override int GetHashCode()
+    {
+      return 144;
+    }
+
+    public override bool Equals([NotNullWhen(true)] object _)
+    {
+      return true;
+    }
+
+    public ITerm GetFreeReplaced(Free _, ITerm __)
+    {
+      return this;
+    }
+
+    public override string ToString()
+    {
+      return "[]";
+    }
   }
 }

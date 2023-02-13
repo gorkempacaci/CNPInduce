@@ -55,27 +55,65 @@ namespace CNP.Helper
       return combs;
     }
 
+    public static T[][] PermutationsArr<T>(T[] a)
+    {
+      if (a.Length == 0)
+        return Array.Empty<T[]>();
+      else if (a.Length == 1)
+        return new T[][] { a };
+      else if (a.Length == 2)
+        return new T[][] { new[] { a[0], a[1] }, new[] { a[1], a[0] } };
+      else if (a.Length == 3)
+        return new T[][] { new[] { a[0], a[1], a[2] }, new[]{a[0], a[2], a[1] },
+                           new[] { a[1], a[0], a[2] }, new[]{a[1], a[2], a[0] },
+                           new[] { a[2], a[0], a[1] }, new[]{a[2], a[1], a[0] } };
+      else if (a.Length == 4)
+        return new T[][] { new[] { a[0], a[1], a[2], a[3] }, new[] { a[0], a[1], a[3], a[2] },
+                           new[] { a[0], a[2], a[1], a[3] }, new[] { a[0], a[2], a[3], a[1] },
+                           new[] { a[0], a[3], a[1], a[2] }, new[] { a[0], a[3], a[2], a[1] },
+
+                           new[] { a[1], a[0], a[2], a[3] }, new[] { a[1], a[0], a[3], a[2] },
+                           new[] { a[1], a[2], a[0], a[3] }, new[] { a[1], a[2], a[3], a[0] },
+                           new[] { a[1], a[3], a[0], a[2] }, new[] { a[1], a[3], a[2], a[0] },
+
+                           new[] { a[2], a[0], a[1], a[3] }, new[] { a[2], a[0], a[3], a[1] },
+                           new[] { a[2], a[1], a[0], a[3] }, new[] { a[2], a[1], a[3], a[0] },
+                           new[] { a[2], a[3], a[0], a[1] }, new[] { a[2], a[3], a[1], a[0] },
+
+                           new[] { a[3], a[0], a[1], a[2] }, new[] { a[3], a[0], a[2], a[1] },
+                           new[] { a[3], a[1], a[0], a[2] }, new[] { a[3], a[1], a[2], a[0] },
+                           new[] { a[3], a[2], a[0], a[1] }, new[] { a[3], a[2], a[1], a[0] } };
+      else if (a.Length == 5)
+      {
+        return Permutations(a).Select(x=>x.ToArray()).ToArray();
+      }
+      else throw new ArgumentException("Cannot permute arrays longer than 5.");
+    }
 
     /// <summary>
     /// permutations([1]) = [[1]]
     /// permutations([1,2]) = [[1,2],[2,1]]
     /// permutations([1,2,3]) = [[1,2,3],[1,3,2],[2,1,3],[2,3,1],[3,1,2],[3,2,1]]
+    /// permutations([0,1,2,3]) = [[0,1,2,3], [0,1,3,2], [0,2,1,3], [0,2,3,1], [0,3,1,2], [0,3,2,1],
+    ///                            [1,0,2,3], [1,0,3,2], [1,2,0,3], [1,2,3,0], [1,3,0,2], [1,3,2,0],
+    ///                            [2,0,1,3], [2,0,3,1], [2,1,0,3], [2,1,3,0], [2,3,0,1], [2,3,1,0],
+    ///                            [3,0,1,2], [3,0,2,1], [3,1,0,2], [3,1,2,0], [3,2,0,1], [3,2,1,0]]
     /// TODO: Optimize
     /// </summary>
-    public static IEnumerable<IEnumerable<TSource>> Permutations<TSource>(this IEnumerable<TSource> source)
+    public static IEnumerable<TSource[]> Permutations<TSource>(this IEnumerable<TSource> source)
     {
       int len = source.Count();
       if (len == 0)
-        return Iterators.Empty<IEnumerable<TSource>>();
+        return Iterators.Empty<TSource[]>();
       if (len == 1)
-        return Iterators.Singleton(source);
-      List<IEnumerable<TSource>> result = new List<IEnumerable<TSource>>();
+        return Iterators.Singleton(source.ToArray());
+      List<TSource[]> result = new();
       for (int i = 0; i < len; i++)
       {
         var enumAtIndex = source.Skip(i);
         var head = enumAtIndex.First();
         var tail = source.Take(i).Concat(enumAtIndex.Skip(1));
-        result.AddRange(tail.Permutations().Select(l => Iterators.Singleton(head).Concat(l)));
+        result.AddRange(tail.Permutations().Select(l => Iterators.Singleton(head).Concat(l).ToArray()));
       }
       return result;
     }

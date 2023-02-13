@@ -5,7 +5,6 @@ using System.Diagnostics.CodeAnalysis;
 using CNP.Language;
 using CNP.Helper.EagerLinq;
 using CNP.Helper;
-using CNP.Display;
 
 namespace CNP.Language
 {
@@ -13,53 +12,31 @@ namespace CNP.Language
   /// Maps source argument names to target argument names.
   /// in a program like proj(id, {a:u, b:v}), represents the {a:u, b:v}. Therefore keys belong to the inner expression and values to the outer one.
   /// </summary>
-  public class ProjectionMap : IReadOnlyDictionary<NameVar, NameVar>, IPrettyStringable
+  public struct ProjectionMap
   {
-    private Dictionary<NameVar, NameVar> dict;
+    public readonly KeyValuePair<NameVar,NameVar>[] Map;
 
-    public ProjectionMap(params (NameVar, NameVar)[] pairs)
-      : this(pairs.ToDictionary(x => x.Item1, x => x.Item2)) { }
-
-    public ProjectionMap(IEnumerable<(NameVar, NameVar)> pairs)
-      : this(pairs.ToDictionary(x => x.Item1, x => x.Item2)) { }
-
-    public ProjectionMap(IEnumerable<KeyValuePair<NameVar, NameVar>> args)
-      : this(args.ToDictionary(x => x.Key, x => x.Value)) { }
-
-    public ProjectionMap(IDictionary<NameVar, NameVar> dic)
+    /// <summary>
+    /// Assigns the given array without copying.
+    /// </summary>
+    public ProjectionMap(KeyValuePair<NameVar,NameVar>[] pairs)
     {
-      dict = new Dictionary<NameVar, NameVar>(dic);
-#if DEBUG
-      // assert that the co-domain of projections is a set
-      if (!dict.Values.IsSet())
-        throw new ArgumentException("Projection cannot map twice to the same argument name." + dic.ToMappingString());
-#endif
-
+      Map = pairs;
     }
 
-    public ProjectionMap Clone(TermReferenceDictionary plannedParenthood)
+    /// <summary>
+    /// Returns the 'source' name when the 'target' name is searched.
+    /// </summary>
+    public NameVar GetReverse(NameVar o)
     {
-      //var newDict = dict.ToDictionary(kvp => kvp.Key.Clone(plannedParenthood), kvp => kvp.Value.Clone(plannedParenthood));
-      var newDict = new Dictionary<NameVar, NameVar>();
-      foreach(var kvp in dict)
+      for (int i = 0; i < Map.Length; i++)
       {
-        var newKey = kvp.Key.Clone(plannedParenthood);
-        var newValue = kvp.Value.Clone(plannedParenthood);
-        newDict.Add(newKey, newValue);
+        if (Map[i].Value.Index == o.Index)
+        {
+          return Map[i].Key;
+        }
       }
-      return new ProjectionMap(newDict);
-    }
-
-    public override int GetHashCode()
-    {
-      return Count;
-    }
-
-    public override bool Equals(object obj)
-    {
-      if (obj is not ProjectionMap otherMap)
-        return false;
-      return this.EqualsAsDictionary(otherMap);
+      throw new ArgumentOutOfRangeException();
     }
 
     public string Pretty(PrettyStringer ps)
@@ -67,15 +44,24 @@ namespace CNP.Language
       return ps.PrettyString(this);
     }
 
-    #region Delegate to this.dict
-    public NameVar this[NameVar key] => dict[key];
-    public IEnumerable<NameVar> Keys => dict.Keys;
-    public IEnumerable<NameVar> Values => dict.Values;
-    public int Count => dict.Count;
-    public bool ContainsKey(NameVar key) => dict.ContainsKey(key);
-    public IEnumerator<KeyValuePair<NameVar, NameVar>> GetEnumerator() => dict.GetEnumerator();
-    public bool TryGetValue(NameVar key, [MaybeNullWhen(false)] out NameVar value) => dict.TryGetValue(key, out value);
-    IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable)dict).GetEnumerator();
-    #endregion
+    public ProjectionMap Clone(CloningContext cc)
+    {
+      return cc.Clone(this);
+    }
+
+    public NameVar this[NameVar from]
+    {
+      get
+      {
+        for(int i=0; i<Map.Length; i++)
+        {
+          if (Map[i].Key.Index == from.Index)
+          {
+            return Map[i].Value;
+          }
+        }
+        throw new ArgumentOutOfRangeException();
+      }
+    }
   }
 }

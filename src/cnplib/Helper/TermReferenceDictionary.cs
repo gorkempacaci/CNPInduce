@@ -10,14 +10,14 @@ namespace CNP.Helper
   /// is useful so the variables shared among the multiple ObservedPrograms
   /// stay consistent in the dupicated program.
   /// </summary>
-  public class TermReferenceDictionary : ReferenceDictionary<Term, Term>
-  {
-    public TermReferenceDictionary() { }
-    public TermReferenceDictionary(Free f, Term t)
-    {
-      this.Add(f, t);
-    }
-    public TermReferenceDictionary(IEnumerable<KeyValuePair<Term, Term>> pairs) : base(pairs) { }
-  }
+  //public class TermReferenceDictionary : ReferenceDictionary<ITerm, ITerm>
+  //{
+  //  public TermReferenceDictionary() { }
+  //  public TermReferenceDictionary(Free f, ITerm t)
+  //  {
+  //    this.Add(f, t);
+  //  }
+  //  public TermReferenceDictionary(IEnumerable<KeyValuePair<ITerm, ITerm>> pairs) : base(pairs) { }
+  //}
 
 }

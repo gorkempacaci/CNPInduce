@@ -2,43 +2,22 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Text;
-using CNP.Display;
 using CNP.Helper;
 using CNP.Helper.EagerLinq;
 
 namespace CNP.Language
 {
-  public class TermList : Term, IFreeContext
+  public struct TermList : ITerm
   {
-    public Term Head { get; set; }
-    public Term Tail { get; set; }
-    /// <summary>
-    /// Singleton list where tail is nil
-    /// </summary>
-    /// <param name="h"></param>
-    public TermList(Term h)
-    {
-      Head = h;
-      Tail = NilTerm.Instance;
-      if (h is Free hFree)
-      {
-        hFree.AddAContext(this);
-      }
-    }
-    public TermList(Term h, Term t)
+    public ITerm Head;
+    public ITerm Tail;
+
+    public TermList(ITerm h, ITerm t)
     {
       Head = h;
       Tail = t;
-      if (h is Free hFree)
-      {
-        hFree.AddAContext(this);
-      }
-      if (t is Free tFree)
-      {
-        tFree.AddAContext(this);
-      }
     }
-    public static Term FromTerms(params Term[] terms)
+    public static ITerm FromTerms(params ITerm[] terms)
     {
       return FromEnumerable(terms);
     }
@@ -46,60 +25,27 @@ namespace CNP.Language
     /// <summary>
     /// The list tail is by default nil (NilTerm).
     /// </summary>
-    public static Term FromEnumerable(IEnumerable<Term> terms, Term tail = null)
+    public static ITerm FromEnumerable(IEnumerable<ITerm> terms, ITerm tail = null)
     {
       return FromEnumerator(terms.GetEnumerator(), tail);
     }
-    static Term FromEnumerator(IEnumerator<Term> it, Term tail)
+    static ITerm FromEnumerator(IEnumerator<ITerm> it, ITerm tail)
     {
       if (it.MoveNext())
         return new TermList(it.Current, FromEnumerator(it, tail));
       else
-        return tail ?? NilTerm.Instance;
+        return tail ?? new NilTerm();
     }
-    public override bool IsGround()
+
+    public bool IsGround()
     {
       return Head.IsGround() && Tail.IsGround();
     }
-    public override Term Clone(TermReferenceDictionary plannedParenthood)
+
+    public bool Contains(Free other)
     {
-      return new TermList(Head.Clone(plannedParenthood),
-                          Tail.Clone(plannedParenthood));
+      return Head.Contains(other) || Tail.Contains(other);
     }
-
-    public override bool Contains(Free other)
-    {
-      return object.ReferenceEquals(Head, other) || object.ReferenceEquals(Tail, other) || Head.Contains(other) || Tail.Contains(other);
-    }
-
-    public void ReplaceAllInstances(Free oldTerm, Term newTerm)
-    {
-      var foundFree = false;
-      if (object.ReferenceEquals(Head, oldTerm))
-      {
-        Head = newTerm;
-        if (newTerm is Free newTermFree)
-        {
-          newTermFree.AddAContext(this);
-        }
-        foundFree = true;
-      }
-      if (object.ReferenceEquals(Tail, oldTerm))
-      {
-        Tail = newTerm;
-        if (newTerm is Free newTermFree)
-        {
-          newTermFree.AddAContext(this);
-        }
-        foundFree = true;
-      }
-      if (!foundFree)
-      {
-        throw new Exception("Free " + oldTerm.ToString() + " was not found in list's immediate head or tail. List:" + this.ToString());
-      }
-    }
-
-
 
     public override bool Equals(object obj)
     {
@@ -113,9 +59,25 @@ namespace CNP.Language
       return HashCode.Combine(Head, Tail);
     }
 
-    public override string Pretty(PrettyStringer ps)
+
+    public string Pretty(PrettyStringer ps)
     {
       return ps.PrettyString(this);
+    }
+
+    public ITerm Clone(CloningContext cc)
+    {
+      return cc.Clone(this);
+    }
+
+    public ITerm GetFreeReplaced(Free searchedFree, ITerm newTerm)
+    {
+      return new TermList(Head.GetFreeReplaced(searchedFree, newTerm), Tail.GetFreeReplaced(searchedFree, newTerm));
+    }
+
+    public override string ToString()
+    {
+      return "[" + Head.ToString() + (Tail is NilTerm ? "" : ", " + Tail.ToString()) + "]";
     }
 
     /// <summary>
@@ -123,7 +85,7 @@ namespace CNP.Language
     /// </summary>
     /// <param name="includeTerminalNil">If set to true returns [] as an element. For example, returns [1,2,3,[]] for [1,2,3]. Still returns [1,2,3] for [1,2|3].</param>
     /// <returns>A list of all elements in the list. It returns [1,2,3] for both [1,2,3] and [1,2|3]. </returns>
-    public IEnumerable<Term> ToEnumerable(bool includeTerminalNil = false)
+    public IEnumerable<ITerm> ToEnumerable(bool includeTerminalNil = false)
     {
       yield return Head;
       if (Tail is NilTerm && includeTerminalNil)
@@ -138,7 +100,7 @@ namespace CNP.Language
         }
         else
         {
-          foreach (Term t in li.ToEnumerable(includeTerminalNil))
+          foreach (ITerm t in li.ToEnumerable(includeTerminalNil))
             yield return t;
         }
       }

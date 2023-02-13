@@ -136,6 +136,32 @@ namespace CNP.Helper
       return string.Join(", ", dict.Select(kv => kv.Key.ToString() + ":" + kv.Value.ToString()));
     }
 
+    /// <summary>
+    /// Checks equality for elements irrespective of their positions. Makes sure each element will be matched only with one element in the other array.
+    /// </summary>
+    public static bool EqualsAsSet<T>(this T[] aas, T[] bs)
+    {
+      if (aas.Length != bs.Length)
+        return false;
+      bool[] bmatched = new bool[bs.Length];
+      for(int i=0; i<aas.Length; i++)
+      {
+        bool foundA = false;
+        for (int k=0; k<bs.Length; k++)
+        {
+          if (aas[i].Equals(bs[k]) && !bmatched[k])
+          {
+            bmatched[k] = true;
+            foundA = true;
+            break;
+          }
+        }
+        if (!foundA)
+          return false;
+      }
+      return true;
+    }
+
     public static bool EqualsAsDictionary<TKey, TValue>(this IReadOnlyDictionary<TKey, TValue> dict1, IReadOnlyDictionary<TKey, TValue> dict2)
     {
       if (dict1.Count != dict2.Count)
@@ -168,9 +194,9 @@ namespace CNP.Helper
       }
     }
 
-    public static IEnumerable<TSource> Clone<TSource>(this IEnumerable<TSource> source, TermReferenceDictionary plannedParenthood) where TSource : Term
+    public static IEnumerable<TSource> GetCloned<TSource>(this IEnumerable<TSource> source, CloningContext cc) where TSource : ITerm
     {
-      return source.Select(e => (TSource)e.Clone(plannedParenthood));
+      return source.Select(e => (TSource)e.Clone(cc));
     }
 
     /// <summary>

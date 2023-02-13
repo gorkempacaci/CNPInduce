@@ -10,9 +10,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 	ProjectSection(SolutionItems) = preProject
 		andorargs.txt = andorargs.txt
 		readme.md = readme.md
+		folds.md = folds.md
 	EndProjectSection
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pad", "Pad\Pad.csproj", "{552D02BD-2E5D-4947-AD54-E3A04FF2A7F4}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -33,12 +32,6 @@ Global
 		{1C356B45-9A19-459F-A4EE-46326108650C}.DebugWithInfo|Any CPU.Build.0 = Debug|Any CPU
 		{1C356B45-9A19-459F-A4EE-46326108650C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1C356B45-9A19-459F-A4EE-46326108650C}.Release|Any CPU.Build.0 = Release|Any CPU
-		{552D02BD-2E5D-4947-AD54-E3A04FF2A7F4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{552D02BD-2E5D-4947-AD54-E3A04FF2A7F4}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{552D02BD-2E5D-4947-AD54-E3A04FF2A7F4}.DebugWithInfo|Any CPU.ActiveCfg = Debug|Any CPU
-		{552D02BD-2E5D-4947-AD54-E3A04FF2A7F4}.DebugWithInfo|Any CPU.Build.0 = Debug|Any CPU
-		{552D02BD-2E5D-4947-AD54-E3A04FF2A7F4}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{552D02BD-2E5D-4947-AD54-E3A04FF2A7F4}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

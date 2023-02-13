@@ -8,22 +8,25 @@ namespace CNP.Helper
   /// <summary>
   /// Maintains a mapping of argument names and the argument name variables they're referenced as.
   /// </summary>
-  public class NameVarDictionary : Dictionary<string, NameVar>
-  {
-    public NameVarDictionary() : base()
-    {
+  //public class NameVarDictionary : Dictionary<string, NameVar>
+  //{
+  //  public NameVarDictionary() : base()
+  //  {
 
-    }
-    public NameVarDictionary(IEnumerable<NameVar> names)
-    {
-      foreach (NameVar nv in names)
-        if (nv.IsGround())
-          this.Add(nv.Name, nv);
-        else throw new ArgumentException("NameVarDictionary cannot be initialized with unground names.");
-    }
-    public NameVar GetOrAdd(string domainName)
-    {
-      return this.GetOrAdd(domainName, () => new NameVar(domainName));
-    }
-  }
+  //  }
+  //  public NameVarDictionary(IEnumerable<NameVar> names, NameVarBindings nvb)
+  //  {
+  //    foreach (NameVar nv in names)
+  //    {
+  //      string name = nvb.GetNameForVar(nv);
+  //      if (name is not null)
+  //        this.Add(name, nv);
+  //      else throw new ArgumentException("NameVarDictionary cannot be initialized with unground names.");
+  //    } 
+  //  }
+  //  public NameVar GetOrAdd(string domainName)
+  //  {
+  //    return this.GetOrAdd(domainName, () => new NameVar(domainName));
+  //  }
+  //}
 }

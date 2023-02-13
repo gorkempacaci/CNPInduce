@@ -1,14 +1,13 @@
 ﻿using System;
 
-using CNP.Language;
-
 namespace Pad
 {
   class Program
   {
     static void Main(string[] args)
     {
-      Console.WriteLine("Hello World!");
+      char[] a;
+      Console.WriteLine("Hello {0}!", default(char[])==null);
     }
   }
 }

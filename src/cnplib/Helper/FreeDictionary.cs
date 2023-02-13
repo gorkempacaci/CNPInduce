@@ -10,9 +10,14 @@ namespace CNP.Helper
   /// </summary>
   public class FreeDictionary : Dictionary<string, Free>
   {
+    FreeFactory fact;
+    public FreeDictionary(FreeFactory factory)
+    {
+      fact = factory;
+    }
     public Free GetOrAdd(string variableName)
     {
-      return this.GetOrAdd(variableName, () => new Free());
+      return this.GetOrAdd(variableName, () => fact.NewFree());
     }
   }
 }

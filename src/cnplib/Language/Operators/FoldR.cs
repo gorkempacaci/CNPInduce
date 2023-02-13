@@ -3,44 +3,104 @@ using System.Collections.Generic;
 using System.ComponentModel.Design;
 using System.Net.Http;
 using System.Threading.Tasks;
-using CNP.Display;
 using CNP.Helper;
 using CNP.Helper.EagerLinq;
 
 namespace CNP.Language
 {
-  public class FoldR : Fold
+  public class FoldR : IFold
   {
-    private static TypeStore<FoldValence> valences =
-        TypeHelper.ParseListOfCompactedComposedTypes<FoldValence>(
-            new[]
-            {       // valence for P -> valence for Q -> valence for foldr(P,Q)
-                    "{a:*, b:*, ab:out} -> {a:*, b:out} -> {b0:in, as:in, b:out}",
-                    "{a:*, b:*, ab:out} -> {a:out, b:out} -> {b0:out, as:in, b:out}",
-                    "{a:out, b:*, ab:out} -> {a:*, b:out} -> {b0:in, as:out, b:out}",
-                    "{a:out, b:*, ab:out} -> {a:out, b:out} -> {b0:out, as:out, b:out}"
-            });
+    private const Mode In = Mode.In;
+    private const Mode Out = Mode.Out;
 
-    public FoldR(Program recursiveCase, Program baseCase) : base(recursiveCase, baseCase) { }
+    public readonly static GroundValence.FoldValenceSeries FoldRValences = GroundValence.FoldSerieFromArrays(
+      new[] { "b0", "as", "b" }, new[] { "a", "b", "ab" }, new[] { "a", "b" },
+      new[] {
+        (new[]{In, In, Out}, new[]{In, In, Out }, new[]{In, Out }),
+        (new[]{In, In, Out}, new[]{In, Out, Out }, new[]{In, Out }),
+        (new[]{In, In, Out}, new[]{Out, In, Out }, new[]{In, Out }),
+        (new[]{In, In, Out}, new[]{Out, Out, Out }, new[]{In, Out }),
+        (new[]{In, In, Out}, new[]{In, In, Out }, new[]{Out, Out }),
+        (new[]{In, In, Out}, new[]{In, Out, Out }, new[]{Out, Out }),
+        (new[]{In, In, Out}, new[]{Out, In, Out }, new[]{Out, Out }),
+        (new[]{In, In, Out}, new[]{Out, Out, Out }, new[]{Out, Out }),
 
-    public override string Pretty(PrettyStringer ps)
+        (new[]{Out,In,Out}, new[]{In,In,Out}, new[]{Out, Out }),
+        (new[]{Out,In,Out}, new[]{In,Out,Out}, new[]{Out, Out }),
+        (new[]{Out,In,Out}, new[]{Out,In,Out}, new[]{Out, Out }),
+        (new[]{Out,In,Out}, new[]{Out,Out,Out}, new[]{Out, Out }),
+
+        (new[]{In, Out, Out}, new[]{Out, In, Out}, new[]{In, Out}),
+        (new[]{In, Out, Out}, new[]{Out, Out, Out}, new[]{In, Out}),
+        (new[]{In, Out, Out}, new[]{Out, In, Out}, new[]{Out, Out}),
+        (new[]{In, Out, Out}, new[]{Out, Out, Out}, new[]{Out, Out}),
+
+        (new[]{Out, Out, Out}, new[]{Out, In, Out}, new[]{Out, Out}),
+        (new[]{Out, Out, Out}, new[]{Out, Out, Out}, new[]{Out, Out})
+      });
+
+    public IProgram Recursive { get; }
+    public IProgram Base { get; }
+
+    public FoldR(IProgram recursiveCase, IProgram baseCase)
+    {
+      Recursive = recursiveCase;
+      Base = baseCase;
+    }
+
+    public void ReplaceFree(Free free, ITerm term)
+    {
+      Recursive.ReplaceFree(free, term);
+      Base.ReplaceFree(free, term);
+    }
+
+    public string Pretty(PrettyStringer ps)
     {
       return ps.PrettyString(this);
     }
 
-    internal override Program CloneAsSubTree(TermReferenceDictionary plannedParenthood, (ObservedProgram, Program) replaceObservation = default)
+    public IProgram Clone(CloningContext cc)
     {
-      var p = new FoldR(Recursive.CloneAsSubTree(plannedParenthood, replaceObservation), Base.CloneAsSubTree(plannedParenthood, replaceObservation));
-      return p;
+      return cc.Clone(this);
+    }
+
+    public string GetTreeQualifier()
+    {
+      return "foldr(" + Recursive.GetTreeQualifier() + "," + Base.GetTreeQualifier() + ")";
     }
 
     /// <summary>
     /// Does not modify the given program, returns alternative cloned programs if they exist.
     /// </summary>
-    public static IEnumerable<Program> CreateAtFirstHole(Program rootProgram)
+    public static IEnumerable<ProgramEnvironment> CreateAtFirstHole(ProgramEnvironment env)
     {
-      Func<Program, Program, Fold> factoryFoldR = (rec, bas) => new FoldR(rec, bas);
-      return Fold.CreateAtFirstHole(rootProgram, valences as TypeStore<FoldValence>, factoryFoldR, unfoldFoldrToPQ);
+      return IFold.CreateAtFirstHole(env, FoldRValences, factoryFoldR, UnFoldR);
+    }
+
+    static IFold.CreateFold factoryFoldR = (rec, bas) => new FoldR(rec, bas);
+
+
+    public static bool UnFoldR(AlphaRelation foldRel, (short b0, short @as, short b) nameIndices, FreeFactory freeFac, out ITerm[][] pTuples, out ITerm[][] qTuples)
+    {
+      List<ITerm[]> pTuplesList = new();
+      List<ITerm[]> qTuplesList = new();
+      for (int ri = 0; ri < foldRel.TuplesCount; ri++)
+      {
+        ITerm b0 = foldRel.Tuples[ri][nameIndices.b0];
+        ITerm @as = foldRel.Tuples[ri][nameIndices.@as];
+        ITerm b = foldRel.Tuples[ri][nameIndices.b];
+        if (!unfoldFoldrToPQ(b0, @as, b, freeFac, pTuplesList, qTuplesList))
+        {
+          pTuples = null;
+          qTuples = null;
+          return false;
+        }
+      }
+      pTuples = pTuplesList.ToArray();
+      qTuples = qTuplesList.ToArray();
+      if (pTuples.Any() && qTuples.Any())
+        return true;
+      else return false;
     }
 
     /*
@@ -64,24 +124,22 @@ namespace CNP.Language
            foldr(Y, [], Z) :- Q(Y, Z).
            foldr(Y, [X|T], W) :- foldr(Y, T, Z), P(X, Z, W).
      */
-    public static bool unfoldFoldrToPQ(Term b0, Term @as, Term b, List<AlphaTuple> atusP, NameVarDictionary pNameDict, List<AlphaTuple> atusQ, NameVarDictionary qNameDict)
+    static bool unfoldFoldrToPQ(ITerm b0, ITerm @as, ITerm b, FreeFactory freeFac, List<ITerm[]> atusP, List<ITerm[]> atusQ)
     {
       if (@as is TermList li)
       {
-        Free f = new();
-        atusP.Add(new AlphaTuple((pNameDict.GetOrAdd("a"), li.Head),
-                                 (pNameDict.GetOrAdd("b"), f),
-                                 (pNameDict.GetOrAdd("ab"), b)));
-        return unfoldFoldrToPQ(b0, li.Tail, f, atusP, pNameDict, atusQ, qNameDict);
+        Free f = freeFac.NewFree();
+        atusP.Add(new[] { li.Head, f, b });
+        return unfoldFoldrToPQ(b0, li.Tail, f, freeFac, atusP, atusQ);
       }
       else if (@as is NilTerm)
       {
-        atusQ.Add(new AlphaTuple((qNameDict.GetOrAdd("a"), b0),
-                                 (qNameDict.GetOrAdd("b"), b)));
+        atusQ.Add(new[] { b0, b });
         return true;
       }
       else return false;
     }
+
 
 
   }

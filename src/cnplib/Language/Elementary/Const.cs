@@ -1,19 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
-using CNP.Display;
 using CNP.Helper;
 using CNP.Helper.EagerLinq;
 
 namespace CNP.Language
 {
   //TODO: if straight semantics are implemented, const(a, 5) should unify with proj(a, id), or any tuple that has {a:5}.
-  public class Const : ElementaryProgram
+  public readonly struct Const : IProgram
   {
-    public NameVar ArgumentName { get; private set; }
-    public Term Value { get; private set; }
+    public readonly NameVar ArgumentName;
+    public readonly ITerm Value;
 
-
-    public Const(NameVar argName, Term groundTerm)
+    public Const(NameVar argName, ITerm groundTerm)
     {
       if (!groundTerm.IsGround())
       {
@@ -24,12 +22,12 @@ namespace CNP.Language
       Value = groundTerm;
     }
 
-    internal override Program CloneAsSubTree(TermReferenceDictionary plannedParenthood, (ObservedProgram, Program) replaceObservation)
-    {
-      var p = new Const(ArgumentName.Clone(plannedParenthood) as NameVar, Value.Clone(plannedParenthood));
-      return p;
-    }
+    public bool IsClosed => true;
 
+    public override int GetHashCode()
+    {
+      return this.Value.GetHashCode();
+    }
     public override bool Equals(object obj)
     {
       if (obj is null || !(obj is Const constProgram))
@@ -39,37 +37,56 @@ namespace CNP.Language
       return sameName && sameValue;
     }
 
-    public override int GetHashCode()
-    {
-      return this.Value.GetHashCode();
-    }
 
-    public override string Pretty(PrettyStringer ps)
+    public void ReplaceFree(Free _, ITerm __) { }
+
+    public string Pretty(PrettyStringer ps)
     {
       return ps.PrettyString(this);
     }
 
+    public IProgram Clone(CloningContext cc)
+    {
+      return cc.Clone(this);
+    }
+
+    public ObservedProgram FindLeftmostHole() => null;
+
+    public (ObservedProgram, int) FindRootmostHole(int calleesDistanceToRoot = 0) => (null, int.MaxValue);
+
+    public int GetHeight() => 0;
+
+    public string GetTreeQualifier() => "p";
+
     /// <summary>
     /// Does not modify the given program, returns alternative cloned programs if they exist.
     /// </summary>
-    public static IEnumerable<Program> CreateAtFirstHole(Program rootProgram)
+    public static IEnumerable<ProgramEnvironment> CreateAtFirstHole(ProgramEnvironment env)
     {
-      rootProgram = rootProgram.CloneAtRoot();
-      ObservedProgram cloneObs = rootProgram.FindHole();
-      if (cloneObs.Valence.Count() != 1)
-        return Iterators.Empty<Const>();
-      Free candidateConstant = new Free();
-      NameVar argName = cloneObs.Valence.Names.First();
-      var allTups = Enumerable.ToList(cloneObs.Observables);
-      int count = allTups.Count();
-      for (int i = 1; i < count; i++)
-        if (!Term.UnifyInPlace(allTups[0][argName], allTups[i][argName]))
-          return Iterators.Empty<Const>();
-      if (!allTups[0][argName].IsGround())
-        return Iterators.Empty<Const>(); // has to be ground otherwise can't use CloneAndReplaceWithClosed
-      var constProgram = new Const(argName, allTups[0][argName]);
-      rootProgram = rootProgram.CloneAtRoot((cloneObs, constProgram));
-      return Iterators.Singleton(rootProgram);
+      ObservedProgram obsOriginal = env.Root.FindHole();
+      if (obsOriginal.Observables.Names.Length != 1)
+        return Array.Empty<ProgramEnvironment>();
+      if (obsOriginal.Observables.TuplesCount == 0)
+        throw new ArgumentException("Const: Observation is empty.");
+      var tuple0 = obsOriginal.Observables.Tuples[0];
+      for (int ri = 1; ri < obsOriginal.Observables.TuplesCount; ri++)
+      {
+        var tuplen = obsOriginal.Observables.Tuples[ri];
+        if (!AlphaRelation.UnifyInPlace(tuple0, env, tuplen)) // unify [0, 1] and [1, 0]
+          return Array.Empty<ProgramEnvironment>();
+      }
+      if (!tuple0[0].IsGround())
+      {
+        return Array.Empty<ProgramEnvironment>();
+      }
+      var name = obsOriginal.Observables.Names[0];
+      if (env.NameBindings.GetNameForVar(name)=="u")
+      {
+        ;
+      }
+      var constProg = new Const(name, tuple0[0]);
+      var newEnv = env.Clone((obsOriginal, constProg));
+      return new ProgramEnvironment[] { newEnv };
     }
 
   }

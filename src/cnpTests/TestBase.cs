@@ -8,7 +8,7 @@ using CNP.Search;
 using CNP.Helper.EagerLinq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.IO;
-using CNP.Display;
+using CNP;
 
 [SuppressMessage("Style", "IDE1006:Naming Styles", Justification = "Convenience")]
 [TestClass]
@@ -16,7 +16,7 @@ public class TestBase
 {
 
   public const int TEST_SEARCH_DEPTH = 3;
-  public const int TEST_THREAD_COUNT = 2; // ideal 4 on mbp 2019 8q
+  public const int TEST_THREAD_COUNT = 1; // ideal 4 on mbp 2019 8q
   /*  Threads Time to run Tests.Synthesis.Elementary
    *                   D3W under load   D3W D3W-i D3W-iR
       1	      34.50    2.2              1.4 1.5   1.3
@@ -35,90 +35,101 @@ public class TestBase
    */
 
   #region Shorthand for Language Constructs
-  protected static Term list() => NilTerm.Instance;
-  protected static Term list(params Term[] terms) => TermList.FromEnumerable(terms);
-  protected static Term list(params int[] terms) => TermList.FromEnumerable(Enumerable.Select(terms, t => constterm(t)));
-  protected static Term list(params string[] terms) => TermList.FromEnumerable(Enumerable.Select(terms, t => constterm(t)));
-  protected static Term cns(Term head, Term tail) => new TermList(head, tail);
-  protected static ConstantTerm constterm(string s) => new ConstantTerm(s);
-  protected static ConstantTerm constterm(int i) => new ConstantTerm(i);
+  protected static Mode In => Mode.In;
+  protected static Mode Out => Mode.Out;
+  protected static ITerm list() => new NilTerm();
+  protected static ITerm list(params ITerm[] terms) => TermList.FromEnumerable(terms);
+  protected static ITerm list(params int[] terms) => TermList.FromEnumerable(Enumerable.Select(terms, t => constterm(t)));
+  protected static ITerm list(params string[] terms) => TermList.FromEnumerable(Enumerable.Select(terms, t => constterm(t)));
+  protected static ITerm cns(ITerm head, ITerm tail) => new TermList(head, tail);
+  protected static ITerm constterm(string s) => new ConstantTerm(s);
+  protected static ITerm constterm(int i) => new ConstantTerm(i);
   protected static Id id => new Id();
   protected static Cons cons => new Cons();
   protected static Const constant(NameVar dom, ConstantTerm t) => new Const(dom, t);
   protected static Const constant(NameVar dom, NilTerm t) => new Const(dom, t);
-  protected static And and(Program p, Program q) => new And(p, q);
-  protected static FoldR foldr(Program rec, Program bas) => new FoldR(recursiveCase: rec, baseCase: bas);
-  protected static FoldL foldl(Program rec, Program bas) => new FoldL(recursiveCase: rec, baseCase: bas);
-  protected static Proj proj(Program source, params (string, string)[] projections) => new Proj(source, new ProjectionMap(projections.Select(p => (new NameVar(p.Item1), new NameVar(p.Item2)))));
+  protected static And and(IProgram p, IProgram q) => new And(p, q);
+  protected static FoldR foldr(IProgram rec, IProgram bas) => new FoldR(recursiveCase: rec, baseCase: bas);
+  protected static FoldL foldl(IProgram rec, IProgram bas) => new FoldL(recursiveCase: rec, baseCase: bas);
+  protected static Proj proj(IProgram source, params (NameVar,NameVar)[] projections) => new Proj(source, new ProjectionMap(projections.Select(tu => new KeyValuePair<NameVar,NameVar>(tu.Item1,tu.Item2)).ToArray()));
   #endregion
 
   static readonly BenchmarkCollation benchmark = new BenchmarkCollation();
 
-  protected static string nietBruijnString(IEnumerable<AlphaTuple> ts)
-  {
-    PrettyStringer ps = new();
-    return string.Join(", ", nietBruijn(ts).Select(at => at.Pretty(ps)));
-  }
+  //protected static string nietBruijnString(AlphaRelation ts)
+  //{
+  //  CNP.PrettyStringer ps = new(CNP.PrettyStringer.Options.Contextless);
+  //  return string.Join(", ", nietBruijn(ts).Select(at => at.Pretty(ps)));
+  //}
 
-  protected static IEnumerable<AlphaTuple> nietBruijn(IEnumerable<AlphaTuple> ts)
-  {
-    TermReferenceDictionary trd = new();
-    var newTs = ts.Select(t => t.Clone(trd));
-    ReplaceFreesWithLambdaStrings(GetDistinctNewFreesIn(trd));
-    return newTs;
-  }
+  //protected static IEnumerable<AlphaTuple> nietBruijn(IEnumerable<AlphaTuple> ts)
+  //{
+  //  TermReferenceDictionary trd = new();
+  //  var newTs = ts.Select(t => t.Clone(trd));
+  //  ReplaceFreesWithLambdaStrings(GetDistinctNewFreesIn(trd));
+  //  return newTs;
+  //}
 
   /// <summary>
   /// Converts frees _1, _2 to strings λ0, λ1,... where the number is the order of variables.
   /// </summary>
-  protected static AlphaTuple nietBruijn(AlphaTuple atu)
+  //protected static AlphaTuple nietBruijn(AlphaTuple atu)
+  //{
+  //  TermReferenceDictionary trd = new();
+  //  atu = atu.Clone(trd);
+  //  ReplaceFreesWithLambdaStrings(GetDistinctNewFreesIn(trd));
+  //  return atu;
+  //}
+
+  //protected static ITerm nietBruijnTerm(ITerm t)
+  //{
+  //  TermReferenceDictionary trd = new();
+  //  t = t.Clone(trd);
+  //  ReplaceFreesWithLambdaStrings(GetDistinctNewFreesIn(trd));
+  //  return t;
+  //}
+
+
+  //private static IEnumerable<Free> GetDistinctNewFreesIn(TermReferenceDictionary trd)
+  //{
+  //  return trd.Values.Where(t => t is Free).Select(t => t as Free);
+  //}
+
+  //private static void ReplaceFreesWithLambdaStrings(IEnumerable<Free> distinctFrees)
+  //{
+  //  distinctFrees.For((Free f, int i) => f.ReplaceInAllContexts(new ConstantTerm("λ" + i.ToString())));
+  //}
+
+  protected ProgramEnvironment buildEnvironment(string domains, string atusStr)
   {
-    TermReferenceDictionary trd = new();
-    atu = atu.Clone(trd);
-    ReplaceFreesWithLambdaStrings(GetDistinctNewFreesIn(trd));
-    return atu;
+    NameVarBindings names = new();
+    FreeFactory frees = new();
+    ValenceVar namesModes = Parser.ParseValence(domains, names);
+    AlphaRelation atus = Parser.ParseAlphaTupleSet(atusStr, names, frees);
+    ObservedProgram obs = new ObservedProgram(atus, namesModes, TEST_SEARCH_DEPTH, ObservedProgram.Constraint.None);
+    ProgramEnvironment env = new ProgramEnvironment(obs, names, frees);
+    return env;
   }
 
-  protected static Term nietBruijnTerm(Term t)
+  protected void assertFirstResultFor(string domains, string atusStr, string expectedProgramString, string programName)
   {
-    TermReferenceDictionary trd = new();
-    t = t.Clone(trd);
-    ReplaceFreesWithLambdaStrings(GetDistinctNewFreesIn(trd));
-    return t;
-  }
-
-
-  private static IEnumerable<Free> GetDistinctNewFreesIn(TermReferenceDictionary trd)
-  {
-    return trd.Values.Where(t => t is Free).Select(t => t as Free);
-  }
-
-  private static void ReplaceFreesWithLambdaStrings(IEnumerable<Free> distinctFrees)
-  {
-    distinctFrees.For((Free f, int i) => f.ReplaceInAllContexts(new ConstantTerm("λ" + i.ToString())));
-  }
-
-  protected void assertFirstResultFor(string domains, string atusStr, Program elementaryProgramExpected, string programName)
-  { 
-    NameVarDictionary namevars = new();
-    Valence namesModes = Parser.ParseNameModeMap(domains, namevars);
-    IEnumerable<AlphaTuple> atus = Parser.ParseAlphaTupleSet(atusStr, namevars);
-    SynthesisJob job = new SynthesisJob(atus, namesModes, TEST_SEARCH_DEPTH, new ThreadCount(TEST_THREAD_COUNT), SearchOptions.FindOnlyFirstProgram);
+    ProgramEnvironment preEnv = buildEnvironment(domains, atusStr);
+    SynthesisJob job = new SynthesisJob(preEnv, new ThreadCount(TEST_THREAD_COUNT), SearchOptions.FindOnlyFirstProgram);
     var measurement = benchmark.StartNew();
     var programs = job.FindPrograms();
     measurement.TakeFinishTime();
     //Assert.AreEqual(1, programs.Count(), "A program should be found.");
     Assert.IsTrue(programs.Any(), "There should be at least one program.");
-    Assert.AreEqual(elementaryProgramExpected.ToString(), programs.First().ToString());
-    measurement.ReportFinish(programName, elementaryProgramExpected.ToString(), atusStr);
+    ProgramEnvironment env = programs.First();
+    PrettyStringer ps = new PrettyStringer(env.NameBindings);
+    Assert.AreEqual(expectedProgramString, env.Root.Pretty(ps));
+    measurement.ReportFinish(programName, expectedProgramString, atusStr);
   }
 
   protected void assertNoResultFor(string domains, string atusStr, string programName)
   {
-    NameVarDictionary namevars = new();
-    Valence namesModes = Parser.ParseNameModeMap(domains, namevars);
-    IEnumerable<AlphaTuple> atus = Parser.ParseAlphaTupleSet(atusStr, namevars);
-    SynthesisJob job = new SynthesisJob(atus, namesModes, TEST_SEARCH_DEPTH, new ThreadCount(TEST_THREAD_COUNT), SearchOptions.FindAllPrograms);
+    ProgramEnvironment env = buildEnvironment(domains, atusStr);
+    SynthesisJob job = new SynthesisJob(env, new ThreadCount(TEST_THREAD_COUNT), SearchOptions.FindAllPrograms);
     var measurement = benchmark.StartNew();
     var programs = job.FindPrograms();
     measurement.TakeFinishTime();
@@ -126,7 +137,7 @@ public class TestBase
     measurement.ReportFinish(programName, "N/A", atusStr);
   }
 
-  private static IEnumerable<Free> freesIn(Term t)
+  private static IEnumerable<Free> freesIn(ITerm t)
   {
     if (t is NilTerm)
       return Iterators.Empty<Free>();
@@ -145,7 +156,17 @@ public class TestBase
     throw new Exception("freesIn: Term not recognized:" + t.ToString());
   }
 
+  protected static string contextless(ITerm term)
+  {
+    PrettyStringer stringer = new PrettyStringer(PrettyStringer.Options.Contextless);
+    return term.Pretty(stringer);
+  }
 
+  protected static string contextless(ITerm[] terms, string[] colNames)
+  {
+    PrettyStringer stringer = new PrettyStringer(PrettyStringer.Options.Contextless);
+    return stringer.PrettyString(terms, colNames);
+  }
 
   [AssemblyCleanup]
   public static void WriteBenchmarksToFile()

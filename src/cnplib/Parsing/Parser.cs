@@ -3,81 +3,63 @@ using System.Collections.Generic;
 using CNP.Helper;
 using CNP.Language;
 using CNP.Helper.EagerLinq;
-using CNP.Parsing;
 
 namespace CNP.Parsing
 {
   public class Parser
   {
-    /// <summary>
-    /// Operator types should follow the structure Operand1Type -> ... -> OperandNType -> ExpressionType
-    /// For example: {a:in, b:in, ab:out} -> {a:in, b:out} -> {a0:in, bs:in, a:out}
-    /// The generic type should have a constructor that takes the operand valences, followed by the operator valence.
-    /// </summary>
-    public static TOperatorValence ParseFunctionalValence<TOperatorValence>(string operatorTypeString) where TOperatorValence : FunctionalValence
-    {
-      string[] parts = operatorTypeString.Split(new[] { "->" }, StringSplitOptions.None);
-      if (parts.Length < 2)
-      {
-        throw new Exception("Operator type must have at least 2 components.");
-      }
-      NameVarDictionary namevars = new(); // name variable scope is the operator type
-      var types = parts.Select(s => ParseNameModeMap(s, namevars)).ToArray();
-      return (TOperatorValence)Activator.CreateInstance(typeof(TOperatorValence), (object[])types);
-    }
 
-    public static Valence ParseNameModeMap(string nameModeMap, NameVarDictionary namevars)
+
+    public static ValenceVar ParseValence(string nameModeMap, NameVarBindings names)
     {
       var lexems = Lexer.Tokenize(nameModeMap);
       var it = lexems.GetEnumerator();
       if (!it.MoveNext())
         throw new ParserException("Expecting program type.", it.Current);
-      return ReadNameModeMap(it, namevars);
+      return ReadNameModeMap(it, names);
     }
-    public static Valence ParseValence(string typeString)
-    {
-      return new Valence(ParseNameModeMap(typeString, new()));
-    }
-    public static IEnumerable<AlphaTuple> ParseAlphaTupleSet(string alphaSetString, NameVarDictionary namevars)
+
+    public static AlphaRelation ParseAlphaTupleSet(string alphaSetString, NameVarBindings namevars, FreeFactory frees)
     {
       var lexems = Lexer.Tokenize(alphaSetString);
       var it = lexems.GetEnumerator();
       if (!it.MoveNext())
         throw new ParserException("Expecting set of alpha tuples.", it.Current);
       // scope of name variables is the whole set of alphatuples. all tuples should have the same namevar references.
-      if (ReadAlphaTupleSet(it, namevars, out IEnumerable<AlphaTuple> tuples))
+      FreeDictionary freeDict = new(frees);
+      if (ReadAlphaTupleSet(it, namevars, freeDict, out AlphaRelation tuples))
       {
         return tuples;
       }
       else
       {
-        return null;
+        return default;
       }
     }
-    public static AlphaTuple ParseAlphaTuple(string str, NameVarDictionary namevars)
+    public static List<KeyValuePair<NameVar, ITerm>> ParseAlphaTuple(string str, NameVarBindings namevars, FreeDictionary freeDict)
     {
       var lexems = Lexer.Tokenize(str);
       var it = lexems.GetEnumerator();
       Move(it);
       // scope of namevars can be shared among alphatuples but scope of term-level frees is the alpha tuple, so we create one free lookup for each tuple.
-      if (ReadAlphaTuple(it, namevars, out AlphaTuple tup))
+      if (ReadAlphaTuple(it, namevars, freeDict, out var tup))
         return tup;
       else return null;
     }
 
-    public static Term ParseTerm(string termString, FreeDictionary frees)
+    public static ITerm ParseTerm(string termString, FreeDictionary frees)
     {
       var lexems = Lexer.Tokenize(termString);
       var it = lexems.GetEnumerator();
       if (!it.MoveNext())
         throw new ParserException("Nothing to parse in term.", it.Current);
-      Term term = ReadTerm(it, frees);
+      ITerm term = ReadTerm(it, frees);
       return term;
     }
 
 
 
-    static Valence ReadNameModeMap(IEnumerator<Lexem> it, NameVarDictionary namevars)
+    static ValenceVar ReadNameModeMap(IEnumerator<Lexem> it, NameVarBindings namevars)
     {
       List<KeyValuePair<NameVar, Mode>> nameModePairs = new();
       GetType(it, TokenType.MustacheOpen);
@@ -89,7 +71,7 @@ namespace CNP.Parsing
         var type = GetType(it, TokenType.Comma, TokenType.MustacheClose);
         if (type == TokenType.MustacheClose)
         {
-          return new Valence(nameModePairs);
+          return ValenceVar.FromDict(new(nameModePairs));
         }
         else
         {
@@ -101,20 +83,30 @@ namespace CNP.Parsing
     /// <summary>
     /// Variable scope is the tuple scope (Variables do not reach between alpha-tuples)
     /// </summary>
-    static bool ReadAlphaTupleSet(IEnumerator<Lexem> it, NameVarDictionary namevars, out IEnumerable<AlphaTuple> tuples)
+    static bool ReadAlphaTupleSet(IEnumerator<Lexem> it, NameVarBindings namevars,  FreeDictionary freeDict, out AlphaRelation rel)
     {
-      List<AlphaTuple> _tuples = new();
+      List<ITerm[]> _tuples = new();
       GetType(it, TokenType.MustacheOpen);
       Move(it);
+      NameVar[] nameVarsControl = null;
       // context is shared among tuples but the scope of term-level variables is the alpha tuple.
-      while (ReadAlphaTuple(it, namevars, out AlphaTuple at))
+      while (ReadAlphaTuple(it, namevars, freeDict, out var at))
       {
-        _tuples.Add(at);
+        var names = at.Select(t => t.Key).ToArray();
+        if (nameVarsControl == null)
+          nameVarsControl = names;
+        else
+        {
+          if (!nameVarsControl.SequenceEqual(names))
+            throw new ArgumentException("Parsed names are not equal between rows:" + namevars + " and " + nameVarsControl);
+        }
+        var terms = at.Select(t => t.Value).ToArray();
+        _tuples.Add(terms);
         Move(it);
         TokenType type = GetType(it, TokenType.Comma, TokenType.MustacheClose);
         if (type == TokenType.MustacheClose)
         {
-          tuples = _tuples;
+          rel = new AlphaRelation(nameVarsControl, _tuples.ToArray());
           return true;
         }
         else // comma
@@ -122,23 +114,22 @@ namespace CNP.Parsing
           Move(it);
         }
       }
-      tuples = null;
+      rel = default;
       return false;
     }
-    static bool ReadAlphaTuple(IEnumerator<Lexem> it, NameVarDictionary namevars, out AlphaTuple at)
+    static bool ReadAlphaTuple(IEnumerator<Lexem> it, NameVarBindings namevars, FreeDictionary freeDict, out List<KeyValuePair<NameVar,ITerm>> at)
     {
-      List<KeyValuePair<NameVar, Term>> namedTerms = new List<KeyValuePair<NameVar, Term>>();
+      List<KeyValuePair<NameVar, ITerm>> namedTerms = new List<KeyValuePair<NameVar, ITerm>>();
       GetType(it, TokenType.MustacheOpen);
       Move(it);
-      FreeDictionary frees = new(); 
-      while (ReadNameTerm(it, namevars, frees, out KeyValuePair<NameVar, Term> nameTerm))
+      while (ReadNameTerm(it, namevars, freeDict, out KeyValuePair<NameVar, ITerm> nameTerm))
       {
         namedTerms.Add(nameTerm);
         Move(it);
         TokenType type = GetType(it, TokenType.Comma, TokenType.MustacheClose);
         if (it.Current.Type == TokenType.MustacheClose)
         {
-          at = new AlphaTuple(namedTerms);
+          at = namedTerms;
           return true;
         }
         else // comma
@@ -149,10 +140,10 @@ namespace CNP.Parsing
       at = null;
       return false;
     }
-    static bool ReadNameMode(IEnumerator<Lexem> it, NameVarDictionary namevars, out KeyValuePair<NameVar, Mode> nameMode)
+    static bool ReadNameMode(IEnumerator<Lexem> it, NameVarBindings bindings, out KeyValuePair<NameVar, Mode> nameMode)
     {
       string name = GetContent(it, TokenType.Identifier, "A name:mode pair should start with an identifier.");
-      NameVar nameAsVar = namevars.GetOrAdd(name);
+      NameVar nameAsVar = GetOrAddNameVar(bindings, name);
       Move(it);
       string colon = GetContent(it, TokenType.Colon, "A name:mode pair is missing a colon(:)");
       Move(it);
@@ -161,18 +152,18 @@ namespace CNP.Parsing
       return true;
     }
 
-    static bool ReadNameTerm(IEnumerator<Lexem> it, NameVarDictionary namevars, FreeDictionary frees, out KeyValuePair<NameVar, Term> nameTerm)
+    static bool ReadNameTerm(IEnumerator<Lexem> it, NameVarBindings namevars, FreeDictionary freeDict, out KeyValuePair<NameVar, ITerm> nameTerm)
     {
       string name = GetContent(it, TokenType.Identifier, "A name:term pair should start with an identifier.");
-      NameVar nameAsVar = namevars.GetOrAdd(name);
+      NameVar nameAsVar = GetOrAddNameVar(namevars, name);
       Move(it);
       string colon = GetContent(it, TokenType.Colon, "A name:term pair is missing a colon(:)");
       Move(it);
-      Term term = ReadTerm(it, frees);
-      nameTerm = new KeyValuePair<NameVar, Term>(nameAsVar, term);
+      ITerm term = ReadTerm(it, freeDict);
+      nameTerm = new KeyValuePair<NameVar, ITerm>(nameAsVar, term);
       return true;
     }
-    static Term ReadTerm(IEnumerator<Lexem> it, FreeDictionary frees)
+    static ITerm ReadTerm(IEnumerator<Lexem> it, FreeDictionary freeDict)
     {
       if (it.Current.Type == TokenType.ValueInt)
       {
@@ -184,17 +175,17 @@ namespace CNP.Parsing
       }
       if (it.Current.Type == TokenType.VariableName)
       {
-        return frees.GetOrAdd(it.Current.Content);
+        return freeDict.GetOrAdd(it.Current.Content);
       }
       if (it.Current.Type == TokenType.BracketOpen)
       {
-        return ReadTermList(it, frees);
+        return ReadTermList(it, freeDict);
       }
       throw new ParserException("Term can be: int, 'string', Var, or a list of [terms]. Position:", it.Current);
     }
-    static Term ReadTermList(IEnumerator<Lexem> it, FreeDictionary frees)
+    static ITerm ReadTermList(IEnumerator<Lexem> it, FreeDictionary freeDict)
     {
-      List<Term> elements = new List<Term>();
+      List<ITerm> elements = new List<ITerm>();
       GetType(it, TokenType.BracketOpen, "Term list should start with [");
       while (it.MoveNext())
       {
@@ -212,14 +203,14 @@ namespace CNP.Parsing
             throw new ParserException("List construction '|' needs at least one element in the head.", it.Current);
           if (!it.MoveNext())
             throw new ParserException("List construction '|' needs a tail.", it.Current);
-          Term tail = ReadTerm(it, frees);
+          ITerm tail = ReadTerm(it, freeDict);
           Move(it);
           GetType(it, TokenType.BracketClose, "List construction '|' should be closed with a bracket(])");
           return TermList.FromEnumerable(elements, tail);
         }
         else
         {
-          Term t = ReadTerm(it, frees);
+          ITerm t = ReadTerm(it, freeDict);
           elements.Add(t);
         }
       }
@@ -266,6 +257,14 @@ namespace CNP.Parsing
       else if (modeString == "out")
         return Mode.Out;
       else throw new ParserException("Unrecognized argument mode:" + modeString, it.Current);
+    }
+
+    private static NameVar GetOrAddNameVar(NameVarBindings bindings, string name)
+    {
+      int i = Array.IndexOf(bindings.Names, name);
+      if (i >= 0)
+        return new NameVar(i);
+      else return bindings.AddNameVar(name);
     }
   }
 

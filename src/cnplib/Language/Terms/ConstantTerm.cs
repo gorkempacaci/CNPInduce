@@ -1,5 +1,5 @@
 ﻿using System;
-using CNP.Display;
+using CNP;
 using CNP.Helper;
 
 namespace CNP.Language
@@ -7,17 +7,29 @@ namespace CNP.Language
   /// <summary>
   /// Immutable
   /// </summary>
-  public class ConstantTerm : Term
+  public struct ConstantTerm : ITerm
   {
     public readonly object Value;
+
+/// <summary>
+/// Term value can only be string or int.
+/// </summary>
     public ConstantTerm(object o)
     {
-      if (!(o is string || o is int))
-        throw new Exception("ConstantTerm: Constant should be string or int.");
-      Value = o;
+      if (o is string || o is int)
+        Value = o;
+      else throw new ArgumentOutOfRangeException("Constantterm can be int or string.");
     }
-    public ConstantTerm(string v) { Value = v; }
-    public ConstantTerm(int i) { Value = i; }
+
+    public ConstantTerm(ConstantTerm other)
+    {
+      this.Value = other.Value;
+    }
+
+    public override int GetHashCode()
+    {
+      return Value.GetHashCode();
+    }
 
     public override bool Equals(object obj)
     {
@@ -25,39 +37,28 @@ namespace CNP.Language
         return false;
       return this.Value.Equals(c.Value);
     }
-    public override int GetHashCode()
-    {
-      return Value.GetHashCode();
-    }
 
-    public override string Pretty(PrettyStringer ps)
+    public bool IsGround() => true;
+    public bool Contains(Free other) => false;
+
+    public string Pretty(PrettyStringer ps)
     {
       return ps.PrettyString(this);
     }
 
-    public override bool IsGround()
+    public ITerm Clone(CloningContext cc)
     {
-      return true;
-    }
-    public override Term Clone(TermReferenceDictionary plannedParenthood)
-    {
-      if (Value is string)
-      {
-        return new ConstantTerm((string)Value);
-      }
-      else if (Value is int)
-      {
-        return new ConstantTerm((int)Value);
-      }
-      else
-      {
-        throw new Exception("Constant is not string or int. This shouldn't happen.");
-      }
-    }
-    public override bool Contains(Free other)
-    {
-      return false;
+      return cc.Clone(this);
     }
 
+    public ITerm GetFreeReplaced(Free _, ITerm __)
+    {
+      return this;
+    }
+
+    public override string ToString()
+    {
+      return Value.ToString();
+    }
   }
 }

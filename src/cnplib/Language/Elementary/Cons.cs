@@ -4,65 +4,89 @@ using System.Net.Http;
 using CNP.Helper.EagerLinq;
 using CNP.Helper;
 using System.Diagnostics;
-using CNP.Display;
 
 namespace CNP.Language
 {
 
-  public class Cons : ElementaryProgram
+  public readonly struct Cons : IProgram
   {
-    private static readonly TypeStore<Valence> valences = TypeHelper.ParseListOfCompactedProgramTypes(new[] {
-            "{a:in, b:in, ab:*}",
-            "{a:*, b:*, ab:in}"});
+    private static GroundValence.SimpleValenceSeries ConsValences =
+  GroundValence.SeriesFromArrays(new[] { "a", "b", "ab" },
+                                new[]
+                                {
+                                      new[]{  Mode.In,  Mode.In, Mode.In},
+                                      new[]{  Mode.In,  Mode.In, Mode.Out},
+                                      new[]{  Mode.In, Mode.Out, Mode.In},
+                                      new[]{  Mode.Out, Mode.In, Mode.In},
+                                      new[]{  Mode.Out, Mode.Out, Mode.In},
+                                });
 
-    public Cons() { }
+    public bool IsClosed => true;
 
-    internal override Program CloneAsSubTree(TermReferenceDictionary plannedParenthood, (ObservedProgram, Program) replaceObservation)
-    {
-      return new Cons();
-    }
+    public override int GetHashCode() => 31;
 
-    public override bool Equals(object obj)
-    {
-      return obj is Cons;
-    }
+    public override bool Equals(object obj) => obj is Cons;
 
-    public override int GetHashCode()
-    {
-      return 31;
-    }
+    public void ReplaceFree(Free _, ITerm __) { }
 
-    public override string Pretty(PrettyStringer ps)
+    public string Pretty(PrettyStringer ps)
     {
       return ps.PrettyString(this);
     }
 
+    public IProgram Clone(CloningContext cc)
+    {
+      return cc.Clone(this);
+    }
+
+    public ObservedProgram FindLeftmostHole() => null;
+
+    public (ObservedProgram, int) FindRootmostHole(int calleesDistanceToRoot = 0) => (null, int.MaxValue);
+
+    public int GetHeight() => 0;
+
+    public string GetTreeQualifier() => "p";
+
+
+
     /// <summary>
     /// Does not modify the given program, returns alternative cloned programs if they exist.
     /// </summary>
-    public static IEnumerable<Program> CreateAtFirstHole(Program rootProgram)
+    public static IEnumerable<ProgramEnvironment> CreateAtFirstHole(ProgramEnvironment env)
     {
-      ObservedProgram origObs = rootProgram.FindHole();
-      var consTypes = valences.FindCompatibleTypes(origObs.Valence);
-      if (!consTypes.Any())
-        return Iterators.Empty<Cons>();
-      List<Program> programs = new List<Program>();
-      foreach (Valence consTypeGround in consTypes)
+      List<ProgramEnvironment> programs = new();
+      ObservedProgram oldObs = env.Root.FindHole();
+      if (oldObs.Observables.TuplesCount == 0)
+        throw new ArgumentException("Cons: Observation is empty.");
+
+      ConsValences.GroundingAlternatives(oldObs.Valence, env.NameBindings, out var alts);
+      foreach (var altNames in alts)
       {
-        var combs = origObs.Valence.PossibleGroundings(consTypeGround);
-        foreach (var uni in combs)
-        {
-          var cloneRoot = rootProgram.CloneAtRoot(uni);
-          if (!cloneRoot.NameConstraintsHold())
-            continue; //rollback
-          var cloneObs = cloneRoot.FindHole();
-          if (cloneObs.Observables.All(at => Term.UnifyInPlace(at["ab"], new TermList(at["a"], at["b"]))))
+        var currEnv = env.Clone();
+        var observ = currEnv.Root.FindHole();
+        if (currEnv.NameBindings.TryBindingAllNamesToGround(observ.Valence, altNames))
+        { // then all names for valence are ground
+          string[] obsNames = currEnv.NameBindings.GetNamesForVars(observ.Observables.Names);
+          int a = Array.IndexOf(obsNames, "a");
+          int b = Array.IndexOf(obsNames, "b");
+          int ab = Array.IndexOf(obsNames, "ab");
+          bool unificationSuccess = true;
+          for (int ri = 0; ri < observ.Observables.TuplesCount; ri++)
           {
-            var p = new Cons();
-            var newRoot = cloneRoot.CloneAtRoot((cloneObs, p));
-            programs.Add(newRoot);
+            var tuple = observ.Observables.Tuples[ri];
+            var unifier = new ITerm[tuple.Length];
+            unifier[ab] = new TermList(tuple[a], tuple[b]);
+            if (!AlphaRelation.UnifyInPlace(tuple, currEnv, unifier))
+            {
+              unificationSuccess = false;
+              break;
+            }
           }
-        }
+          if (unificationSuccess)
+          {
+            programs.Add(currEnv.Clone((observ, new Cons())));
+          }
+        } // if not then this alt is skipped
       }
       return programs;
     }

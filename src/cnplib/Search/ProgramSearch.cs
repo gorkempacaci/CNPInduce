@@ -14,18 +14,18 @@ namespace CNP.Search
   {
     //public int BusyThreadCount = 0;
     public readonly int ThreadCount;
-    ConcurrentQueue<Program> searchQueue = new();
+    ConcurrentQueue<ProgramEnvironment> searchQueue = new();
     object searchQueueDequeueLock = new();
     CancellationTokenSource CancellationSource = new();
     List<SearchBrancher> threadObjects;
     List<Thread> systemThreads;
     IProgramSearchReceiver searchReceiver;
 
-    public ProgramSearch(ObservedProgram initialHole, IProgramSearchReceiver receiver, ThreadCount tCount = default)
+    public ProgramSearch(ProgramEnvironment initialProgram, IProgramSearchReceiver receiver, ThreadCount tCount = default)
     {
       searchReceiver = receiver;
       ThreadCount = tCount.GetNumberOfThreads();
-      searchQueue.Enqueue(initialHole);
+      searchQueue.Enqueue(initialProgram);
     }
     public void WaitUntilDone()
     {

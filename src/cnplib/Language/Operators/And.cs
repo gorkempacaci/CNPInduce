@@ -1,75 +1,88 @@
 ﻿using System;
 using System.Collections.Generic;
-using CNP.Display;
 using CNP.Helper;
 using CNP.Helper.EagerLinq;
 
 namespace CNP.Language
 {
-  public class And : LogicOperator
+  public class And : IProgram
   {
-    public And(Program lhOperand, Program rhOperand) : base(lhOperand,rhOperand)
+    public readonly IProgram LHOperand, RHOperand;
+
+    public And(IProgram lhOperand, IProgram rhOperand) 
     {
+      LHOperand = lhOperand;
+      RHOperand = rhOperand;
     }
 
-    internal override Program CloneAsSubTree(TermReferenceDictionary plannedParenthood, (ObservedProgram, Program) replaceObservation)
+    public void ReplaceFree(Free free, ITerm term)
     {
-      var lh = LHOperand.CloneAsSubTree(plannedParenthood, replaceObservation);
-      var rh = RHOperand.CloneAsSubTree(plannedParenthood, replaceObservation);
-      return new And(lh, rh);
+      LHOperand.ReplaceFree(free, term);
+      RHOperand.ReplaceFree(free, term);
     }
 
-    public override bool Equals(object obj)
-    {
-      return obj is And otherAnd &&
-        LHOperand.Equals(otherAnd.LHOperand) &&
-        RHOperand.Equals(otherAnd.RHOperand);
-    }
+    public bool IsClosed => LHOperand.IsClosed && RHOperand.IsClosed;
 
-    public override int GetHashCode()
-    {
-      return base.GetHashCode();
-    }
-
-    public override string Pretty(PrettyStringer ps)
+    public string Pretty(PrettyStringer ps)
     {
       return ps.PrettyString(this);
     }
 
-    public static IEnumerable<Program> CreateAtFirstHole(Program originalProgram)
+    public IProgram Clone(CloningContext cc)
     {
-      var origObservation = originalProgram.FindHole();
-      if (!origObservation.RSD_AllowsOperators())
-        return Iterators.Empty<Program>();
-      if ((origObservation.Constraints & ObservedProgram.Constraint.NotAnd) == ObservedProgram.Constraint.NotAnd)
-        return Iterators.Empty<Program>();
-      IEnumerable<AndOrValence> allValenceCombs = AndOrValence.Generate(origObservation.Valence);
-      if (!allValenceCombs.Any())
-        return Iterators.Empty<Program>();
-      List<Program> programs = new List<Program>();
-      foreach(AndOrValence valComb in allValenceCombs)
-      {
-        //NameVar.AddNameConstraintsInPairsIfNeeded(valComb.Names);
-        var pObs = origObservation.Observables.Select(atu => atu.Crop(valComb.LHDoms.Keys));
-        var pProg = new ObservedProgram(pObs, valComb.LHDoms, origObservation, ObservedProgram.Constraint.NotAnd);
-        var qObs = origObservation.Observables.Select(atu => atu.Crop(valComb.RHDoms.Keys));
-        var qProg = new ObservedProgram(qObs, valComb.RHDoms, origObservation, ObservedProgram.Constraint.NotAnd);
-        var andProg = new And(pProg, qProg);
-        var program = originalProgram.CloneAtRoot((origObservation, andProg));
-        programs.Add(program);
-      }
-#if DEBUG
-        int c = programs.Count();
-        Debugging.LogObjectWithMax("and", programs.Count(), programs);
-      //if (c > 1000)
-      //  throw new ArgumentOutOfRangeException();
-#endif
-      return programs;
+      return cc.Clone(this);
     }
 
-    public override string GetTreeQualifier()
+    public string GetTreeQualifier()
     {
       return "and(" + LHOperand.GetTreeQualifier() + "," + RHOperand.GetTreeQualifier() + ")";
+    }
+
+    public int GetHeight()
+    {
+      return Math.Max(LHOperand.GetHeight(), RHOperand.GetHeight()) + 1;
+    }
+
+    public ObservedProgram FindLeftmostHole()
+    {
+      return LHOperand.FindLeftmostHole() ?? RHOperand.FindLeftmostHole();
+    }
+
+    public (ObservedProgram, int) FindRootmostHole(int calleesDistanceToRoot = 0)
+    {
+      var lh = LHOperand.FindRootmostHole(calleesDistanceToRoot + 1);
+      var rh = RHOperand.FindRootmostHole(calleesDistanceToRoot + 1);
+      if (lh.Item2 <= rh.Item2) return lh; else return rh;
+    }
+
+    public static IEnumerable<ProgramEnvironment> CreateAtFirstHole(ProgramEnvironment origEnv)
+    {
+      var origObservation = origEnv.Root.FindHole();
+      if (origObservation.RemainingSearchDepth<2)
+        return Array.Empty<ProgramEnvironment>();
+      if ((origObservation.Constraints & ObservedProgram.Constraint.NotAnd) == ObservedProgram.Constraint.NotAnd)
+        return Array.Empty<ProgramEnvironment>();
+      IEnumerable<AndValence> allValenceCombs = AndValence.Generate(origObservation.Valence);
+      if (!allValenceCombs.Any())
+        return Array.Empty<ProgramEnvironment>();
+      List<ProgramEnvironment> programs = new List<ProgramEnvironment>();
+      foreach(AndValence valComb in allValenceCombs)
+      {
+        //NameVar.AddNameConstraintsInPairsIfNeeded(valComb.Names);
+        var pNames = valComb.LHValence.Ins.Concat(valComb.LHValence.Outs).ToArray();
+        var pObs = origObservation.Observables.GetCropped(pNames);
+        var pProg = new ObservedProgram(pObs, valComb.LHValence, origObservation.RemainingSearchDepth-1, ObservedProgram.Constraint.NotAnd);
+
+        var qNames = valComb.RHValence.Ins.Concat(valComb.RHValence.Outs).ToArray();
+        var qObs = origObservation.Observables.GetCropped(qNames);
+        var qProg = new ObservedProgram(qObs, valComb.RHValence, origObservation.RemainingSearchDepth-1, ObservedProgram.Constraint.NotAnd);
+
+        var andProg = new And(pProg, qProg);
+
+        var program = origEnv.Clone((origObservation, andProg), (valComb.OnlyLHNames,valComb.OnlyRHNames));
+        programs.Add(program);
+      }
+      return programs;
     }
   }
 }
