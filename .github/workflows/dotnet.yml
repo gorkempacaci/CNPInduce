@@ -23,6 +23,6 @@ jobs:
     - name: Restore dependencies
       run: dotnet restore ./src/cnp.sln
     - name: Build
-      run: dotnet build --no-restore
+      run: dotnet build --no-restore  ./src/cnp.sln
     - name: Test
-      run: dotnet test --no-build --verbosity normal
+      run: dotnet test --no-build --verbosity normal  ./src/cnp.sln
