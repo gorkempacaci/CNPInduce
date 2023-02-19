@@ -2,7 +2,7 @@
 using CNP.Search;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace Tests.Search
+namespace Search
 {
   [TestClass]
   public class DifferenceTableTests

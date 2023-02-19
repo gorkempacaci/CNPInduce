@@ -76,7 +76,7 @@ namespace CNP.Language
             var tuple = observ.Observables.Tuples[ri];
             var unifier = new ITerm[tuple.Length];
             unifier[ab] = new TermList(tuple[a], tuple[b]);
-            if (!AlphaRelation.UnifyInPlace(tuple, currEnv, unifier))
+            if (!currEnv.UnifyInPlace(tuple, unifier))
             {
               unificationSuccess = false;
               break;

@@ -183,5 +183,22 @@ namespace CNP.Language
     }
 
 
+    public int GetNameIndices(ObservedProgram obs, string groundName)
+    {
+      var names = GetNamesForVars(obs.Observables.Names);
+      return Array.IndexOf(names, groundName);
+    }
+
+    public (int, int) GetNameIndices(ObservedProgram obs, string groundName1, string groundName2)
+    {
+      var names = GetNamesForVars(obs.Observables.Names);
+      return (Array.IndexOf(names, groundName1), Array.IndexOf(names, groundName2));
+    }
+
+    public (int, int, int) GetNameIndices(ObservedProgram obs, string groundName1, string groundName2, string groundName3)
+    {
+      var names = GetNamesForVars(obs.Observables.Names);
+      return (Array.IndexOf(names, groundName1), Array.IndexOf(names, groundName2), Array.IndexOf(names, groundName3));
+    }
   }
 }

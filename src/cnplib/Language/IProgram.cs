@@ -57,7 +57,6 @@ namespace CNP.Language
     /// <returns></returns>
     string GetTreeQualifier();
 
-
   }
 
 }

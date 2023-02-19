@@ -4,7 +4,7 @@ namespace CNP.Language
   /// <summary>
   /// Creates frees with indices on a continuous space.
   /// </summary>
-  public struct FreeFactory
+  public class FreeFactory
   {
     private int upperBound = 0;
 

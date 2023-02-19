@@ -211,7 +211,7 @@ namespace Language
       ObservedProgram obs = new ObservedProgram(rel, vv, 1, ObservedProgram.Constraint.None);
       ProgramEnvironment env = new ProgramEnvironment(obs, names, frees);
       ITerm[] unifierTerms = new[] { unifierTerm };
-      bool success = AlphaRelation.UnifyInPlace(rel.Tuples[0], env, unifierTerms);
+      bool success = env.UnifyInPlace(rel.Tuples[0], unifierTerms);
       Assert.IsTrue(success, "Terms should unify.");
       PrettyStringer ps = new PrettyStringer(names);
       string actualTermString = rel.Tuples[0][0].Pretty(ps);

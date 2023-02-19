@@ -12,7 +12,7 @@ namespace Synthesis
     {
       string typeStr = "{u:in, v:in}";
       string atusStr = "{{u:1, v:1}}";
-      assertFirstResultFor(typeStr, atusStr, "proj(id, {a->u, b->v})", "proj_id");
+      assertFirstResultFor(typeStr, atusStr, "proj(id, {a->u, b->v})");
 
 
 
@@ -25,7 +25,7 @@ namespace Synthesis
       string atusStr = "{{list1:[1,2,3], list2:[4,5,6], appended:[1,2,3,4,5,6]}}";
       //assertFirstResultFor(typeStr, atusStr, proj(foldr(cons, id),("b0", "list2"), ("as", "list1"), ("b", "appended")), "proj-foldr-cons");
                                               
-      assertFirstResultFor(typeStr, atusStr, "proj(foldr(cons, id), {as->list1, b0->list2, b->appended})", "proj-foldr-cons");
+      assertFirstResultFor(typeStr, atusStr, "proj(foldr(cons, id), {as->list1, b0->list2, b->appended})");
     }
 
     [TestMethod]
@@ -34,7 +34,7 @@ namespace Synthesis
       string typeStr = "{nillist:in, inlist:in, outlist:out}";
       string atusStr = "{{nillist:[], inlist:[3,2,1], outlist:[1,2,3]}}";
       //var expectedProgram = proj(foldl(cons, id), ("b0", "nillist"), ("as", "inlist"), ("b", "outlist"));
-      assertFirstResultFor(typeStr, atusStr, "proj(foldl(cons, id), {b0->nillist, as->inlist, b->outlist})", "proj_foldl-cons");
+      assertFirstResultFor(typeStr, atusStr, "proj(foldl(cons, id), {b0->nillist, as->inlist, b->outlist})");
     }
 
     //[TestMethod] DEPTH 4

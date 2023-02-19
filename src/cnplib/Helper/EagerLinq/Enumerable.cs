@@ -5,7 +5,7 @@
 //using Lazy = System.Linq.Enumerable;
 
 namespace CNP.Helper.EagerLinq
-{ }
+{ 
 //  public static class Enumerable
 //  {
 //    public static TSource Aggregate<TSource>(this IEnumerable<TSource> source, Func<TSource, TSource, TSource> f)
@@ -149,4 +149,4 @@ namespace CNP.Helper.EagerLinq
 //      return Lazy.SequenceEqual(first, second, comparer);
 //    }
 
-//}
+}

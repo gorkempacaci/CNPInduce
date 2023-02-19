@@ -35,14 +35,14 @@ namespace Synthesis
     {
       string typeStr = "{b0:in, as:in, b:out}";
       string atusStr = "{{b0:[4,5,6], as:[1,2,3], b:[1,2,3,4,5,6]}}";
-      assertFirstResultFor(typeStr, atusStr, "foldr(cons, id)", "append");
+      assertFirstResultFor(typeStr, atusStr, "foldr(cons, id)");
     }
     [TestMethod]
     public void AppendToUnit()
     {
       string typeStr = "{b0:in, as:in, b:out}";
       string atusStr = "{{b0:[4], as:[1,2,3], b:[1,2,3,4]}}";
-      assertFirstResultFor(typeStr, atusStr, "foldr(cons, id)", "append");
+      assertFirstResultFor(typeStr, atusStr, "foldr(cons, id)");
     }
 
     [TestMethod]
@@ -50,7 +50,7 @@ namespace Synthesis
     {
       string typeStr = "{b0:in, as:in, b:out}";
       string atusStr = "{{b0:[], as:[1,2,3], b:[1,2,3]}}";
-      assertFirstResultFor(typeStr, atusStr, "foldr(cons, id)", "append");
+      assertFirstResultFor(typeStr, atusStr, "foldr(cons, id)");
     }
 
     [TestMethod]
@@ -58,7 +58,15 @@ namespace Synthesis
     {
       string typeStr = "{b0:in, as:in, b:out}";
       string atusStr = "{{b0:[], as:[1,2,3], b:[1,2,3]}}";
-      assertFirstResultFor(typeStr, atusStr, "foldr(cons, id)", "list_id");
+      assertFirstResultFor(typeStr, atusStr, "foldr(cons, id)");
+    }
+
+    [TestMethod]
+    public void Reverse2FoldR()
+    {
+      string typeStr = "{as:in, bs:out}";
+      string atusStr = "{{as:[], bs:[]},{as:[1,2,3], bs:[3,2,1]}}";
+      assertFirstResultFor(typeStr, atusStr, "proj(foldr(proj(cons, {a->a, ab->b, b->ab}), id), {b0->as, as->bs})", 4);
     }
   }
 
@@ -91,7 +99,7 @@ namespace Synthesis
     {
       string typeStr = "{a0:in, as:in, b:out}";
       string atusStr = "{{a0:0, as:[1,2,3], b:[1,2,3]}, {a0:0, as:[3,2,1], b:[3,2,1]}}";
-      assertNoResultFor(typeStr, atusStr, "neg id");
+      assertNoResultFor(typeStr, atusStr);
     }
 
     [TestMethod]
@@ -99,7 +107,7 @@ namespace Synthesis
     {
       string typeStr = "{a0:in, as:in, b:out}";
       string atusStr = "{{a0:[], as:[1,2,3], b:[1,2,3,4]}}";
-      assertNoResultFor(typeStr, atusStr, "neg id");
+      assertNoResultFor(typeStr, atusStr);
     }
 
     [TestMethod]
@@ -107,7 +115,7 @@ namespace Synthesis
     {
       string typeStr = "{a0:in, as:in, b:out}";
       string atusStr = "{{a0:[], as:[1], b:[1,2]}}";
-      assertNoResultFor(typeStr, atusStr, "neg id");
+      assertNoResultFor(typeStr, atusStr);
     }
 
     [TestMethod]
@@ -115,7 +123,7 @@ namespace Synthesis
     {
       string typeStr = "{a0:in, as:in, b:out}";
       string atusStr = "{{a0:[], as:[], b:[1]}}";
-      assertNoResultFor(typeStr, atusStr, "neg id");
+      assertNoResultFor(typeStr, atusStr);
     }
 
     [TestMethod]
@@ -123,7 +131,7 @@ namespace Synthesis
     {
       string typeStr = "{a0:in, as:in, b:out}";
       string atusStr = "{{a0:[4,5,6], as:[1,2,3], b:[1,2,3]}}";
-      assertNoResultFor(typeStr, atusStr, "neg append");
+      assertNoResultFor(typeStr, atusStr);
     }
   }
 }

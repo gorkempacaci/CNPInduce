@@ -6,6 +6,7 @@ using CNP.Language;
 using CNP.Helper;
 using System.Text;
 using CNP;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Benchit
 {
@@ -25,6 +26,7 @@ namespace Benchit
 
     };
 
+    [RequiresAssemblyFiles()]
     public static int Main(string[] args)
     {
       if (args.Length == 0 || args[0] == "--help")
@@ -37,8 +39,8 @@ namespace Benchit
         return 0;
       }
       // PRINTING CNP VERSION
-      string verString = typeof(ProgramEnvironment).Assembly.GetName().ToString();
-      Console.WriteLine("Using: " + verString);
+      string cnpTimeString = System.IO.File.GetCreationTime(typeof(IProgram).Assembly.Location).ToString();
+      Console.WriteLine("Using CNP: " + cnpTimeString);
       // INITIALIZING ARGUMENTS
       string filename = args[0];
       int arg_max_depth = int.Parse(args[1]);

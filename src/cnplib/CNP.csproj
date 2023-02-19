@@ -7,6 +7,7 @@
     <AssemblyVersion>1.0.*</AssemblyVersion>
     <Deterministic>false</Deterministic>
     <SynchReleaseVersion>false</SynchReleaseVersion>
+    <Today>$([System.DateTime]::Now)</Today>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <LangVersion>10.0</LangVersion>
@@ -22,6 +23,7 @@
     <Folder Include="Language\Operators\" />
     <Folder Include="Language\Elementary\" />
     <Folder Include="Language\Terms\Meta\" />
+    <Folder Include="Language\Library\" />
   </ItemGroup>
   <ItemGroup>
     <Compile Remove="Helper\ReferenceEqualityComparer.cs" />
@@ -33,9 +35,16 @@
     <None Remove="Printing\" />
     <None Remove="Cloning\" />
     <None Remove="CommunityToolkit.HighPerformance" />
+    <None Remove="Microsoft.VisualStudio.TextTemplating" />
+    <None Remove="Language\Library\" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="CommunityToolkit.HighPerformance" Version="8.1.0" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Update="CombInduce.g.cs">
+      <DependentUpon>CombInduce.tt</DependentUpon>
+    </Compile>
   </ItemGroup>
   <ProjectExtensions>
     <MonoDevelop>

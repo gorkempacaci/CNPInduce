@@ -5,7 +5,7 @@ using System.Linq;
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace Tests.Language
+namespace Language
 {
   [TestClass]
   public class ValenceVarTests : TestBase

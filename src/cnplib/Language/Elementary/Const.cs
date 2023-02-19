@@ -72,7 +72,7 @@ namespace CNP.Language
       for (int ri = 1; ri < obsOriginal.Observables.TuplesCount; ri++)
       {
         var tuplen = obsOriginal.Observables.Tuples[ri];
-        if (!AlphaRelation.UnifyInPlace(tuple0, env, tuplen)) // unify [0, 1] and [1, 0]
+        if (!env.UnifyInPlace(tuple0, tuplen)) // unify [0, 1] and [1, 0]
           return Array.Empty<ProgramEnvironment>();
       }
       if (!tuple0[0].IsGround())

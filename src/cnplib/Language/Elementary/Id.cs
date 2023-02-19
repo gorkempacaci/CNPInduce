@@ -66,7 +66,7 @@ namespace CNP.Language
         {
           var tuple = currObs.Observables.Tuples[ri];
           var unifier = new ITerm[2] { tuple[1], tuple[0] };
-          if (!AlphaRelation.UnifyInPlace(tuple, currEnv, unifier))
+          if (!currEnv.UnifyInPlace(tuple, unifier))
             return Array.Empty<ProgramEnvironment>();
         }
         if (currEnv.NameBindings.TryBindingAllNamesToGround(currObs.Valence, alt))

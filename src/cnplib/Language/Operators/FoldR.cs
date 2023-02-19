@@ -25,18 +25,18 @@ namespace CNP.Language
         (new[]{In, In, Out}, new[]{Out, In, Out }, new[]{Out, Out }),
         (new[]{In, In, Out}, new[]{Out, Out, Out }, new[]{Out, Out }),
 
-        (new[]{Out,In,Out}, new[]{In,In,Out}, new[]{Out, Out }),
-        (new[]{Out,In,Out}, new[]{In,Out,Out}, new[]{Out, Out }),
-        (new[]{Out,In,Out}, new[]{Out,In,Out}, new[]{Out, Out }),
-        (new[]{Out,In,Out}, new[]{Out,Out,Out}, new[]{Out, Out }),
+        //(new[]{Out,In,Out}, new[]{In,In,Out}, new[]{Out, Out }),
+        //(new[]{Out,In,Out}, new[]{In,Out,Out}, new[]{Out, Out }),
+        //(new[]{Out,In,Out}, new[]{Out,In,Out}, new[]{Out, Out }),
+        //(new[]{Out,In,Out}, new[]{Out,Out,Out}, new[]{Out, Out }),
 
         (new[]{In, Out, Out}, new[]{Out, In, Out}, new[]{In, Out}),
-        (new[]{In, Out, Out}, new[]{Out, Out, Out}, new[]{In, Out}),
-        (new[]{In, Out, Out}, new[]{Out, In, Out}, new[]{Out, Out}),
-        (new[]{In, Out, Out}, new[]{Out, Out, Out}, new[]{Out, Out}),
+        //(new[]{In, Out, Out}, new[]{Out, Out, Out}, new[]{In, Out}),
+        //(new[]{In, Out, Out}, new[]{Out, In, Out}, new[]{Out, Out}),
+        //(new[]{In, Out, Out}, new[]{Out, Out, Out}, new[]{Out, Out}),
 
-        (new[]{Out, Out, Out}, new[]{Out, In, Out}, new[]{Out, Out}),
-        (new[]{Out, Out, Out}, new[]{Out, Out, Out}, new[]{Out, Out})
+        //(new[]{Out, Out, Out}, new[]{Out, In, Out}, new[]{Out, Out}),
+        //(new[]{Out, Out, Out}, new[]{Out, Out, Out}, new[]{Out, Out})
       });
 
     public IProgram Recursive { get; }

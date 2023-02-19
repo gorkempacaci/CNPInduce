@@ -54,8 +54,6 @@ public class TestBase
   protected static Proj proj(IProgram source, params (NameVar,NameVar)[] projections) => new Proj(source, new ProjectionMap(projections.Select(tu => new KeyValuePair<NameVar,NameVar>(tu.Item1,tu.Item2)).ToArray()));
   #endregion
 
-  static readonly BenchmarkCollation benchmark = new BenchmarkCollation();
-
   //protected static string nietBruijnString(AlphaRelation ts)
   //{
   //  CNP.PrettyStringer ps = new(CNP.PrettyStringer.Options.Contextless);
@@ -100,41 +98,35 @@ public class TestBase
   //  distinctFrees.For((Free f, int i) => f.ReplaceInAllContexts(new ConstantTerm("λ" + i.ToString())));
   //}
 
-  protected ProgramEnvironment buildEnvironment(string domains, string atusStr)
+  protected ProgramEnvironment buildEnvironment(string domains, string atusStr, int searchDepth)
   {
     NameVarBindings names = new();
     FreeFactory frees = new();
     ValenceVar namesModes = Parser.ParseValence(domains, names);
     AlphaRelation atus = Parser.ParseAlphaTupleSet(atusStr, names, frees);
-    ObservedProgram obs = new ObservedProgram(atus, namesModes, TEST_SEARCH_DEPTH, ObservedProgram.Constraint.None);
+    ObservedProgram obs = new ObservedProgram(atus, namesModes, searchDepth, ObservedProgram.Constraint.None);
     ProgramEnvironment env = new ProgramEnvironment(obs, names, frees);
     return env;
   }
 
-  protected void assertFirstResultFor(string domains, string atusStr, string expectedProgramString, string programName)
+  protected void assertFirstResultFor(string domains, string atusStr, string expectedProgramString, int searchDepth=TEST_SEARCH_DEPTH)
   {
-    ProgramEnvironment preEnv = buildEnvironment(domains, atusStr);
+    ProgramEnvironment preEnv = buildEnvironment(domains, atusStr, searchDepth);
     SynthesisJob job = new SynthesisJob(preEnv, new ThreadCount(TEST_THREAD_COUNT), SearchOptions.FindOnlyFirstProgram);
-    var measurement = benchmark.StartNew();
     var programs = job.FindPrograms();
-    measurement.TakeFinishTime();
     //Assert.AreEqual(1, programs.Count(), "A program should be found.");
     Assert.IsTrue(programs.Any(), "There should be at least one program.");
     ProgramEnvironment env = programs.First();
     PrettyStringer ps = new PrettyStringer(env.NameBindings);
     Assert.AreEqual(expectedProgramString, env.Root.Pretty(ps));
-    measurement.ReportFinish(programName, expectedProgramString, atusStr);
   }
 
-  protected void assertNoResultFor(string domains, string atusStr, string programName)
+  protected void assertNoResultFor(string domains, string atusStr, int searchDepth=TEST_SEARCH_DEPTH)
   {
-    ProgramEnvironment env = buildEnvironment(domains, atusStr);
+    ProgramEnvironment env = buildEnvironment(domains, atusStr, searchDepth);
     SynthesisJob job = new SynthesisJob(env, new ThreadCount(TEST_THREAD_COUNT), SearchOptions.FindAllPrograms);
-    var measurement = benchmark.StartNew();
     var programs = job.FindPrograms();
-    measurement.TakeFinishTime();
     Assert.AreEqual(0, programs.Count(), "A program should not have been found.");
-    measurement.ReportFinish(programName, "N/A", atusStr);
   }
 
   private static IEnumerable<Free> freesIn(ITerm t)
@@ -166,13 +158,5 @@ public class TestBase
   {
     PrettyStringer stringer = new PrettyStringer(PrettyStringer.Options.Contextless);
     return stringer.PrettyString(terms, colNames);
-  }
-
-  [AssemblyCleanup]
-  public static void WriteBenchmarksToFile()
-  {
-    string dt = DateTime.Now.ToString("yyyyMMddT_HHmmss");
-    string fn = Path.Combine(Directory.GetCurrentDirectory(), "../../../../benchmarks/run_" + dt + ".md");
-    benchmark.WriteToFile(fn);
   }
 }

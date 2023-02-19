@@ -80,7 +80,7 @@ namespace Synthesis
     {
       var type = "{a:in, b:out, ab:out}";
       var atus = "{{a:[], b:[], ab:[[]]}, {a:1, b:1, ab:[1|1]}}";
-      assertFirstResultFor(type, atus, "and(id, cons)", "and(id,cons)");
+      assertFirstResultFor(type, atus, "and(id, cons)");
     }
 
   }

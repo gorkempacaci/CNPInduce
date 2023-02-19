@@ -30,6 +30,36 @@ namespace CNP.Language
       Root.ReplaceFree(free, term);
     }
 
+
+    /// <summary>
+    /// Overwrites the terms in the 'site' if necessary to unify them with terms in the unifier, in their given order. Performs substitutions through the given env, so they apply to the whole root context. Mutates the given siteRow and its environment so it needs to be disposed if the unification fails. Skips positions i where unifierRow[i] is null.
+    /// </summary>
+    public bool UnifyInPlace(ITerm[] siteRow, ITerm[] unifierRow)
+    {
+      for (int ei = 0; ei < siteRow.Length; ei++)
+      {
+        if (unifierRow[ei] is null)
+          continue;
+        while (false == ITerm.UnifyOrSuggest(siteRow[ei], unifierRow[ei], out var suggSubstitution))
+        {
+          if (suggSubstitution.HasValue)
+          { // needs a substitution
+            // for the siteRow
+            ReplaceFree(suggSubstitution.Value.Item1, suggSubstitution.Value.Item2);
+            // for unifierRow
+            for (int i = 0; i < unifierRow.Length; i++)
+              if (unifierRow[i] != null)
+                unifierRow[i] = unifierRow[i].GetFreeReplaced(suggSubstitution.Value.Item1, suggSubstitution.Value.Item2);
+          }
+          else
+          { // no way for unification for this tuple, therefore no way for the whole relation.
+            return false;
+          }
+        }
+      }
+      return true;
+    }
+
     public ProgramEnvironment Clone()
     {
       if (Dirty)

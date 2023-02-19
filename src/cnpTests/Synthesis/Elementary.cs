@@ -26,7 +26,7 @@ namespace Synthesis
     [DataRow("{a:in, b:out}", "{{a:[3,2,1], b:[3,2,1]}}")]
     public void IdPositive(string typeStr, string atusStr)
     {
-      assertFirstResultFor(typeStr, atusStr, "id", "id");
+      assertFirstResultFor(typeStr, atusStr, "id");
     }
 
     [DataTestMethod]
@@ -36,7 +36,7 @@ namespace Synthesis
     [DataRow("{a:in, b:in, ab:out}", "{{a:0, b:[1,2], ab:[0,1,2]}}")]
     public void ConsPositive(string typeStr, string atusStr)
     {
-      assertFirstResultFor(typeStr, atusStr, "cons", "cons");
+      assertFirstResultFor(typeStr, atusStr, "cons");
     }
 
     [DataTestMethod]
@@ -51,7 +51,7 @@ namespace Synthesis
     {
       //ITerm grTerm = Parser.ParseTerm(constValueStr, new());
       //assertFirstResultFor(typeStr, atusStr, new Const(new NameVar(argName), grTerm), "const");
-      assertFirstResultFor(typeStr, atusStr, "const("+argName+", "+constValueStr+")", "const");
+      assertFirstResultFor(typeStr, atusStr, "const("+argName+", "+constValueStr+")");
     }
 
     [DataTestMethod]
@@ -61,7 +61,7 @@ namespace Synthesis
     [DataRow("{a:in}", "{{a:[1|X]}, {a:L}, {a:[1,2,T|4]}}")] // not ground
     public void Negative(string typeStr, string atusStr)
     {
-      assertNoResultFor(typeStr, atusStr, "neg cons");
+      assertNoResultFor(typeStr, atusStr);
       //NameVarDictionary namevars = new();
       //Valence namesModes = Parser.ParseNameModeMap(typeStr, namevars);
       //IEnumerable<AlphaTuple> atus = Parser.ParseAlphaTupleSet(atusStr, namevars);

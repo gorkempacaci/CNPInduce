@@ -1,0 +1,69 @@
+{\rtf1\ansi\ansicpg1252\cocoartf2639
+\cocoatextscaling0\cocoaplatform0{\fonttbl\f0\fnil\fcharset0 AndaleMono;}
+{\colortbl;\red255\green255\blue255;\red47\green255\blue18;\red0\green0\blue0;}
+{\*\expandedcolortbl;;\cssrgb\c15686\c99608\c7843;\csgray\c0\c90000;}
+\paperw11900\paperh16840\margl1440\margr1440\vieww20120\viewh15400\viewkind0
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural\partightenfactor0
+
+\f0\fs28 \cf2 \cb3 \CocoaLigature0 emp-89-130:net6.0 gorkempacaci$ ./Benchit benchmarks.json 4 [1,2,3,4] 3\
+Arguments (Filename:benchmarks.json, MaxDepth:4, ThreadCounts:[1,2,3,4]\
+Number of benchmarks read: 3\
+Parsing done.\
+\
+|Name        | Thrds|  run 1|  run 2|  run 3|    AVG|\
+|append      |     1|   1,09|   0,92|   0,89|   0,96|\
+|append      |     2|   0,95|   1,10|   0,91|   0,99|\
+|append      |     3|   1,13|   1,14|   1,14|   1,13|\
+|append      |     4|   1,07|   1,25|   1,43|   1,25|\
+---------------------------------------------\
+|reverse3    |     1|   2,53|   2,44|   2,39|   2,45|\
+|reverse3    |     2|   1,96|   1,90|   1,96|   1,94|\
+|reverse3    |     3|   2,17|   2,01|   2,01|   2,06|\
+|reverse3    |     4|   2,34|   2,24|   2,17|   2,25|\
+---------------------------------------------\
+|proj-foldr-c|     1|   4,35|   4,35|   4,40|   4,37|\
+|proj-foldr-c|     2|   1,77|   1,96|   1,85|   1,86|\
+|proj-foldr-c|     3|   1,62|   1,62|   1,64|   1,63|\
+|proj-foldr-c|     4|  13,64|  11,91|  20,01|  15,18|\
+---------------------------------------------\
+For PGF:\
+append: (1,0,96) (2,0,99) (3,1,13) (4,1,25)\
+reverse3: (1,2,45) (2,1,94) (3,2,06) (4,2,25)\
+proj-foldr-cons: (1,4,37) (2,1,86) (3,1,63) (4,15,18)\
+\
+For Tabular:\
+0,96 & 0,99 & 1,13 & 1,25\
+2,45 & 1,94 & 2,06 & 2,25\
+4,37 & 1,86 & 1,63 & 15,18\
+\
+\
+\
+Arguments (Filename:benchmarks.json, MaxDepth:4, ThreadCounts:[1,2,3,4]\
+Number of benchmarks read: 3\
+Parsing done.\
+\
+|Name        | Thrds|  run 1|  run 2|  run 3|    AVG|\
+|append      |     1|   0.22|   0.18|   0.18|   0.19|\
+|append      |     2|   0.15|   0.16|   0.16|   0.16|\
+|append      |     3|   0.21|   0.25|   0.25|   0.24|\
+|append      |     4|   0.22|   0.22|   0.20|   0.21|\
+---------------------------------------------\
+|reverse3    |     1|   0.57|   0.52|   0.60|   0.57|\
+|reverse3    |     2|   0.50|   0.58|   0.51|   0.53|\
+|reverse3    |     3|   0.48|   0.54|   0.40|   0.47|\
+|reverse3    |     4|   0.52|   0.48|   0.49|   0.50|\
+---------------------------------------------\
+|proj-foldr-c|     1|   1.52|   1.43|   1.34|   1.43|\
+|proj-foldr-c|     2|   0.52|   0.54|   0.55|   0.54|\
+|proj-foldr-c|     3|   0.46|   0.43|   0.48|   0.45|\
+|proj-foldr-c|     4|   0.43|   0.32|   0.53|   0.43|\
+---------------------------------------------\
+For PGF:\
+append: (1,0.19) (2,0.16) (3,0.24) (4,0.21)\
+reverse3: (1,0.57) (2,0.53) (3,0.47) (4,0.50)\
+proj-foldr-cons: (1,1.43) (2,0.54) (3,0.45) (4,0.43)\
+\
+For Tabular:\
+0.19 & 0.16 & 0.24 & 0.21\
+0.57 & 0.53 & 0.47 & 0.50\
+1.43 & 0.54 & 0.45 & 0.43}

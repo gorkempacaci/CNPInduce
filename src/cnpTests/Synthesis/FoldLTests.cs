@@ -35,16 +35,10 @@ namespace Synthesis
     {
       string typeStr = "{b0:in, as:in, b:out}";
       string atusStr = "{{b0:[], as:[1,2,3], b:[3,2,1]}}";
-      assertFirstResultFor(typeStr, atusStr, "foldl(cons, id)", "reverse3");
+      assertFirstResultFor(typeStr, atusStr, "foldl(cons, id)");
     }
 
-    //[TestMethod]
-    //public void Reverse2()
-    //{
-    //  string typeStr = "{as:in, bs:out}";
-    //  string atusStr = "{{as:[1], bs:[1]}, {as:[1,2,3], bs:[3,2,1]}}";
-    //  assertFirstResultFor(typeStr, atusStr, "proj(and(const(b0, []), foldl(cons, id)), {as->as, bs->bs}", "reverse3");
-    //}
+
 
   }
 }
