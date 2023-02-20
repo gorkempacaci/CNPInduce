@@ -37,7 +37,7 @@ namespace Synthesis
     public void FoldL_Plus_3()
     {
       string typeStr = "{b0:in, as:in, b:out}";
-      string atus = "{{b0:6, as:[4,5,6], b:B}, {b0:B, as:[1,2,3], b:21}}";
+      string atus = "{{b0:6, as:[4,5,6], b:B}, {b0:B, as:[1,2,3], b:27}}";
       assertFirstResultFor(typeStr, atus, "foldl(+, id)");
     }
 
@@ -67,7 +67,15 @@ namespace Synthesis
     {
       string typeStr = "{b0:in, as:in, b:out}";
       string atus = "{{b0:0, as:[[1,2,3], [4,5,6], [7,8,9]], b:45}}";
-      assertFirstResultFor(typeStr, atus, "proj(foldl(+, id), {b0->a, as->b, b->ab})", 3);
+      assertFirstResultFor(typeStr, atus, "foldl(proj(foldl(+, id), {as->a, b0->b, b->ab}), id)", 4);
+    }
+
+    [TestMethod]
+    public void Proj_FoldL_Proj_FoldL_Plus()
+    {
+      string typeStr = "{as:in, b:out}";
+      string atus = "{{as:[[]], b:0}, {as:[[1,2,3], [4,5,6], [7,8,9]], b:45}}";
+      assertFirstResultFor(typeStr, atus, "foldl(proj(foldl(+, id), {as->a, b0->b, b->ab}), id)", 6);
     }
   }
 }

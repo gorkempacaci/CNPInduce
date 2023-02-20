@@ -14,28 +14,16 @@ namespace Benchit
 
   public class Program
   {
-    /// <summary>
-    /// Example tasks to initialize the structure of the benchmarks.json file.
-    /// </summary>
-    static BenchmarkFileEntry[] example_tasks =
-    {
-      new(){ Name="append", ExpectedProgram="foldr(cons, id)", Valence="{b0:in, as:in, bs:out}",
-        Examples="{{b0:[4,5,6], as:[1,2,3], bs:[1,2,3,4,5,6]}]"},
-      new(){ Name="reverse3", ExpectedProgram="foldl(cons, id)", Valence="{b0:in, as:in, bs:out}",
-        Examples="[{b0:[], as:[1,2,3], b:[3,2,1]}]"}
-
-    };
 
     [RequiresAssemblyFiles()]
     public static int Main(string[] args)
     {
       if (args.Length == 0 || args[0] == "--help")
       {
-        Console.WriteLine("Usage: benchit FILENAME MAX_DEPTH THREAD_COUNTS_ARR REPEATS");
-        Console.WriteLine("Example: benchit benchmarks.json 4 [1,2,3,4] 3");
-        string benchmarks_example = JsonSerializer.Serialize(example_tasks, new JsonSerializerOptions { WriteIndented = true });
+        Console.WriteLine("Usage: benchit FILENAME THREAD_COUNTS_ARRAY REPEATS");
+        Console.WriteLine("Example: benchit benchmarks.json [1,2,3,4] 3");
         Console.WriteLine("Example json file:");
-        Console.WriteLine(benchmarks_example);
+        Console.WriteLine(BenchmarkFile.GetExampleBenchmarksFileString());
         return 0;
       }
       // PRINTING CNP VERSION
@@ -43,36 +31,20 @@ namespace Benchit
       Console.WriteLine("Using CNP: " + cnpTimeString);
       // INITIALIZING ARGUMENTS
       string filename = args[0];
-      int arg_max_depth = int.Parse(args[1]);
-      int arg_repeats = int.Parse(args[3]);
-      string threadCountsString = args[2].Substring(1, args[2].Length - 2);
+      int arg_repeats = int.Parse(args[2]);
+      string threadCountsString = args[1].Substring(1, args[1].Length - 2);
       int[] arg_threadCounts = threadCountsString.Split(",").Select(@is => int.Parse(@is)).ToArray();
       string threadCountsBackToString = string.Join(",", arg_threadCounts);
-      Console.WriteLine($"Arguments (Filename:{filename}, MaxDepth:{arg_max_depth}, ThreadCounts:[{threadCountsBackToString}]");
+      Console.WriteLine($"Arguments (Filename:{filename}, ThreadCounts:[{threadCountsBackToString}], Repeats:{arg_repeats}");
       // PARSE JSON FILE
-      string jsonContent = File.ReadAllText(filename);
-      BenchmarkFileEntry[] benchEntries = JsonSerializer.Deserialize<BenchmarkFileEntry[]>(jsonContent) ?? Array.Empty<BenchmarkFileEntry>();
-      SynTask[] synTasks = new SynTask[benchEntries.Length];
-      Console.WriteLine("Number of benchmarks read: " + synTasks.Length);
-      for (int i = 0; i < synTasks.Length; i++)
-      {
-        try
-        {
-          synTasks[i] = benchEntries[i].Parse(arg_max_depth); // parse valences and examples into CNP
-        }
-        catch (Exception e)
-        {
-          Console.WriteLine("Error while parsing " + benchEntries[i].Name);
-          Console.WriteLine(e);
-          return -1;
-        }
-      }
+      SynTask[] tasks = BenchmarkFile.ReadFromFile(filename);
+
       Console.WriteLine("Parsing done.");
-      int result = Run(tasks: synTasks, max_depth: arg_max_depth, threadCounts: arg_threadCounts, repeats: arg_repeats);
+      int result = Run(tasks: tasks, threadCounts: arg_threadCounts, repeats: arg_repeats);
       return result;
     }
 
-    static int Run(SynTask[] tasks, int max_depth, int[] threadCounts, int repeats)
+    static int Run(SynTask[] tasks, int[] threadCounts, int repeats)
     {
       StringBuilder errors = new StringBuilder();
       StringBuilder pgfCoordinates = new();
@@ -149,25 +121,5 @@ namespace Benchit
     }
   }
 
-  readonly record struct BenchmarkFileEntry
-  (string Name, string ExpectedProgram, string Valence, string Examples)
-  {
-    public SynTask Parse(int searchDepth)
-    {
-      NameVarBindings names = new();
-      FreeFactory frees = new();
-      ValenceVar vv = Parser.ParseValence(Valence, names);
-      AlphaRelation examples = Parser.ParseAlphaTupleSet(Examples, names, frees);
-      ObservedProgram obs = new ObservedProgram(examples, vv, searchDepth, ObservedProgram.Constraint.None);
-      ProgramEnvironment env = new ProgramEnvironment(obs, names, frees);
-      return new SynTask(Name, ExpectedProgram, env);
-    }
-  }
 
-  readonly record struct SynTask(
-    string Name,
-    string ExpectedProgram,
-    ProgramEnvironment ProgramEnv
-    )
-  {}
 }

@@ -21,7 +21,7 @@ namespace CNP.Language
       string ps = Pretty(new PrettyStringer(PrettyStringer.Options.Contextless));
       return ps;
     }
-    internal ObservedProgram FindHole() => FindRootmostHole().Item1;
+    internal ObservedProgram FindHole() => FindLeftmostHole();
 
     /// <summary>
     /// Replaces the given free with the given term recursively in all subprograms and terms/subterms.

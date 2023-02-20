@@ -66,6 +66,8 @@ namespace Synthesis
     {
       string typeStr = "{as:in, bs:out}";
       string atusStr = "{{as:[], bs:[]},{as:[1,2,3], bs:[3,2,1]}}";
+      // is a bad impl because leaves the 'b' of foldr unbound, which eventually grounds to []
+      // more natural impl would be proj(and(foldl(cons,id), const(b0, [])), {as->as, b->b})
       assertFirstResultFor(typeStr, atusStr, "proj(foldr(proj(cons, {a->a, ab->b, b->ab}), id), {b0->as, as->bs})", 4);
     }
   }
