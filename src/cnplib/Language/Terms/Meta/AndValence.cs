@@ -109,7 +109,7 @@ namespace CNP.Language
         allValences = Mathes.Cartesian(onlyQNamesPartValences, allValences, (q, all) => new ProtoAndValence(all.Operator, all.LH, Combine(q, all.RH))); // all was opval
       }
 
-      var andValences = allValences.Select(pv => new AndValence(ValenceVar.FromDict(pv.Operator), ValenceVar.FromDict(pv.LH), ValenceVar.FromDict(pv.RH), onlyPNames.ToArray(), onlyQNames.ToArray()));
+      var andValences = allValences.Select(pv => new AndValence(ValenceVar.FromArray(pv.Operator.ToArray()), ValenceVar.FromArray(pv.LH.ToArray()), ValenceVar.FromArray(pv.RH.ToArray()), onlyPNames.ToArray(), onlyQNames.ToArray()));
       return andValences;
     }
 

@@ -12,7 +12,7 @@ namespace CNP.Language
     private const Mode Out = Mode.Out;
 
     //BUG: FOLDL valences are same as foldr
-    public readonly static GroundValence.FoldValenceSeries FoldLValences = GroundValence.FoldSerieFromArrays(
+    public readonly static FoldValenceSeries FoldLValences = FoldValenceSeries.FoldSerieFromArrays(
       new[] { "b0", "as", "b" }, new[] { "a", "b", "ab" }, new[] { "a", "b" },
       new[] {
         (new[]{In, In, Out}, new[]{In, In, Out }, new[]{In, Out }),

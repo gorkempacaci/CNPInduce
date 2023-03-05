@@ -24,6 +24,7 @@
     <Folder Include="Language\Elementary\" />
     <Folder Include="Language\Terms\Meta\" />
     <Folder Include="Language\Library\" />
+    <Folder Include="Language\Terms\Meta\GroundValences\" />
   </ItemGroup>
   <ItemGroup>
     <Compile Remove="Helper\ReferenceEqualityComparer.cs" />
@@ -37,6 +38,7 @@
     <None Remove="CommunityToolkit.HighPerformance" />
     <None Remove="Microsoft.VisualStudio.TextTemplating" />
     <None Remove="Language\Library\" />
+    <None Remove="Language\Terms\Meta\GroundValences\" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="CommunityToolkit.HighPerformance" Version="8.1.0" />

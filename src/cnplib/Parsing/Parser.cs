@@ -63,7 +63,7 @@ namespace CNP.Parsing
     {
       List<KeyValuePair<NameVar, Mode>> nameModePairs = new();
       GetType(it, TokenType.MustacheOpen);
-      Move(it);
+      Move(it); 
       while (ReadNameMode(it, namevars, out KeyValuePair<NameVar, Mode> nameMode))
       {
         nameModePairs.Add(nameMode);
@@ -71,7 +71,7 @@ namespace CNP.Parsing
         var type = GetType(it, TokenType.Comma, TokenType.MustacheClose);
         if (type == TokenType.MustacheClose)
         {
-          return ValenceVar.FromDict(new(nameModePairs));
+          return ValenceVar.FromArray(nameModePairs.ToArray());
         }
         else
         {

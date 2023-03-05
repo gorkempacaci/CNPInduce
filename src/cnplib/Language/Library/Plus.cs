@@ -6,8 +6,8 @@ namespace CNP.Language
 
   public class Plus : LibraryProgram
   {
-    private static GroundValence.SimpleValenceSeries PlusValences =
-      GroundValence.SeriesFromArrays(new[] { "a", "b", "ab" },
+    private static ElementaryValenceSeries PlusValences =
+      ElementaryValenceSeries.SeriesFromArrays(new[] { "a", "b", "ab" },
                                     new[]
                                     {
                                           new[]{  Mode.In,  Mode.In, Mode.Out}

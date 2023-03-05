@@ -13,7 +13,7 @@ namespace CNP.Language
     private const Mode In = Mode.In;
     private const Mode Out = Mode.Out;
 
-    public readonly static GroundValence.FoldValenceSeries FoldRValences = GroundValence.FoldSerieFromArrays(
+    public readonly static FoldValenceSeries FoldRValences = FoldValenceSeries.FoldSerieFromArrays(
       new[] { "b0", "as", "b" }, new[] { "a", "b", "ab" }, new[] { "a", "b" },
       new[] {
         (new[]{In, In, Out}, new[]{In, In, Out }, new[]{In, Out }),
@@ -25,18 +25,18 @@ namespace CNP.Language
         (new[]{In, In, Out}, new[]{Out, In, Out }, new[]{Out, Out }),
         (new[]{In, In, Out}, new[]{Out, Out, Out }, new[]{Out, Out }),
 
-        //(new[]{Out,In,Out}, new[]{In,In,Out}, new[]{Out, Out }),
-        //(new[]{Out,In,Out}, new[]{In,Out,Out}, new[]{Out, Out }),
-        //(new[]{Out,In,Out}, new[]{Out,In,Out}, new[]{Out, Out }),
-        //(new[]{Out,In,Out}, new[]{Out,Out,Out}, new[]{Out, Out }),
+        (new[]{Out,In,Out}, new[]{In,In,Out}, new[]{Out, Out }),
+        (new[]{Out,In,Out}, new[]{In,Out,Out}, new[]{Out, Out }),
+        (new[]{Out,In,Out}, new[]{Out,In,Out}, new[]{Out, Out }),
+        (new[]{Out,In,Out}, new[]{Out,Out,Out}, new[]{Out, Out }),
 
         (new[]{In, Out, Out}, new[]{Out, In, Out}, new[]{In, Out}),
-        //(new[]{In, Out, Out}, new[]{Out, Out, Out}, new[]{In, Out}),
-        //(new[]{In, Out, Out}, new[]{Out, In, Out}, new[]{Out, Out}),
-        //(new[]{In, Out, Out}, new[]{Out, Out, Out}, new[]{Out, Out}),
+        (new[]{In, Out, Out}, new[]{Out, Out, Out}, new[]{In, Out}),
+        (new[]{In, Out, Out}, new[]{Out, In, Out}, new[]{Out, Out}),
+        (new[]{In, Out, Out}, new[]{Out, Out, Out}, new[]{Out, Out}),
 
-        //(new[]{Out, Out, Out}, new[]{Out, In, Out}, new[]{Out, Out}),
-        //(new[]{Out, Out, Out}, new[]{Out, Out, Out}, new[]{Out, Out})
+        (new[]{Out, Out, Out}, new[]{Out, In, Out}, new[]{Out, Out}),
+        (new[]{Out, Out, Out}, new[]{Out, Out, Out}, new[]{Out, Out})
       });
 
     public IProgram Recursive { get; }

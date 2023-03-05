@@ -10,8 +10,8 @@ namespace CNP.Language
 
   public readonly struct Cons : IProgram
   {
-    private static GroundValence.SimpleValenceSeries ConsValences =
-  GroundValence.SeriesFromArrays(new[] { "a", "b", "ab" },
+    private static ElementaryValenceSeries ConsValences =
+  ElementaryValenceSeries.SeriesFromArrays(new[] { "a", "b", "ab" },
                                 new[]
                                 {
                                       new[]{  Mode.In,  Mode.In, Mode.In},

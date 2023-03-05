@@ -16,7 +16,7 @@ namespace Language
     [TestMethod]
     public void Match_Var_2_Ins_1_Out_All_Ground()
     {
-      var series = GroundValence.SeriesFromArrays(new[] { "a", "b", "ab", }, new Mode[][] { new[] { In, In, Out },
+      var series = ElementaryValenceSeries.SeriesFromArrays(new[] { "a", "b", "ab", }, new Mode[][] { new[] { In, In, Out },
                                                                                             new[] { Out, Out, In },
                                                                                             new[] { In, In, In},
                                                                                             new[] { In, Out, In} });
@@ -35,7 +35,7 @@ namespace Language
     [TestMethod]
     public void Match_Var_4_Ins_1_Ground()
     {
-      var series = GroundValence.SeriesFromArrays(new[] { "a", "b", "c", "d" }, new Mode[][] { new[] { In, In, In, In } });
+      var series = ElementaryValenceSeries.SeriesFromArrays(new[] { "a", "b", "c", "d" }, new Mode[][] { new[] { In, In, In, In } });
       NameVarBindings nvars = new NameVarBindings();
       var v1 = nvars.AddNameVar(null);
       var v2 = nvars.AddNameVar("b");

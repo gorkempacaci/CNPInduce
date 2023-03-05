@@ -34,10 +34,41 @@ namespace CNP.Language
       this.ModeNumber = GroundValence.CalculateValenceModeNumber(ins.Length, outs.Length);
     }
 
-    public static ValenceVar FromDict(Dictionary<NameVar, Mode> dict)
+    /// <summary>
+    /// Assumes ins and outs appear in the order they appear on names
+    /// </summary>
+    public Mode[] GetModesOrderedByNames(NameVar[] names)
     {
-      var (ins, outs) = dict.WhereAndNot(kv => kv.Value == Mode.In);
+      int ii = 0, oi = 0;
+      Mode[] modes = new Mode[names.Length];
+      for(int i=0; i<names.Length; i++)
+      {
+        if (ii < Ins.Length && Ins[ii].Index == names[i].Index)
+        {
+          modes[i] = Mode.In;
+          ii++;
+        }
+        else if (oi < Outs.Length && Outs[oi].Index == names[i].Index)
+        {
+          modes[i] = Mode.Out;
+          oi++;
+        }
+        else throw new ArgumentOutOfRangeException("Names for reordering Modes are not in the right order.");
+      }
+      return modes;
+    }
+
+    public static ValenceVar FromArray(KeyValuePair<NameVar, Mode>[] pairs)
+    {
+      var (ins, outs) = pairs.WhereAndNot(kv => kv.Value == Mode.In);
       return new ValenceVar(ins.Select(i => i.Key).ToArray(), outs.Select(o => o.Key).ToArray());
+    }
+
+    public static ValenceVar FromModeIndices(NameVar[] allNames, ModeIndices indices)
+    {
+      var insNames = indices.Ins.Select(i => allNames[i]).ToArray();
+      var outsNames = indices.Outs.Select(i => allNames[i]).ToArray();
+      return new ValenceVar(insNames, outsNames);
     }
 
     public string Pretty(PrettyStringer ps)

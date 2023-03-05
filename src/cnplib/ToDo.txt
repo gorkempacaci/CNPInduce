@@ -19,6 +19,11 @@ FIXED - assertSingleResult calls FindAllPrograms which takes a long time and oft
 - For an observation such as {{X:1, Y:F1, Z:[1,2,3]}, {X:2, Y:F2, Z:F1}, {X:3, Y:F3, Z:F3}} with a valence {X:in, Y:out, Z:in}, cons might bind X=a,Z=ab
 
 == Improvements
+- ObservedProgram, ValenceVar, AlphaRelation should be folded into one class. Redundancy of names in ValenceVar and AlphaRelation is algorithmically problemmatic.
+- If fold names can be same as FOLD's P, standard fold-2 and fold-3 programs would be faster since they wouldn't fall into the back of a proj line.
+- AND's left and right valences might be grouped under the distinct lh valence. because if that lh valence won't bind, all the rh ones are dead search paths.
+
+
 - When workers produce work items, they may keep some to themselves in order to avoid putting them back onto the queue only to get them back again. This hurts the search order, but might improve synchronization time. Or, they may not keep to themselves but insert to queue in groups of N, and dequeue in groups of N.
 - The limiting factor to scaling may not be synchronization but memory. Memory grows quite fast to 10GB.
 FXD - Interlocked.Increment probably drops CPU core cashes so indirectly causes synchronization time. RESULT: No improvement in scaling, only minor general improvement.

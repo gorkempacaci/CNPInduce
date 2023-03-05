@@ -84,7 +84,7 @@ namespace CNP.Language
     }
 
     /// <summary>
-    /// Leaves the env and obs dirty because it may end up binding some names and not others.
+    /// Might leave the env and obs dirty because it may end up binding some names and not others.
     /// </summary>
     public bool TryBindingAllNamesToGround(ValenceVar vv, (string[] ins, string[] outs) groundNames)
     {

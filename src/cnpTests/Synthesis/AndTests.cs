@@ -56,23 +56,28 @@ namespace Synthesis
       AlphaRelation rel = Parser.ParseAlphaTupleSet("{{a:1, b:2}, {a:2, b:4}}", names, frees);
       ObservedProgram obs = new ObservedProgram(rel, v, 2, ObservedProgram.Constraint.None);
       ProgramEnvironment env = new ProgramEnvironment(obs, names, frees);
-      PrettyStringer stringer = new PrettyStringer(names);
+      PrettyStringer expectedStringer = new PrettyStringer(names);
       var programsInNextStep = And.CreateAtFirstHole(env);
+      
       Assert.AreEqual(24, programsInNextStep.Count(), "24 alternations");
-      var firstExpectedLH = Parser.ParseAlphaTupleSet("{{a:1}, {a:2}}", names, frees);
-      var firstExpectedRH = Parser.ParseAlphaTupleSet("{{a:1, b:2}, {a:2, b:4}}", names, frees);
-      var firstActual = (And)programsInNextStep.First().Root;
+      var firstExpectedLH = Parser.ParseAlphaTupleSet("{{a:1, b:2}, {a:2, b:4}}", names, frees);
+      var firstExpectedRH = Parser.ParseAlphaTupleSet("{{b:2}, {b:4}}", names, frees);
+      var firstActualEnv = programsInNextStep.First();
+      var firstActual = (And)firstActualEnv.Root;
+      var firstActualStringer = new PrettyStringer(firstActualEnv.NameBindings);
       var firstActualLH = firstActual.LHOperand as ObservedProgram;
       var firstActualRH = firstActual.RHOperand as ObservedProgram;
-      Assert.AreEqual(firstExpectedLH.Pretty(stringer), firstActualLH.Observables.Pretty(stringer), "First valence, LH");
-      Assert.AreEqual(firstExpectedRH.Pretty(stringer), firstActualRH.Observables.Pretty(stringer), "First valence, RH ");
+      Assert.AreEqual(firstExpectedLH.Pretty(expectedStringer), firstActualLH.Observables.Pretty(firstActualStringer), "First valence, LH");
+      Assert.AreEqual(firstExpectedRH.Pretty(expectedStringer), firstActualRH.Observables.Pretty(firstActualStringer), "First valence, RH ");
       var lastExpectedLH = Parser.ParseAlphaTupleSet("{{a:1,b:2}, {a:2, b:4}}", names, frees);
       var lastExpectedRH = Parser.ParseAlphaTupleSet("{{a:1,b:2}, {a:2, b:4}}", names, frees);
-      var lastActual = (And)programsInNextStep.Last().Root;
+      var lastActualEnv = programsInNextStep.Last();
+      var lastActual = (And)lastActualEnv.Root;
+      var lastActualStringer = new PrettyStringer(lastActualEnv.NameBindings);
       var lastActualLH = lastActual.LHOperand as ObservedProgram;
       var lastActualRH = lastActual.RHOperand as ObservedProgram;
-      Assert.AreEqual(lastExpectedLH.Pretty(stringer), lastActualLH.Observables.Pretty(stringer), "Last valence LH tuples");
-      Assert.AreEqual(lastExpectedRH.Pretty(stringer), lastActualRH.Observables.Pretty(stringer), "Last valence RH tuples");
+      Assert.AreEqual(lastExpectedLH.Pretty(expectedStringer), lastActualLH.Observables.Pretty(lastActualStringer), "Last valence LH tuples");
+      Assert.AreEqual(lastExpectedRH.Pretty(expectedStringer), lastActualRH.Observables.Pretty(lastActualStringer), "Last valence RH tuples");
     }
 
     [TestMethod]

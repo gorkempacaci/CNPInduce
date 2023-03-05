@@ -23,9 +23,9 @@ namespace CNP.Helper
     /// </summary>
     public static IEnumerable<T> Empty<T>() => new List<T>();
 
-    public static IEnumerable<TSource> Flatten<TSource>(this IEnumerable<IEnumerable<TSource>> lists)
+    public static TSource[] Flatten<TSource>(this IEnumerable<IEnumerable<TSource>> lists)
     {
-      return lists.Aggregate((l1, l2) => l1.Concat(l2));
+      return lists.SelectMany(l => l).ToArray();
     }
 
     /// <summary>

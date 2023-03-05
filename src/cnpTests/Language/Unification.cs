@@ -186,8 +186,8 @@ namespace Language
     [TestMethod]
     public void UnifyValenceVar_WithValenceSeries()
     {
-      GroundValence.SimpleValenceSeries IdValences =
-      GroundValence.SeriesFromArrays(new[] { "a", "b" },
+      ElementaryValenceSeries IdValences =
+      ElementaryValenceSeries.SeriesFromArrays(new[] { "a", "b" },
                                     new[]
                                     {
                                       new[]{  Mode.In,  Mode.In},

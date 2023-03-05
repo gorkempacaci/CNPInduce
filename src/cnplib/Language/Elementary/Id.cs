@@ -11,8 +11,8 @@ namespace CNP.Language
   /// </summary>
   public struct Id : IProgram
   {
-    private static GroundValence.SimpleValenceSeries IdValences =
-      GroundValence.SeriesFromArrays(new[] { "a", "b" },
+    private static ElementaryValenceSeries IdValences =
+      ElementaryValenceSeries.SeriesFromArrays(new[] { "a", "b" },
                                     new[]
                                     {
                                       new[]{  Mode.In,  Mode.In},
