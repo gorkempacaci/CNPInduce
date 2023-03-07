@@ -41,9 +41,9 @@ namespace CNP.Language
     public bool IsGround() => true;
     public bool Contains(Free other) => false;
 
-    public string Pretty(PrettyStringer ps)
+    public string Accept(ICNPVisitor ps)
     {
-      return ps.PrettyString(this);
+      return ps.Visit(this);
     }
 
     public ITerm Clone(CloningContext cc)

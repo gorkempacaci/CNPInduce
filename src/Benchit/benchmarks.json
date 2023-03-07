@@ -21,10 +21,10 @@
             "ExpectedProgram": "proj(foldr(cons, id), {as->list1, b0->list2, b->list3})"
         },
         {
-            "Name": "foldl-proj-foldl-plus",
+            "Name": "flatten/3",
             "Valence": "{b0:in, as:in, b:out}",
-            "Examples": "{{b0:0, as:[[1], [2]], b:3}, {b0:0, as:[[1,2,3], [4,5,6], [7,8,9]], b:45}}",
-            "ExpectedProgram": "foldl(proj(foldl(+, id), {as->a, b0->b, b->ab}), id)"
+            "Examples": "{{b0:[], as:[[1,2], [3,4]], b:[1,2,3,4]}, {b0:[], as:[['a'],['b'],['c']], b:['a','b','c']}}",
+            "ExpectedProgram": "foldr(proj(foldr(cons, id), {as->a, b0->b, b->ab}), id)"
         }
     ]
 }

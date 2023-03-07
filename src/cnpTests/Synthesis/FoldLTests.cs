@@ -24,8 +24,8 @@ namespace Synthesis
       var freeFact = new FreeFactory();
       FoldL.UnFoldL(foldrel, (0, 1, 2), freeFact, out var pTuples, out var qTuples);
       var stringer = new PrettyStringer(nvb);
-      var pTuplesString = stringer.PrettyString(pTuples, FoldL.FoldLValences.RecursiveCaseNames);
-      var qTuplesString = stringer.PrettyString(qTuples, FoldL.FoldLValences.BaseCaseNames);
+      var pTuplesString = stringer.Visit(pTuples, FoldL.FoldLValences.RecursiveCaseNames);
+      var qTuplesString = stringer.Visit(qTuples, FoldL.FoldLValences.BaseCaseNames);
       Assert.AreEqual("{{a:1, b:[], ab:F0}, {a:2, b:F0, ab:F1}, {a:3, b:F1, ab:F2}}", pTuplesString, "Recursive case tuples should match");
       Assert.AreEqual("{{a:F2, b:[3, 2, 1]}}", qTuplesString, "Base case tuples should match.");
     }
@@ -37,8 +37,6 @@ namespace Synthesis
       string atusStr = "{{b0:[], as:[1,2,3], b:[3,2,1]}}";
       assertFirstResultFor(typeStr, atusStr, "foldl(cons, id)");
     }
-
-
 
   }
 }

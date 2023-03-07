@@ -41,11 +41,35 @@ namespace CNP.Language
     public IProgram Recursive { get; }
     public IProgram Base { get; }
 
+    /// <summary>
+    /// The valence that lead to this program.
+    /// </summary>
+    public string DebugValenceString { get; set; }
+    /// <summary>
+    /// The observations that lead to this program.
+    /// </summary>
+    public string DebugObservationString { get; set; }
+
     public FoldL(IProgram recursiveCase, IProgram baseCase)
     {
       Recursive = recursiveCase;
       Base = baseCase;
     }
+
+
+    ObservedProgram IProgram.FindLeftmostHole()
+    {
+      return Base.FindLeftmostHole() ?? Recursive.FindLeftmostHole();
+    }
+
+    (ObservedProgram, int) IProgram.FindRootmostHole(int calleesDistanceToRoot)
+    {
+      var rec = Recursive.FindRootmostHole(calleesDistanceToRoot + 1);
+      var bas = Base.FindRootmostHole(calleesDistanceToRoot + 1);
+      if (rec.Item2 < bas.Item2) return rec; else return bas;
+    }
+
+
 
     public void ReplaceFree(Free free, ITerm term)
     {
@@ -53,9 +77,9 @@ namespace CNP.Language
       Base.ReplaceFree(free, term);
     }
 
-    public string Pretty(PrettyStringer ps)
+    public string Accept(ICNPVisitor ps)
     {
-      return ps.PrettyString(this);
+      return ps.Visit(this);
     }
 
     public IProgram Clone(CloningContext cc)

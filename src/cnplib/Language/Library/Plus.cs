@@ -15,7 +15,7 @@ namespace CNP.Language
 
 
     public override IProgram Clone(CloningContext cc) => new Plus();
-    public override string Pretty(PrettyStringer ps) => "+";
+    public override string Accept(ICNPVisitor ps) => "+";
 
     public static IEnumerable<ProgramEnvironment> CreateAtFirstHole(ProgramEnvironment env)
     {

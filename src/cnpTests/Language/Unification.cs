@@ -74,7 +74,7 @@ namespace Language
       var complexTerm = list(list(), list(fX, fY), fX, list(list(list(), fX), fX));
       var afterReplacement = complexTerm.GetFreeReplaced(fX, constterm(1));
       var expectedTerm = list(list(), list(constterm(1), fY), constterm(1), list(list(list(), constterm(1)), constterm(1)));
-      Assert.AreEqual(expectedTerm.Pretty(pretty), afterReplacement.Pretty(pretty));
+      Assert.AreEqual(expectedTerm.Accept(pretty), afterReplacement.Accept(pretty));
     }
 
     [TestMethod]
@@ -214,7 +214,7 @@ namespace Language
       bool success = env.UnifyInPlace(rel.Tuples[0], unifierTerms);
       Assert.IsTrue(success, "Terms should unify.");
       PrettyStringer ps = new PrettyStringer(names);
-      string actualTermString = rel.Tuples[0][0].Pretty(ps);
+      string actualTermString = rel.Tuples[0][0].Accept(ps);
       Assert.AreEqual(origTermAfterUniExpected, actualTermString, "Term should unify as expected.");
     }
 

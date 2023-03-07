@@ -24,8 +24,8 @@ namespace Synthesis
       var freeFact = new FreeFactory();
       FoldR.UnFoldR(foldrel, (0, 1, 2), freeFact, out var pTuples, out var qTuples);
       var stringer = new PrettyStringer(nvb);
-      var pTuplesString = stringer.PrettyString(pTuples, FoldR.FoldRValences.RecursiveCaseNames);
-      var qTuplesString = stringer.PrettyString(qTuples, FoldR.FoldRValences.BaseCaseNames);
+      var pTuplesString = stringer.Visit(pTuples, FoldR.FoldRValences.RecursiveCaseNames);
+      var qTuplesString = stringer.Visit(qTuples, FoldR.FoldRValences.BaseCaseNames);
       Assert.AreEqual("{{a:1, b:F0, ab:[1, 2, 3]}, {a:2, b:F1, ab:F0}, {a:3, b:F2, ab:F1}}", pTuplesString, "Recursive case tuples should match");
       Assert.AreEqual("{{a:[], b:F2}}", qTuplesString, "Base case tuples should match.");
     }
@@ -70,6 +70,15 @@ namespace Synthesis
       // more natural impl would be proj(and(foldl(cons,id), const(b0, [])), {as->as, b->b})
       assertFirstResultFor(typeStr, atusStr, "proj(foldr(proj(cons, {a->a, ab->b, b->ab}), id), {b0->as, as->bs})", 4);
     }
+
+
+    [TestMethod]
+    public void Flatten()
+    {
+      string typeStr = "{b0:in, as:in, b:out}";
+      string atus = "{{b0:[], as:[[1,2], [3,4]], b:[1,2,3,4]}, {b0:[], as:[['a'],['b'],['c']], b:['a','b','c']}}";
+      assertFirstResultFor(typeStr, atus, "foldr(proj(foldr(cons, id), {as->a, b0->b, b->ab}), id)", 4);
+    }
   }
 
   // [TestClass]
@@ -100,7 +109,7 @@ namespace Synthesis
     public void Identity_Fails_If_Initial_Is_Wrong()
     {
       string typeStr = "{a0:in, as:in, b:out}";
-      string atusStr = "{{a0:0, as:[1,2,3], b:[1,2,3]}, {a0:0, as:[3,2,1], b:[3,2,1]}}";
+      string atusStr = "{{a0:0, as:[1,3], b:[1,2]}, {a0:5, as:[3,1], b:[2,1]}}";
       assertNoResultFor(typeStr, atusStr);
     }
 
@@ -132,7 +141,7 @@ namespace Synthesis
     public void AppendFail_1()
     {
       string typeStr = "{a0:in, as:in, b:out}";
-      string atusStr = "{{a0:[4,5,6], as:[1,2,3], b:[1,2,3]}}";
+      string atusStr = "{{a0:[4,5,6], as:[1,2,3], b:[1,2,3]}, {a0:[1], as:[2], b:[1,3]}}";
       assertNoResultFor(typeStr, atusStr);
     }
   }

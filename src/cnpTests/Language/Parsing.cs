@@ -59,8 +59,7 @@ namespace Language
       ValenceVar parsedType = Parser.ParseValence(typeStr, names);
       ValenceVar expectedType = new ValenceVar(new[] { names2.AddNameVar("a"), names2.AddNameVar("c") },
         new[] { names2.AddNameVar("b") });
-      PrettyStringer pretty = new(PrettyStringer.Options.Contextless);
-      Assert.AreEqual(expectedType.Pretty(pretty), parsedType.Pretty(pretty));
+      Assert.AreEqual(expectedType.Accept(PrettyStringer.Contextless), parsedType.Accept(PrettyStringer.Contextless));
     }
 
     [DataTestMethod]
@@ -88,9 +87,9 @@ namespace Language
       Assert.AreEqual(3, rel.TuplesCount);
       PrettyStringer ps = new PrettyStringer(nameBinds);
       string[] colNames = nameBinds.GetNamesForVars(rel.Names);
-      Assert.AreEqual("{a:'aa', b:F0}", ps.PrettyString(rel.Tuples[0], colNames)); 
-      Assert.AreEqual("{a:F0, b:[F0, 'a']}", ps.PrettyString(rel.Tuples[1], colNames));
-      Assert.AreEqual("{a:'aa', b:0}", ps.PrettyString(rel.Tuples[2], colNames));
+      Assert.AreEqual("{a:'aa', b:F0}", ps.Visit(rel.Tuples[0], colNames)); 
+      Assert.AreEqual("{a:F0, b:[F0, 'a']}", ps.Visit(rel.Tuples[1], colNames));
+      Assert.AreEqual("{a:'aa', b:0}", ps.Visit(rel.Tuples[2], colNames));
     }
 
 

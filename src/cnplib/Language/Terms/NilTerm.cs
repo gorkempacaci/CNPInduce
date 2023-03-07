@@ -17,9 +17,9 @@ namespace CNP.Language
       return cc.Clone(this);
     }
 
-    public string Pretty(PrettyStringer ps)
+    public string Accept(ICNPVisitor ps)
     {
-      return ps.PrettyString(this);
+      return ps.Visit(this);
     }
 
     public override int GetHashCode()

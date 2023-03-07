@@ -39,9 +39,9 @@ namespace CNP.Language
       throw new ArgumentOutOfRangeException();
     }
 
-    public string Pretty(PrettyStringer ps)
+    public string Accept(ICNPVisitor ps)
     {
-      return ps.PrettyString(this);
+      return ps.Visit(this);
     }
 
     public ProjectionMap Clone(CloningContext cc)

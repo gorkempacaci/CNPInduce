@@ -55,6 +55,7 @@ namespace Benchit
         Console.Write("{0,7}|", "run " + ri);
       Console.Write("{0,7}|", "AVG");
       Console.WriteLine();
+      bool theVeryFirstRun = true;
       foreach (SynTask bench in tasks ?? Array.Empty<SynTask>())
       {
         (int, double)[] averages = new (int, double)[threadCounts.Length];
@@ -66,15 +67,21 @@ namespace Benchit
           bool succeess = true;
           for (int r = 0; r < repeats; r++)
           {
+            beginning:
             SynthesisJob job = new SynthesisJob(bench.ProgramEnv, new ThreadCount(thCount), SearchOptions.FindOnlyFirstProgram);
             DateTime t0 = DateTime.UtcNow;
             var programs = job.FindPrograms();
             DateTime t1 = DateTime.UtcNow;
+            if (theVeryFirstRun)
+            {
+              theVeryFirstRun = false;
+              goto beginning;
+            }
             if (programs.Any())
             {
               ProgramEnvironment firstProgram = programs.First()!;
               PrettyStringer ps = new PrettyStringer(firstProgram.NameBindings);
-              string foundProgramString = firstProgram.Root.Pretty(ps);
+              string foundProgramString = firstProgram.Root.Accept(ps);
               if (foundProgramString == bench.ExpectedProgram)
               {
                 durationsRpt[r] = (t1 - t0).TotalSeconds;

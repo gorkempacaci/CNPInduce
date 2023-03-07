@@ -10,9 +10,18 @@ namespace CNP.Language
     /// <summary>
     /// How many out arguments is proj allowed to eliminate. (or inversely, 'introduce' during synthesis)
     /// </summary>
-    private const int MAX_ELIMINATED_OUT_ARGS = 2;
+    private const int MAX_ELIMINATED_OUT_ARGS = 1;
     public readonly IProgram Source;
     public readonly ProjectionMap Projection;
+
+    /// <summary>
+    /// The valence that lead to this program.
+    /// </summary>
+    public string DebugValenceString { get; set; }
+    /// <summary>
+    /// The observations that lead to this program.
+    /// </summary>
+    public string DebugObservationString { get; set; }
 
     public Proj(IProgram sourceProgram, ProjectionMap projection)
     {
@@ -27,9 +36,9 @@ namespace CNP.Language
 
     public bool IsClosed => Source.IsClosed;
 
-    public string Pretty(PrettyStringer ps)
+    public string Accept(ICNPVisitor ps)
     {
-      return ps.PrettyString(this);
+      return ps.Visit(this);
     }
 
     public IProgram Clone(CloningContext cc)

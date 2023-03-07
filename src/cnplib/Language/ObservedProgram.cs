@@ -21,6 +21,15 @@ namespace CNP.Language
     /// </summary>
     public readonly int RemainingSearchDepth;
 
+    /// <summary>
+    /// The valence that lead to this program.
+    /// </summary>
+    public string DebugValenceString { get; set; }
+    /// <summary>
+    /// The observations that lead to this program.
+    /// </summary>
+    public string DebugObservationString { get; set; }
+
     public ObservedProgram(AlphaRelation obss, ValenceVar val, int remSearchDepth, Constraint constraints)
     {
       this.Observables = obss;
@@ -30,6 +39,8 @@ namespace CNP.Language
 
     }
 
+
+
     public void ReplaceFree(Free free, ITerm term)
     {
       Observables.ReplaceFreeInPlace(free, term);
@@ -37,9 +48,9 @@ namespace CNP.Language
 
     public bool IsClosed => false;
 
-    public string Pretty(PrettyStringer ps)
+    public string Accept(ICNPVisitor ps)
     {
-      return ps.PrettyString(this);
+      return ps.Visit(this);
     }
 
     public IProgram Clone(CloningContext cc)

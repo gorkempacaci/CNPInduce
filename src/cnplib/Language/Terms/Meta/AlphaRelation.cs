@@ -113,14 +113,14 @@ namespace CNP.Language
       return cc.Clone(this);
     }
 
-    public string Pretty(PrettyStringer ps)
+    public string Accept(ICNPVisitor ps)
     {
-      return ps.PrettyString(this);
+      return ps.Visit(this);
     }
 
     public override string ToString()
     {
-      return Pretty(new PrettyStringer(PrettyStringer.Options.Contextless));
+      return Accept(new PrettyStringer(VisitorOptions.Contextless));
     }
 
   }

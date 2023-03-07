@@ -19,6 +19,15 @@ namespace CNP.Language
       RHOperand = rhOperand;
     }
 
+    /// <summary>
+    /// The valence that lead to this program.
+    /// </summary>
+    public string DebugValenceString { get; set; }
+    /// <summary>
+    /// The observations that lead to this program.
+    /// </summary>
+    public string DebugObservationString { get; set; }
+
     public void ReplaceFree(Free free, ITerm term)
     {
       LHOperand.ReplaceFree(free, term);
@@ -27,9 +36,9 @@ namespace CNP.Language
 
     public bool IsClosed => LHOperand.IsClosed && RHOperand.IsClosed;
 
-    public string Pretty(PrettyStringer ps)
+    public string Accept(ICNPVisitor ps)
     {
-      return ps.PrettyString(this);
+      return ps.Visit(this);
     }
 
     public IProgram Clone(CloningContext cc)
@@ -85,6 +94,7 @@ namespace CNP.Language
         var rhVal = new ValenceVar(rhNamesOfIns, rhNamesOfOuts);
         var rhObs = new ObservedProgram(rhRel, rhVal, remSearchDepth, constraint);
         var andProg = new And(lhObs, rhObs);
+        andProg.DebugValenceString = valences[i].Accept(PrettyStringer.Contextless);
         var onlyLHNames = protVal.OnlyLHIndices.Select(i => opNames[i]).ToArray();
         var onlyRHNames = protVal.OnlyRHIndices.Select(i => opNames[i]).ToArray();
         var prog = origEnv.Clone((origObservation, andProg), (onlyLHNames,onlyRHNames));

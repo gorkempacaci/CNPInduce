@@ -3,6 +3,8 @@
 - A theory is maybe complete search tasks do not scale but positive ones do? NO, they also stop scaling after 2nd thread.
 
 == bugs
+- proj produces universal predicates by leaving unbound vars out. Unbound vars shouldn't be able to be left out. For example, proj(and(cons, proj(cons, {n0->n1, n4->n5})), {n2->n6, n3->n7, n1->n8})
+- reverse/2 isn't found. it founds a foldr variant if example is {b0:[], as:[1,2,3], b:[3,2,1]} and Stack is used instead of a Queue. 
 - foldr(P,Q) argument b0 should be a0, but foldr(P) argument should be b0 because there is not Q to transform it.
 - static counters like argNameCounter on NameVar are not thread-safe.
 FIXED - 1 thread fails more tests than more threads

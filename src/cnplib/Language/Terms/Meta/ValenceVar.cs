@@ -71,9 +71,9 @@ namespace CNP.Language
       return new ValenceVar(insNames, outsNames);
     }
 
-    public string Pretty(PrettyStringer ps)
+    public string Accept(ICNPVisitor ps)
     {
-      return ps.PrettyString(this);
+      return ps.Visit(this);
     }
 
     public ValenceVar Clone(CloningContext cc)

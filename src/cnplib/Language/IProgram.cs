@@ -16,9 +16,18 @@ namespace CNP.Language
     /// </summary>
     bool IsClosed { get; }
 
+    /// <summary>
+    /// The valence that lead to this program.
+    /// </summary>
+    string DebugValenceString { get; set; }
+    /// <summary>
+    /// The observations that lead to this program.
+    /// </summary>
+    string DebugObservationString { get; set; }
+
     public sealed string ToString()
     {
-      string ps = Pretty(new PrettyStringer(PrettyStringer.Options.Contextless));
+      string ps = Accept(new PrettyStringer(VisitorOptions.Contextless));
       return ps;
     }
     internal ObservedProgram FindHole() => FindLeftmostHole();
@@ -28,7 +37,7 @@ namespace CNP.Language
     /// </summary>
     void ReplaceFree(Free free, ITerm term);
 
-    string Pretty(PrettyStringer ps);
+    string Accept(ICNPVisitor ps);
 
     IProgram Clone(CloningContext cc);
 

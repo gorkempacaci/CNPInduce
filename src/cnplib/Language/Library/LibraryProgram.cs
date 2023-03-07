@@ -6,6 +6,15 @@ namespace CNP.Language
 {
   public abstract class LibraryProgram : IProgram
   {
+    /// <summary>
+    /// The valence that lead to this program.
+    /// </summary>
+    public string DebugValenceString { get; set; }
+    /// <summary>
+    /// The observations that lead to this program.
+    /// </summary>
+    public string DebugObservationString { get; set; }
+
     public ObservedProgram FindLeftmostHole() => null;
     public (ObservedProgram, int) FindRootmostHole(int calleesDistanceToRoot) => (null, int.MaxValue);
     public int GetHeight() => 0;
@@ -14,7 +23,7 @@ namespace CNP.Language
     public bool IsClosed => true;
 
     public abstract IProgram Clone(CloningContext cc);
-    public abstract string Pretty(PrettyStringer ps);
+    public abstract string Accept(ICNPVisitor ps);
   }
 }
 

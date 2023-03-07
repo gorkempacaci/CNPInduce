@@ -1,13 +1,7 @@
 ﻿using System;using System.Collections.Generic;using System.Reflection;using CNP.Parsing;using CNP.Helper;using System.Linq;
 namespace CNP.Language{  public interface IFold : IProgram  {    public IProgram Base { get; }    public IProgram Recursive { get; }
 
-    bool IProgram.IsClosed => Recursive.IsClosed && Base.IsClosed;    ObservedProgram IProgram.FindLeftmostHole()    {      return Base.FindLeftmostHole() ?? Recursive.FindLeftmostHole();
-    }    (ObservedProgram, int) IProgram.FindRootmostHole(int calleesDistanceToRoot)
-    {
-      var rec = Recursive.FindRootmostHole(calleesDistanceToRoot + 1);
-      var bas = Base.FindRootmostHole(calleesDistanceToRoot + 1);
-      if (rec.Item2 < bas.Item2) return rec; else return bas;
-    }    int IProgram.GetHeight()    {      return Math.Max(Recursive.GetHeight(), Base.GetHeight());    }    delegate IFold CreateFold(IProgram recursive, IProgram bas);    delegate bool UnFold(AlphaRelation foldRel, (short b0, short @as, short b) nameIndices, FreeFactory freeFac, out ITerm[][] pRelation, out ITerm[][] qRelation);    protected static IEnumerable<ProgramEnvironment> CreateAtFirstHole(ProgramEnvironment oldEnv, FoldValenceSeries foldValences, CreateFold newFold, UnFold unfolder)    {      ObservedProgram origObservation = oldEnv.Root.FindHole();      if (origObservation.RemainingSearchDepth<2)
+    bool IProgram.IsClosed => Recursive.IsClosed && Base.IsClosed;    int IProgram.GetHeight()    {      return Math.Max(Recursive.GetHeight(), Base.GetHeight());    }    delegate IFold CreateFold(IProgram recursive, IProgram bas);    delegate bool UnFold(AlphaRelation foldRel, (short b0, short @as, short b) nameIndices, FreeFactory freeFac, out ITerm[][] pRelation, out ITerm[][] qRelation);    protected static IEnumerable<ProgramEnvironment> CreateAtFirstHole(ProgramEnvironment oldEnv, FoldValenceSeries foldValences, CreateFold newFold, UnFold unfolder)    {      ObservedProgram origObservation = oldEnv.Root.FindHole();      if (origObservation.RemainingSearchDepth<2)
         return Array.Empty<ProgramEnvironment>();      foldValences.GroundingAlternatives(origObservation.Valence, oldEnv.NameBindings, out var groundingAlternatives);      if (!groundingAlternatives.Any())        return Array.Empty<ProgramEnvironment>();      var newPrograms = new List<ProgramEnvironment>();      foreach (var alt in groundingAlternatives)      {        var newEnv = oldEnv.Clone();        var newObs= newEnv.Root.FindHole();
         if (newEnv.NameBindings.TryBindingAllNamesToGround(newObs.Valence, (ins:alt.ins, outs:alt.outs)))
         {

@@ -19,7 +19,7 @@ namespace CNP.Language
   /// <param name="RHModes">RH's modes with Op's domain. Null when not bound by RH (op_i \notin names(Q))</param>
   /// <param name="OnlyLHIndices">Indices of positions bound only in LH, not in RH. May not cover the arity.</param>
   /// <param name="OnlyRHIndices">Indices of positions bound only in RH, not in LH. May not cover the arity.</param>
-  public record struct ProtoAndValence(Mode[] OpModes, Mode?[] LHModes, Mode?[] RHModes, short[] OnlyLHIndices, short[] OnlyRHIndices)
+  public record struct ProtoAndValence(Mode[] OpModes, Mode?[] LHModes, Mode?[] RHModes, short[] OnlyLHIndices, short[] OnlyRHIndices) 
   {
     // pNames (to crop with), pValence, qNames (to crop with), qValence, {onlyPNames, onlyQNames) (for diff)
 
@@ -43,23 +43,10 @@ namespace CNP.Language
       }
     }
 
-
-
-    //// see overload upon modification
-    //public static int CalculatePositionalModeNumber(ModeIndices min)
-    //{
-    //  try
-    //  {
-    //    int num = 0;
-    //    for (int oi = 0; oi < min.Outs.Length; oi++)
-    //      num += twosPow[min.Outs[oi]];
-    //    return num;
-    //  }
-    //  catch (IndexOutOfRangeException e)
-    //  {
-    //    throw new NotImplementedException($"Maximum number of arguments is {twosPow.Length}", e);
-    //  }
-    //}
+    public string Accept(PrettyStringer vis)
+    {
+      return vis.Visit(this);
+    }
 
     public ProtoAndValence GetClone()
     {

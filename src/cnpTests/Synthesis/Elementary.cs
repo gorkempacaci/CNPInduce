@@ -56,7 +56,7 @@ namespace Synthesis
 
     [DataTestMethod]
     // cons
-    [DataRow("{a:in, b:in, ab:out}", "{{a:0, b:0, ab:[0,0]}}")]
+    [DataRow("{a:in, b:in, ab:out}", "{{a:0, b:0, ab:[2]}, {a:1, b:2, ab:[16]}}")]
     // const
     [DataRow("{a:in}", "{{a:[1|X]}, {a:L}, {a:[1,2,T|4]}}")] // not ground
     public void Negative(string typeStr, string atusStr)

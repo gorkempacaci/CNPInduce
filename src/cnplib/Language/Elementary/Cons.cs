@@ -8,7 +8,7 @@ using System.Diagnostics;
 namespace CNP.Language
 {
 
-  public readonly struct Cons : IProgram
+  public struct Cons : IProgram
   {
     private static ElementaryValenceSeries ConsValences =
   ElementaryValenceSeries.SeriesFromArrays(new[] { "a", "b", "ab" },
@@ -21,6 +21,15 @@ namespace CNP.Language
                                       new[]{  Mode.Out, Mode.Out, Mode.In},
                                 });
 
+    /// <summary>
+    /// The valence that lead to this program.
+    /// </summary>
+    public string DebugValenceString { get; set; }
+    /// <summary>
+    /// The observations that lead to this program.
+    /// </summary>
+    public string DebugObservationString { get; set; }
+
     public bool IsClosed => true;
 
     public override int GetHashCode() => 31;
@@ -29,15 +38,16 @@ namespace CNP.Language
 
     public void ReplaceFree(Free _, ITerm __) { }
 
-    public string Pretty(PrettyStringer ps)
+    public string Accept(ICNPVisitor ps)
     {
-      return ps.PrettyString(this);
+      return ps.Visit(this);
     }
 
     public IProgram Clone(CloningContext cc)
     {
       return cc.Clone(this);
     }
+
 
     public ObservedProgram FindLeftmostHole() => null;
 

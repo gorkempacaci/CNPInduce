@@ -6,10 +6,19 @@ using CNP.Helper.EagerLinq;
 namespace CNP.Language
 {
   //TODO: if straight semantics are implemented, const(a, 5) should unify with proj(a, id), or any tuple that has {a:5}.
-  public readonly struct Const : IProgram
+  public struct Const : IProgram
   {
     public readonly NameVar ArgumentName;
     public readonly ITerm Value;
+
+    /// <summary>
+    /// The valence that lead to this program.
+    /// </summary>
+    public string DebugValenceString { get; set; } = "";
+    /// <summary>
+    /// The observations that lead to this program.
+    /// </summary>
+    public string DebugObservationString { get; set; } = "";
 
     public Const(NameVar argName, ITerm groundTerm)
     {
@@ -40,9 +49,9 @@ namespace CNP.Language
 
     public void ReplaceFree(Free _, ITerm __) { }
 
-    public string Pretty(PrettyStringer ps)
+    public string Accept(ICNPVisitor ps)
     {
-      return ps.PrettyString(this);
+      return ps.Visit(this);
     }
 
     public IProgram Clone(CloningContext cc)

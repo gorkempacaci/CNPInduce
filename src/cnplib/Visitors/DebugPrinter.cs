@@ -1,40 +1,31 @@
 ﻿using System;
-using System.Text;
-using CNP.Helper;
 using System.Linq;
+using System.Text;
 using CNP.Language;
 
 namespace CNP
 {
-  public interface IPrettyStringable
+  public class DebugPrinter : ICNPVisitor
   {
-    string Accept(ICNPVisitor ps);
-  }
-  /// <summary>
-  /// Produces a string representation (replacing ToString() in most cases) for terms, meta-terms, and program terms.
-  /// </summary>
-  public class PrettyStringer : ICNPVisitor
-  {
-    public NameVarBindings names;
+    NameVarBindings names;
     bool isContextless;
 
-    public static PrettyStringer Contextless = new PrettyStringer(VisitorOptions.Contextless);
+    public static DebugPrinter Contextless = new DebugPrinter(VisitorOptions.Contextless);
 
-    public PrettyStringer(VisitorOptions op)
+    public DebugPrinter(VisitorOptions op)
     {
       if (op == VisitorOptions.Contextless)
       {
-        names = default;
         isContextless = true;
       }
+      else throw new ArgumentException();
     }
 
-    public PrettyStringer(NameVarBindings nm)
+    public DebugPrinter(NameVarBindings nvb)
     {
-      names = nm;
+      names = nvb;
+      isContextless = false;
     }
-
-    // TERMS
 
     public string Visit(ConstantTerm ct)
     {
@@ -72,7 +63,7 @@ namespace CNP
     }
 
 
-    
+
 
     // PROGRAM TERMS
 
@@ -93,29 +84,27 @@ namespace CNP
 
     public string Visit(And a)
     {
-      return "and(" + a.LHOperand.Accept(this) + ", " + a.RHOperand.Accept(this) + ")";
+      return $"{{Operator:\"And\", Valence:\"{a.DebugValenceString}\", Observation:{a.DebugObservationString}, LH:{a.LHOperand.Accept(this)}, RH:{a.RHOperand.Accept(this)}}}";
     }
 
     public string Visit(FoldL fl)
     {
-      return "foldl(" + fl.Recursive.Accept(this) + ", " + fl.Base.Accept(this) + ")";
+      return $"{{Operator:\"FoldL\", Valence:\"{fl.DebugValenceString}\", Observation:\"{fl.DebugObservationString}\", Rec:{fl.Recursive.Accept(this)}, Bas:{fl.Base.Accept(this)}}}";
     }
 
     public string Visit(FoldR fr)
     {
-      return "foldr(" + fr.Recursive.Accept(this) + ", " + fr.Base.Accept(this) + ")";
+      return $"{{Operator:\"FoldR\", Valence:\"{fr.DebugValenceString}\", Observation:\"{fr.DebugObservationString}\", Rec:{fr.Recursive.Accept(this)}, Bas:{fr.Base.Accept(this)}}}";
     }
 
     public string Visit(Proj pj)
     {
-
-      return "proj(" + pj.Source.Accept(this) + ", " + pj.Projection.Accept(this) + ")";
-
+      return $"{{Operator:\"Proj\", Valence:\"{pj.DebugValenceString}\", Observation:\"{pj.DebugObservationString}\", Source:{pj.Source.Accept(this)}, Projection:{pj.Projection.Accept(this)}}}";
     }
 
     public string Visit(ObservedProgram op)
     {
-      return op.Valence.Accept(this) + "#" + op.Observables.TuplesCount + "(Dr. " + op.RemainingSearchDepth + ")";
+      return $"{{Operator:\"Observation\", Valence:\\\"{op.DebugValenceString}\\\", Observation:\"{op.DebugObservationString}\", RemainingSearchDepth:{op.RemainingSearchDepth}}}";
     }
 
     // META TERMS
@@ -147,7 +136,7 @@ namespace CNP
       {
         if (c != 0)
           sb.Append(", ");
-        sb.Append(colNames[c]+":"+terms[c].Accept(this));
+        sb.Append(colNames[c] + ":" + terms[c].Accept(this));
       }
       sb.Append("}");
       return sb.ToString();
@@ -185,3 +174,4 @@ namespace CNP
     }
   }
 }
+

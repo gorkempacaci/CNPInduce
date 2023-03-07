@@ -25,7 +25,7 @@ namespace CNP.Language
 
     public string ToString()
     {
-      return Pretty(new PrettyStringer(PrettyStringer.Options.Contextless));
+      return Accept(new PrettyStringer(VisitorOptions.Contextless));
     }
 
     /// <summary>

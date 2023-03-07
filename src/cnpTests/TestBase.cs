@@ -15,7 +15,7 @@ using CNP;
 public class TestBase
 {
 
-  public const int TEST_SEARCH_DEPTH = 3;
+  public const int TEST_SEARCH_DEPTH = 4;
   public const int TEST_THREAD_COUNT = 1; // ideal 4 on mbp 2019 8c
   /*  Threads Time to run Tests.Synthesis.Elementary
    *                   D3W under load   D3W D3W-i D3W-iR
@@ -57,7 +57,7 @@ public class TestBase
   //protected static string nietBruijnString(AlphaRelation ts)
   //{
   //  CNP.PrettyStringer ps = new(CNP.PrettyStringer.Options.Contextless);
-  //  return string.Join(", ", nietBruijn(ts).Select(at => at.Pretty(ps)));
+  //  return string.Join(", ", nietBruijn(ts).Select(at => at.Accept(ps)));
   //}
 
   //protected static IEnumerable<AlphaTuple> nietBruijn(IEnumerable<AlphaTuple> ts)
@@ -118,7 +118,7 @@ public class TestBase
     Assert.IsTrue(programs.Any(), "There should be at least one program.");
     ProgramEnvironment env = programs.First();
     PrettyStringer ps = new PrettyStringer(env.NameBindings);
-    Assert.AreEqual(expectedProgramString, env.Root.Pretty(ps));
+    Assert.AreEqual(expectedProgramString, env.Root.Accept(ps));
   }
 
   protected void assertNoResultFor(string domains, string atusStr, int searchDepth=TEST_SEARCH_DEPTH)
@@ -126,7 +126,8 @@ public class TestBase
     ProgramEnvironment env = buildEnvironment(domains, atusStr, searchDepth);
     SynthesisJob job = new SynthesisJob(env, new ThreadCount(TEST_THREAD_COUNT), SearchOptions.FindAllPrograms);
     var programs = job.FindPrograms();
-    Assert.AreEqual(0, programs.Count(), "A program should not have been found.");
+    var strings = string.Join("\n", programs.Take(3).Select(p => p.Root.Accept(PrettyStringer.Contextless)));
+    Assert.AreEqual(0, programs.Count(), "A program should not have been found. First 3:\n" + strings);
   }
 
   private static IEnumerable<Free> freesIn(ITerm t)
@@ -150,13 +151,13 @@ public class TestBase
 
   protected static string contextless(ITerm term)
   {
-    PrettyStringer stringer = new PrettyStringer(PrettyStringer.Options.Contextless);
-    return term.Pretty(stringer);
+    PrettyStringer stringer = new PrettyStringer(VisitorOptions.Contextless);
+    return term.Accept(stringer);
   }
 
   protected static string contextless(ITerm[] terms, string[] colNames)
   {
-    PrettyStringer stringer = new PrettyStringer(PrettyStringer.Options.Contextless);
-    return stringer.PrettyString(terms, colNames);
+    PrettyStringer stringer = new PrettyStringer(VisitorOptions.Contextless);
+    return stringer.Visit(terms, colNames);
   }
 }
