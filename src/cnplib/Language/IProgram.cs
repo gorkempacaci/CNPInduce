@@ -53,13 +53,6 @@ namespace CNP.Language
     ObservedProgram FindLeftmostHole();
 
     /// <summary>
-    /// Returns the first ObservedProgram in the subtree, goes with the one closest to root. Returns the program and the depth it was found (root=0)
-    /// </summary>
-    /// <returns></returns>
-    (ObservedProgram, int) FindRootmostHole(int calleesDistanceToRoot);
-    (ObservedProgram, int) FindRootmostHole() => FindRootmostHole(0);
-
-    /// <summary>
     /// Returns the height of this program tree. Calculates on demand.
     /// </summary>
     /// <returns></returns>

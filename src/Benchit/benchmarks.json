@@ -26,6 +26,12 @@
             "ExpectedProgram": "proj(foldr(cons), {as->list1, b0->list2, b->list3})"
         },
         {
+            "Name": "reverse/2",
+            "Valence": "{as:in, bs:out}",
+            "Examples": "{{as:['a'], bs:['a']}, {as:[1,2,3], bs:[3,2,1]}}",
+            "ExpectedProgram": "proj(and(const(b0, []), foldl(cons)), {as->as, b->bs})"
+        },
+        {
             "Name": "sumall",
             "Valence": "{b0:in, as:in, b:out}",
             "Examples": "{{b0:0, as:[[1], [2]], b:3}, {b0:0, as:[[1,2,3], [4,5,6], [7,8,9]], b:45}}",

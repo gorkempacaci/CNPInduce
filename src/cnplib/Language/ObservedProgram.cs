@@ -72,11 +72,6 @@ namespace CNP.Language
       return this;
     }
 
-    public (ObservedProgram, int) FindRootmostHole(int calleesDistanceToRoot = 0)
-    {
-      return (this, calleesDistanceToRoot);
-    }
-
     public int GetHeight()
     {
       return 0;

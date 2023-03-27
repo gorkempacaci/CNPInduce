@@ -51,11 +51,6 @@ namespace CNP.Language
       return Recursive.FindLeftmostHole();
     }
 
-    (ObservedProgram, int) IProgram.FindRootmostHole(int calleesDistanceToRoot)
-    {
-      return Recursive.FindRootmostHole(calleesDistanceToRoot + 1);
-    }
-
     public void ReplaceFree(Free free, ITerm term)
     {
       Recursive.ReplaceFree(free, term);

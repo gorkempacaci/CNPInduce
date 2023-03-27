@@ -61,11 +61,6 @@ namespace CNP.Language
       return Source.FindLeftmostHole();
     }
 
-    public (ObservedProgram, int) FindRootmostHole(int calleesDistanceToRoot = 0)
-    {
-      return Source.FindRootmostHole(calleesDistanceToRoot + 1);
-    }
-
     public static IEnumerable<ProgramEnvironment> CreateAtFirstHole(ProgramEnvironment origEnv)
     {
       var origObservation = origEnv.Root.FindHole();

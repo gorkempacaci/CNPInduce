@@ -82,9 +82,9 @@ namespace Synthesis
     [TestMethod]
     public void ConstInventedInFold()
     {
-      var typeStr = "{b0:in, as:in, b:out}";
-      var atus = "{{b0:X, as:[], b:[]}, {b0:Z, as:[1,2,3], b:[3,2,1]}}";
-      var prog = assertFirstResultFor(typeStr, atus, "and(const(b0, []), foldl(cons))");
+      var typeStr = "{as:in, bs:out}";
+      var atus = "{{as:['a'], bs:['a']}, {as:[1,2,3], bs:[3,2,1]}}";
+      var prog = assertFirstResultFor(typeStr, atus, "proj(and(const(b0, []), foldl(cons)), {as->as, b->bs})");
     }
 
     [DataTestMethod]

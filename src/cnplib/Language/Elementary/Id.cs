@@ -49,8 +49,6 @@ namespace CNP.Language
 
     public ObservedProgram FindLeftmostHole() => null;
 
-    public (ObservedProgram, int) FindRootmostHole(int calleesDistanceToRoot = 0) => (null, int.MaxValue);
-
     public int GetHeight() => 0;
 
     public string GetTreeQualifier() => "p";

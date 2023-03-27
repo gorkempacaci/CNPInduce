@@ -61,13 +61,6 @@ namespace CNP.Language
       return LHOperand.FindLeftmostHole() ?? RHOperand.FindLeftmostHole();
     }
 
-    public (ObservedProgram, int) FindRootmostHole(int calleesDistanceToRoot = 0)
-    {
-      var lh = LHOperand.FindRootmostHole(calleesDistanceToRoot + 1);
-      var rh = RHOperand.FindRootmostHole(calleesDistanceToRoot + 1);
-      if (lh.Item2 <= rh.Item2) return lh; else return rh;
-    }
-
     public static IEnumerable<ProgramEnvironment> CreateAtFirstHole(ProgramEnvironment origEnv)
     {
       var origObservation = origEnv.Root.FindHole();
@@ -94,7 +87,7 @@ namespace CNP.Language
         var rhVal = new ValenceVar(rhNamesOfIns, rhNamesOfOuts);
         var rhObs = new ObservedProgram(rhRel, rhVal, remSearchDepth, constraint);
         var andProg = new And(lhObs, rhObs);
-        andProg.DebugValenceString = valences[i].Accept(PrettyStringer.Contextless);
+        (andProg as IProgram).SaveDebugInformationString(origEnv, origObservation);
         var onlyLHNames = protVal.OnlyLHIndices.Select(i => opNames[i]).ToArray();
         var onlyRHNames = protVal.OnlyRHIndices.Select(i => opNames[i]).ToArray();
         var prog = origEnv.Clone((origObservation, andProg), (onlyLHNames,onlyRHNames));

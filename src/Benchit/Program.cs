@@ -87,7 +87,7 @@ namespace Benchit
               if (foundProgramString == bench.ExpectedProgram)
               {
                 durationsRpt[r] = (t1 - t0).TotalSeconds;
-                Console.Write("{0,8:F2}", durationsRpt[r]);
+                Console.Write("{0,8:F3}", durationsRpt[r]);
               }
               else
               {
@@ -106,7 +106,7 @@ namespace Benchit
           if (succeess)
           {
             double avgRepeats = durationsRpt.Average();
-            Console.WriteLine("{0,8:F2}", avgRepeats);
+            Console.WriteLine("{0,8:F3}", avgRepeats);
             averages[thci] = (threadCounts[thci], avgRepeats);
           } else Console.WriteLine("{0,8}", "N/A");
           GC.Collect();

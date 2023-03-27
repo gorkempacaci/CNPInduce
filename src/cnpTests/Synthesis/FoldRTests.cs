@@ -15,13 +15,13 @@ namespace Synthesis
     public void DecomposeFoldR()
     {
       NameVarBindings nvb = new();
+      var freeFact = new FreeFactory();
       NameVar b0 = nvb.AddNameVar("b0");
       NameVar @as = nvb.AddNameVar("as");
       NameVar b = nvb.AddNameVar("b");
       var names = new NameVar[] { b0, @as, b };
       var tups = new ITerm[][] { new ITerm[] { list(), list(1, 2, 3), list(1, 2, 3) } };
       var foldrel = new AlphaRelation(names, tups);
-      var freeFact = new FreeFactory();
       FoldR.UnFoldR(foldrel, (0, 1, 2), freeFact, out var pTuples);
       var stringer = new PrettyStringer(nvb);
       var pTuplesString = stringer.Visit(pTuples, FoldR.FoldRValences.RecursiveCaseNames);
@@ -84,13 +84,13 @@ namespace Synthesis
       assertFirstResultFor(typeStr, atus, "foldr(proj(foldr(cons), {as->a, b0->b, b->ab}))", 4);
     }
 
-    //[TestMethod]
-    //public void Flatten2()
-    //{
-    //  string typeStr = "{as:in, bs:out}";
-    //  string atus = "{{as:[[1,2]], bs:[1, 2]}, {as:[[1,2], [3,4], [5,6]], bs:[1,2,3,4,5,6]}}";
-    //  assertFirstResultFor(typeStr, atus, "foldr(proj(foldr(cons), {as->a, b0->b, b->ab}))", 5);
-    //}
+    [TestMethod]
+    public void Flatten2()
+    {
+      string typeStr = "{as:in, bs:out}";
+      string atus = "{{as:[[1,2]], bs:[1, 2]}, {as:[[1,2], [3,4], [5,6]], bs:[1,2,3,4,5,6]}}";
+      assertFirstResultFor(typeStr, atus, "foldr(proj(foldr(cons), {as->a, b0->b, b->ab}))", 5);
+    }
   }
 
   // [TestClass]

@@ -14,14 +14,15 @@ namespace Synthesis
     [TestMethod]
     public void DecomposeFoldL()
     {
+      
       NameVarBindings nvb = new();
+      var freeFact = new FreeFactory();
       NameVar b0 = nvb.AddNameVar("b0");
       NameVar @as = nvb.AddNameVar("as");
       NameVar b = nvb.AddNameVar("b");
       var names = new NameVar[] { b0, @as, b };
       var tups = new ITerm[][] { new ITerm[] { list(), list(1, 2, 3), list(3, 2, 1) } };
       var foldrel = new AlphaRelation(names, tups);
-      var freeFact = new FreeFactory();
       FoldL.UnFoldL(foldrel, (0, 1, 2), freeFact, out var pTuples);
       var stringer = new PrettyStringer(nvb);
       var pTuplesString = stringer.Visit(pTuples, FoldL.FoldLValences.RecursiveCaseNames);

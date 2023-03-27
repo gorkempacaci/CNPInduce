@@ -61,8 +61,6 @@ namespace CNP.Language
 
     public ObservedProgram FindLeftmostHole() => null;
 
-    public (ObservedProgram, int) FindRootmostHole(int calleesDistanceToRoot = 0) => (null, int.MaxValue);
-
     public int GetHeight() => 0;
 
     public string GetTreeQualifier() => "p";
@@ -88,6 +86,7 @@ namespace CNP.Language
       if (tuple0[0].IsGround())
       { // found the constant through decomposition / initial example
         var constProg = new Const(name, tuple0[0]);
+        (constProg as IProgram).SaveDebugInformationString(env, obsOriginal);
         var newEnv = env.Clone((obsOriginal, constProg));
         return new ProgramEnvironment[] { newEnv };
       }
@@ -106,6 +105,7 @@ namespace CNP.Language
           if (newEnv.UnifyInPlace(newObs.Observables.Tuples[0], new ITerm[] { cc }))
           {
             var constProg = new Const(newObs.Observables.Names[0], cc);
+            (constProg as IProgram).SaveDebugInformationString(newEnv, newObs);
             var clonedEnv = newEnv.Clone((newObs, constProg));
             ccEnvironments.Add(clonedEnv);
           }

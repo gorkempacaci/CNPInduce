@@ -52,11 +52,6 @@ namespace CNP.Language
       return Recursive.FindLeftmostHole();
     }
 
-    (ObservedProgram, int) IProgram.FindRootmostHole(int calleesDistanceToRoot)
-    {
-      return Recursive.FindRootmostHole(calleesDistanceToRoot + 1);
-    }
-
     public void ReplaceFree(Free free, ITerm term)
     {
       Recursive.ReplaceFree(free, term);
@@ -91,12 +86,12 @@ namespace CNP.Language
     public static bool UnFoldL(AlphaRelation foldRel, (short b0, short @as, short b) nameIndices, FreeFactory freeFac, out ITerm[][] pTuples)
     {
       List<ITerm[]> pTuplesList = new();
-      for(int ri=0; ri<foldRel.TuplesCount; ri++)
+      for (int ri = 0; ri < foldRel.TuplesCount; ri++)
       {
         ITerm seed = foldRel.Tuples[ri][nameIndices.b0];
         ITerm list = foldRel.Tuples[ri][nameIndices.@as];
         ITerm result = foldRel.Tuples[ri][nameIndices.b];
-        while(list is TermList termList)
+        while (list is TermList termList)
         {
           ITerm head = termList.Head;
           ITerm tail = termList.Tail;
