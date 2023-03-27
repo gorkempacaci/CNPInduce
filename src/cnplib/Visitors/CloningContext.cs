@@ -157,36 +157,50 @@ namespace CNP
 
     // ELEMENTARY
 
-    public Cons Clone(Cons _)
+    public Cons Clone(in Cons cns)
     {
-      return new Cons();
+      var cns2 = new Cons();
+      CopyDebugInformation(cns, cns2);
+      return cns2;
     }
-    public Const Clone(Const src)
+    public Const Clone(in Const cnst)
     {
-      return new Const(src.ArgumentName.Clone(this), src.Value.Clone(this));
+      var cnst2 = new Const(cnst.ArgumentName.Clone(this), cnst.Value.Clone(this));
+      CopyDebugInformation(cnst, cnst2);
+      return cnst2;
     }
-    public Id Clone(Id _)
+    public Id Clone(in Id i)
     {
-      return new Id();
+      var i2 = new Id();
+      CopyDebugInformation(i, i2);
+      return i2;
     }
 
     // OPERATORS
 
-    public And Clone(And nd)
+    public And Clone(in And nd)
     {
-      return new And(nd.LHOperand.Clone(this), nd.RHOperand.Clone(this));
+      var and2 = new And(nd.LHOperand.Clone(this), nd.RHOperand.Clone(this));
+      CopyDebugInformation(nd, and2);
+      return and2;
     }
-    public FoldL Clone(FoldL fl)
+    public FoldL Clone(in FoldL fl)
     {
-      return new FoldL(fl.Recursive.Clone(this), fl.Base.Clone(this));
+      var fold2 = new FoldL(fl.Recursive.Clone(this));
+      CopyDebugInformation(fl, fold2);
+      return fold2;
     }
-    public FoldR Clone(FoldR fr)
+    public FoldR Clone(in FoldR fr)
     {
-      return new FoldR(fr.Recursive.Clone(this), fr.Base.Clone(this));
+      var fold2 = new FoldR(fr.Recursive.Clone(this));
+      CopyDebugInformation(fr, fold2);
+      return fold2;
     }
-    public Proj Clone(Proj p)
+    public Proj Clone(in Proj p)
     {
-      return new Proj(p.Source.Clone(this), p.Projection.Clone(this));
+      var proj2 = new Proj(p.Source.Clone(this), p.Projection.Clone(this));
+      CopyDebugInformation(p, proj2);
+      return proj2;
     }
 
     // OBSERVATION
@@ -199,13 +213,21 @@ namespace CNP
       }
       else
       {
-        var obss = obs.Observables.Clone(this);
-        var val = obs.Valence.Clone(this);
+        var obss = obs.Observables.Accept(this);
+        var val = obs.Valence.Accept(this);
         var remaining = obs.RemainingSearchDepth;
         var constr = obs.Constraints;
         return new ObservedProgram(obss, val, remaining, constr);
       }
     }
+    
+     // MISC
+
+     private static void CopyDebugInformation(in IProgram oldProgram, IProgram newProgram)
+     {
+       newProgram.DebugObservationString = oldProgram.DebugObservationString;
+       newProgram.DebugValenceString = oldProgram.DebugValenceString;
+     }
   }
 
   // CLONE at root(origObservation, newProgram)

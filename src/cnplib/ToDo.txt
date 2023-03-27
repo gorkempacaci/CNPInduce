@@ -5,7 +5,6 @@
 == bugs
 - proj produces universal predicates by leaving unbound vars out. Unbound vars shouldn't be able to be left out. For example, proj(and(cons, proj(cons, {n0->n1, n4->n5})), {n2->n6, n3->n7, n1->n8})
 - reverse/2 isn't found. it founds a foldr variant if example is {b0:[], as:[1,2,3], b:[3,2,1]} and Stack is used instead of a Queue. 
-- foldr(P,Q) argument b0 should be a0, but foldr(P) argument should be b0 because there is not Q to transform it.
 - static counters like argNameCounter on NameVar are not thread-safe.
 FIXED - 1 thread fails more tests than more threads
 - AND operator should insert constaints for NameVars
@@ -14,6 +13,7 @@ FIXED - 1 thread fails more tests than more threads
 FIXED - assertSingleResult calls FindAllPrograms which takes a long time and often doesn't terminate. Switch to assertFirstResult for most tests.
 
 == To be discussed
+- see 'exference' for their approach to universal predicates: https://github.com/lspitzner/exference/
 - both fold's own, recursive and base parameters' names are ground and arbitrary. maybe it's possible to derive these names or make them dynamic by inferring which argument is bound to what using their types? This may apply to CNP language in general by removing argument name mechanics if types are specific enough. 
 - Hamfelt Nilsson folds are unfamiliar to functional programmers, maybe add some akin to those in FP?
 - The search always works with the first hole, searching top-down. If the first hole can't be filled, it disposes of the search node. How does this affect the search exhaustiveness? Maybe it should try each hole in a separate search path.
@@ -21,6 +21,11 @@ FIXED - assertSingleResult calls FindAllPrograms which takes a long time and oft
 - For an observation such as {{X:1, Y:F1, Z:[1,2,3]}, {X:2, Y:F2, Z:F1}, {X:3, Y:F3, Z:F3}} with a valence {X:in, Y:out, Z:in}, cons might bind X=a,Z=ab
 
 == Improvements
+- Synthesizing Reverse2FoldR requires proj to be able to leave constant [] unbound to the head. Need some way to let proj leave them unbound while flagging the arg in subsequent search to be ground. 
+- synthesizing member is difficult because it requires lifting the element variable which results in a pretty ugly and unreadable code, including changing the operator semantics. One solution is to have a closure environment containing only the 'in' arguments of the root expression, practically having an expression-scope constant lookup table. These are hardly variables since restricting to 'in' arguments assures that they are ground to begin with, therefore constants, and they can only appear in the leafs of the predicate expression as in lifted(element). for example, member would become
+          member : {a, as} = any(lifted(a)) : {a, as}
+          any(P)([A|L]) :- P(A).
+          any(P)([_|L]) :- any(P)(L).
 - ObservedProgram, ValenceVar, AlphaRelation should be folded into one class. Redundancy of names in ValenceVar and AlphaRelation is algorithmically problemmatic.
 - If fold names can be same as FOLD's P, standard fold-2 and fold-3 programs would be faster since they wouldn't fall into the back of a proj line.
 - AND's left and right valences might be grouped under the distinct lh valence. because if that lh valence won't bind, all the rh ones are dead search paths.

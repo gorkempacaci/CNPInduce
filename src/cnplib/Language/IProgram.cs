@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-
+using System.Diagnostics;
 using CNP.Helper;
 
 
@@ -25,10 +25,15 @@ namespace CNP.Language
     /// </summary>
     string DebugObservationString { get; set; }
 
+    public void SaveDebugInformationString(ProgramEnvironment e, ObservedProgram o, string valenceNote = "")
+    {
+      this.DebugValenceString = o.Valence.Accept(DebugPrinter.Contextless) + valenceNote;
+      this.DebugObservationString = o.Observables.Accept(DebugPrinter.Contextless);
+    }
+
     public sealed string ToString()
     {
-      string ps = Accept(new PrettyStringer(VisitorOptions.Contextless));
-      return ps;
+      return Accept(new PrettyStringer(VisitorOptions.Contextless));
     }
     internal ObservedProgram FindHole() => FindLeftmostHole();
 
@@ -66,6 +71,7 @@ namespace CNP.Language
     /// <returns></returns>
     string GetTreeQualifier();
 
+    
   }
 
 }

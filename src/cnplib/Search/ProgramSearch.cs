@@ -15,7 +15,6 @@ namespace CNP.Search
     //public int BusyThreadCount = 0;
     public readonly int ThreadCount;
     ConcurrentQueue<ProgramEnvironment> searchQueue = new();
-    object searchQueueDequeueLock = new();
     CancellationTokenSource CancellationSource = new();
     List<SearchBrancher> threadObjects;
     List<Thread> systemThreads;
@@ -27,18 +26,12 @@ namespace CNP.Search
       ThreadCount = tCount.GetNumberOfThreads();
       searchQueue.Enqueue(initialProgram);
     }
+    
     public void WaitUntilDone()
     {
       foreach (Thread t in systemThreads)
       {
-        try
-        {
-          t.Join();
-        }
-        catch (Exception)
-        {
-          throw;
-        }
+        t.Join();
       }
     }
     public void StartThreads()
@@ -58,51 +51,6 @@ namespace CNP.Search
         t.Start();
       }
     }
-
-    /// <summary>
-    /// Returns the next program in the top of the queue. Outputs a program that is not closed.
-    /// True if Take() was successfull. False if there is nothing in the queue.
-    /// </summary>
-    /// <exception cref="InvalidOperationException">If the search is terminated throws InvalidOperationException.</exception>
-//    public bool TryTake___(out Program program, out Action<IEnumerable<Program>> queueCallback, out bool searchCompleted)
-//    {
-//      searchCompleted = false;
-//      lock (busyThreadCountMonitor)
-//      {
-//        if (searchReceiver == null)
-//        {
-//          //program = null;
-//          //queueCallback = null;
-//          //searchCompleted = true;
-//          //return false;
-//          throw new InvalidOperationException("Search is terminated.");
-//        }
-//        else if (busyThreadCount == 0 && searchQueue.Count == 0)
-//        {
-//          program = null;
-//          queueCallback = null;
-//          searchCompleted = true;
-//          return false;
-//          //throw new InvalidOperationException("Search is finished.");
-//        }
-//        else if (searchQueue.TryTake(out program))
-//        {
-//          busyThreadCount++;
-//          queueCallback = new JustOnce<IEnumerable<Program>>(queue).Invoke;
-//#if DEBUG
-//          Interlocked.Increment(ref Debugging.CountDequeued);
-//          Debugging.ThreadDequeueCounter.Increase(Thread.CurrentThread.ManagedThreadId);
-//#endif
-//          return true;
-//        }
-//        else
-//        {
-//          program = null;
-//          queueCallback = null;
-//          return false;
-//        }
-//      }
-//    }
 
   }
 }

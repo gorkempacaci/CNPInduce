@@ -67,51 +67,51 @@ namespace CNP
 
     // PROGRAM TERMS
 
-    public string Visit(Cons _)
+    string debugInfo(IProgram program)
     {
-      return "cons";
+      return $"\"valence\": \"{program.DebugValenceString}\", \"observation\": \"{program.DebugObservationString}\"";
     }
 
-    public string Visit(Id _)
+    string withDebugInfo(string programName, IProgram program)
     {
-      return "id";
+      return $"{{ \"name\": \"{programName}\", {debugInfo(program)} }}";
     }
 
+    string withDebugInfo(string operatorName, IProgram program, params IProgram[] components)
+    {
+      var componentsInnerStr = string.Join(", ", components.Select(c => c.Accept(this)));
+      return $"{{ \"name\": \"{operatorName}\", {debugInfo(program)}, \"components\": [{componentsInnerStr}] }}";
+    }
+
+    public string Visit(Cons cns) => withDebugInfo("cons", cns);
+    public string Visit(Id id) => withDebugInfo("id", id);
     public string Visit(Const cnst)
     {
-      return "const(" + cnst.ArgumentName.Accept(this) + ", " + cnst.Value.Accept(this) + ")";
+      var str = "const(" + cnst.ArgumentName.Accept(this) + ", " + cnst.Value.Accept(this) + ")";
+      return withDebugInfo(str, cnst);
     }
 
-    public string Visit(And a)
-    {
-      return $"{{Operator:\"And\", Valence:\"{a.DebugValenceString}\", Observation:{a.DebugObservationString}, LH:{a.LHOperand.Accept(this)}, RH:{a.RHOperand.Accept(this)}}}";
-    }
-
-    public string Visit(FoldL fl)
-    {
-      return $"{{Operator:\"FoldL\", Valence:\"{fl.DebugValenceString}\", Observation:\"{fl.DebugObservationString}\", Rec:{fl.Recursive.Accept(this)}, Bas:{fl.Base.Accept(this)}}}";
-    }
-
-    public string Visit(FoldR fr)
-    {
-      return $"{{Operator:\"FoldR\", Valence:\"{fr.DebugValenceString}\", Observation:\"{fr.DebugObservationString}\", Rec:{fr.Recursive.Accept(this)}, Bas:{fr.Base.Accept(this)}}}";
-    }
+    public string Visit(And a) => withDebugInfo("and", a, a.LHOperand, a.RHOperand);
+    public string Visit(FoldL fl) => withDebugInfo("foldl", fl, fl.Recursive);
+    public string Visit(FoldR fr) => withDebugInfo("foldr", fr, fr.Recursive);
 
     public string Visit(Proj pj)
     {
-      return $"{{Operator:\"Proj\", Valence:\"{pj.DebugValenceString}\", Observation:\"{pj.DebugObservationString}\", Source:{pj.Source.Accept(this)}, Projection:{pj.Projection.Accept(this)}}}";
+      var mapStr = pj.Projection.Accept(this);
+      var name = $"proj({mapStr})";
+      return withDebugInfo(name, pj, pj.Source);
     }
 
     public string Visit(ObservedProgram op)
     {
-      return $"{{Operator:\"Observation\", Valence:\\\"{op.DebugValenceString}\\\", Observation:\"{op.DebugObservationString}\", RemainingSearchDepth:{op.RemainingSearchDepth}}}";
+      return $"{{\"name\":\"observation\", \"valence\":\\\"{op.Valence.Accept(this)}\\\", \"observables\":\"{op.Observables.Accept(this)}\", RemainingSearchDepth:{op.RemainingSearchDepth}}}";
     }
 
     // META TERMS
 
     public string Visit(AlphaRelation at)
     {
-      return Visit(at.Tuples, names.GetNamesForVars(at.Names));
+      return Visit(at.Tuples, isContextless ? at.Names.Select(n => n.Accept(this)).ToArray() : names.GetNamesForVars(at.Names));
     }
 
     public string Visit(ITerm[][] tuples, string[] colNames)
@@ -136,7 +136,7 @@ namespace CNP
       {
         if (c != 0)
           sb.Append(", ");
-        sb.Append(colNames[c] + ":" + terms[c].Accept(this));
+        sb.Append(colNames[c] + ":" +  terms[c].Accept(this));
       }
       sb.Append("}");
       return sb.ToString();
@@ -152,8 +152,8 @@ namespace CNP
 
     public string Visit(ValenceVar vv)
     {
-      var ins = vv.Ins.Length == 0 ? "" : string.Join(", ", vv.Ins.Select(i => i.Accept(this)));
-      var outs = vv.Outs.Length == 0 ? "" : string.Join(", ", vv.Outs.Select(o => o.Accept(this)));
+      var ins = vv.Ins.Length == 0 ? "" : string.Join(", ", vv.Ins.Select(i => i.Accept(this) + ":in"));
+      var outs = vv.Outs.Length == 0 ? "" : string.Join(", ", vv.Outs.Select(o => o.Accept(this) + ":out"));
       var inouts = ins == "" ? outs : (outs == "" ? ins : ins + ", " + outs);
       return "{" + inouts + "}";
     }

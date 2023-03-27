@@ -11,11 +11,20 @@ namespace CNP.Language
   /// </summary>
   public class ObservedProgram : IProgram
   {
-    [Flags] public enum Constraint : short { None = 0, NotProjection = 1, NotAnd = 2}
+    [Flags] public enum Constraint : short { None = 0, NotProjection = 1, NotAnd = 2,
+      /// <summary>
+      /// Only And, elementary and library predicates. This is useful because if proj adds an unbound argument then
+      /// it introduces this constraint so the source predicate expression will always be well-formed.
+      /// </summary>
+      OnlyAndElemLib = 4}
 
     public readonly AlphaRelation Observables;
     public readonly ValenceVar Valence;
     public readonly Constraint Constraints;
+
+    private readonly short[] _indicesOfInArgs;
+    private readonly short[] _indicesOfOutArgs;
+    
     /// <summary>
     /// Sub-tree depth allowed for this hole. 0 should not exist, 1 would only match elementary predicates, higher values would match operators as well.
     /// </summary>
@@ -36,7 +45,7 @@ namespace CNP.Language
       this.Valence = val;
       this.Constraints = constraints;
       this.RemainingSearchDepth = remSearchDepth;
-
+      (_indicesOfInArgs, _indicesOfOutArgs) = val.GetIndicesOfInsOrOutsIn(obss.Names);
     }
 
 
@@ -79,12 +88,34 @@ namespace CNP.Language
     }
 
     /// <summary>
-    /// Remaining search depth allows matching operators (depth>=2)
+    /// Returns true if all arguments where Mode is IN are ground terms in the first tuple of this observation. Doesn't check the remaining tuples because they might becomes ground as the first one is unified.
     /// </summary>
-    /// <returns></returns>
-    //public bool RSD_AllowsOperators()
-    //{
-    //  return _remainingSearchDepth >= 2;
-    //}
+    public bool IsAllINArgumentsGroundForFirstTuple()
+    {
+      var firstTuple = Observables.Tuples[0];
+      for (int i = 0; i < _indicesOfInArgs.Length; i++)
+      {
+        if (!firstTuple[_indicesOfInArgs[i]].IsGround())
+          return false;
+      }
+      return true;
+    }
+
+    /// <summary>
+    /// Returns true if all out arguments of all tuples are ground.
+    /// </summary>
+    public bool IsAllOutArgumentsGround()
+    {
+      for(int i=0; i<Observables.TuplesCount; i++)
+      {
+        var tuple = Observables.Tuples[i];
+        for(int oii=0; oii<_indicesOfOutArgs.Length; oii++)
+          if (!tuple[_indicesOfOutArgs[oii]].IsGround())
+            return false;
+      }
+
+      return true;
+    }
+  
   }
 }

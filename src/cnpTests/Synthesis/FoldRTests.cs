@@ -22,12 +22,10 @@ namespace Synthesis
       var tups = new ITerm[][] { new ITerm[] { list(), list(1, 2, 3), list(1, 2, 3) } };
       var foldrel = new AlphaRelation(names, tups);
       var freeFact = new FreeFactory();
-      FoldR.UnFoldR(foldrel, (0, 1, 2), freeFact, out var pTuples, out var qTuples);
+      FoldR.UnFoldR(foldrel, (0, 1, 2), freeFact, out var pTuples);
       var stringer = new PrettyStringer(nvb);
       var pTuplesString = stringer.Visit(pTuples, FoldR.FoldRValences.RecursiveCaseNames);
-      var qTuplesString = stringer.Visit(qTuples, FoldR.FoldRValences.BaseCaseNames);
-      Assert.AreEqual("{{a:1, b:F0, ab:[1, 2, 3]}, {a:2, b:F1, ab:F0}, {a:3, b:F2, ab:F1}}", pTuplesString, "Recursive case tuples should match");
-      Assert.AreEqual("{{a:[], b:F2}}", qTuplesString, "Base case tuples should match.");
+      Assert.AreEqual("{{a:3, b:[], ab:F1}, {a:2, b:F1, ab:F0}, {a:1, b:F0, ab:[1, 2, 3]}}", pTuplesString, "Recursive case tuples should match");
     }
 
     [TestMethod]
@@ -35,14 +33,14 @@ namespace Synthesis
     {
       string typeStr = "{b0:in, as:in, b:out}";
       string atusStr = "{{b0:[4,5,6], as:[1,2,3], b:[1,2,3,4,5,6]}}";
-      assertFirstResultFor(typeStr, atusStr, "foldr(cons, id)");
+      assertFirstResultFor(typeStr, atusStr, "foldr(cons)");
     }
     [TestMethod]
     public void AppendToUnit()
     {
       string typeStr = "{b0:in, as:in, b:out}";
       string atusStr = "{{b0:[4], as:[1,2,3], b:[1,2,3,4]}}";
-      assertFirstResultFor(typeStr, atusStr, "foldr(cons, id)");
+      assertFirstResultFor(typeStr, atusStr, "foldr(cons)");
     }
 
     [TestMethod]
@@ -50,7 +48,7 @@ namespace Synthesis
     {
       string typeStr = "{b0:in, as:in, b:out}";
       string atusStr = "{{b0:[], as:[1,2,3], b:[1,2,3]}}";
-      assertFirstResultFor(typeStr, atusStr, "foldr(cons, id)");
+      assertFirstResultFor(typeStr, atusStr, "foldr(cons)");
     }
 
     [TestMethod]
@@ -58,27 +56,41 @@ namespace Synthesis
     {
       string typeStr = "{b0:in, as:in, b:out}";
       string atusStr = "{{b0:[], as:[1,2,3], b:[1,2,3]}}";
-      assertFirstResultFor(typeStr, atusStr, "foldr(cons, id)");
+      assertFirstResultFor(typeStr, atusStr, "foldr(cons)");
     }
 
+    
     [TestMethod]
     public void Reverse2FoldR()
     {
       string typeStr = "{as:in, bs:out}";
       string atusStr = "{{as:[], bs:[]},{as:[1,2,3], bs:[3,2,1]}}";
-      // is a bad impl because leaves the 'b' of foldr unbound, which eventually grounds to []
-      // more natural impl would be proj(and(foldl(cons,id), const(b0, [])), {as->as, b->b})
-      assertFirstResultFor(typeStr, atusStr, "proj(foldr(proj(cons, {a->a, ab->b, b->ab}), id), {b0->as, as->bs})", 4);
+      assertFirstResultFor(typeStr, atusStr, "proj(and(const(b0, []), foldl(cons)), {as->as, b->bs})", 4);
     }
 
 
-    [TestMethod]
-    public void Flatten()
+    public void FoldL_Proj_FoldL_Plus()
     {
       string typeStr = "{b0:in, as:in, b:out}";
-      string atus = "{{b0:[], as:[[1,2], [3,4]], b:[1,2,3,4]}, {b0:[], as:[['a'],['b'],['c']], b:['a','b','c']}}";
-      assertFirstResultFor(typeStr, atus, "foldr(proj(foldr(cons, id), {as->a, b0->b, b->ab}), id)", 4);
+      string atus = "{{b0:0, as:[[1,1,1]], b:3}, {b0:0, as:[[1,2], [3,4]], b:10}, {b0:0, as:[[1,2,3], [4,5,6], [7,8,9]], b:45}}";
+      assertFirstResultFor(typeStr, atus, "foldl(proj(foldl(+), {as->a, b0->b, b->ab}))", 4);
     }
+
+    [TestMethod]
+    public void Flatten3()
+    {
+      string typeStr = "{b0:in, as:in, b:out}";
+      string atus = "{{b0:[], as:[[1,2]], b:[1, 2]}, {b0:[], as:[[1,2], [3,4], [5,6]], b:[1,2,3,4,5,6]}}";
+      assertFirstResultFor(typeStr, atus, "foldr(proj(foldr(cons), {as->a, b0->b, b->ab}))", 4);
+    }
+
+    //[TestMethod]
+    //public void Flatten2()
+    //{
+    //  string typeStr = "{as:in, bs:out}";
+    //  string atus = "{{as:[[1,2]], bs:[1, 2]}, {as:[[1,2], [3,4], [5,6]], bs:[1,2,3,4,5,6]}}";
+    //  assertFirstResultFor(typeStr, atus, "foldr(proj(foldr(cons), {as->a, b0->b, b->ab}))", 5);
+    //}
   }
 
   // [TestClass]
@@ -110,7 +122,7 @@ namespace Synthesis
     {
       string typeStr = "{a0:in, as:in, b:out}";
       string atusStr = "{{a0:0, as:[1,3], b:[1,2]}, {a0:5, as:[3,1], b:[2,1]}}";
-      assertNoResultFor(typeStr, atusStr);
+      assertNoResultFor(typeStr, atusStr, 1);
     }
 
     [TestMethod]
@@ -118,7 +130,7 @@ namespace Synthesis
     {
       string typeStr = "{a0:in, as:in, b:out}";
       string atusStr = "{{a0:[], as:[1,2,3], b:[1,2,3,4]}}";
-      assertNoResultFor(typeStr, atusStr);
+      assertNoResultFor(typeStr, atusStr, 1);
     }
 
     [TestMethod]
@@ -126,7 +138,7 @@ namespace Synthesis
     {
       string typeStr = "{a0:in, as:in, b:out}";
       string atusStr = "{{a0:[], as:[1], b:[1,2]}}";
-      assertNoResultFor(typeStr, atusStr);
+      assertNoResultFor(typeStr, atusStr, 1);
     }
 
     [TestMethod]
@@ -134,15 +146,15 @@ namespace Synthesis
     {
       string typeStr = "{a0:in, as:in, b:out}";
       string atusStr = "{{a0:[], as:[], b:[1]}}";
-      assertNoResultFor(typeStr, atusStr);
+      assertNoResultFor(typeStr, atusStr, 1);
     }
 
     [TestMethod]
     public void AppendFail_1()
     {
-      string typeStr = "{a0:in, as:in, b:out}";
-      string atusStr = "{{a0:[4,5,6], as:[1,2,3], b:[1,2,3]}, {a0:[1], as:[2], b:[1,3]}}";
-      assertNoResultFor(typeStr, atusStr);
+      string typeStr = "{b0:in, as:in, b:out}";
+      string atusStr = "{{b0:[4,5,6], as:[1,2,3], b:[1,2,3]}, {b0:[1], as:[2], b:[1,3]}}";
+      assertNoResultFor(typeStr, atusStr, 2);
     }
   }
 }

@@ -50,10 +50,10 @@ namespace Benchit
       StringBuilder pgfCoordinates = new();
       StringBuilder texTabularData = new();
       Console.WriteLine();
-      Console.Write("|{0,-12}|{1,6}|", "Name", "Thrds");
+      Console.Write("{0,-12}{1,6}", "Name", "Thrds");
       for (int ri = 1; ri <= repeats; ri++)
-        Console.Write("{0,7}|", "run " + ri);
-      Console.Write("{0,7}|", "AVG");
+        Console.Write("{0,8}", "run " + ri);
+      Console.Write("{0,8}", "AVG");
       Console.WriteLine();
       bool theVeryFirstRun = true;
       foreach (SynTask bench in tasks ?? Array.Empty<SynTask>())
@@ -62,12 +62,14 @@ namespace Benchit
         for (int thci = 0; thci < threadCounts.Length; thci++)
         {
           int thCount = threadCounts[thci];
-          Console.Write("|{0,-12}|{1,6}|", bench.Name.Substring(0, Math.Min(12, bench.Name.Length)), thCount);
+          Console.Write("{0,-12}{1,6}", bench.Name.Substring(0, Math.Min(12, bench.Name.Length)), thCount);
           double[] durationsRpt = new double[repeats];
           bool succeess = true;
           for (int r = 0; r < repeats; r++)
           {
-            beginning:
+            GC.Collect();
+            Thread.Sleep(100);
+          beginning:
             SynthesisJob job = new SynthesisJob(bench.ProgramEnv, new ThreadCount(thCount), SearchOptions.FindOnlyFirstProgram);
             DateTime t0 = DateTime.UtcNow;
             var programs = job.FindPrograms();
@@ -85,12 +87,12 @@ namespace Benchit
               if (foundProgramString == bench.ExpectedProgram)
               {
                 durationsRpt[r] = (t1 - t0).TotalSeconds;
-                Console.Write("{0,7:F2}|", durationsRpt[r]);
+                Console.Write("{0,8:F2}", durationsRpt[r]);
               }
               else
               {
                 succeess = false;
-                Console.Write("{0,7}|", "F");
+                Console.Write("{0,8}", "F");
                 errors.AppendLine($"({bench.Name}) \n Expecting: {bench.ExpectedProgram} \n Found: {foundProgramString}");
               }
             }
@@ -104,15 +106,18 @@ namespace Benchit
           if (succeess)
           {
             double avgRepeats = durationsRpt.Average();
-            Console.WriteLine("{0,7:F2}|", avgRepeats);
+            Console.WriteLine("{0,8:F2}", avgRepeats);
             averages[thci] = (threadCounts[thci], avgRepeats);
-          } else Console.WriteLine("{0,7}|", "N/A");
+          } else Console.WriteLine("{0,8}", "N/A");
+          GC.Collect();
+          Thread.Sleep(1000);
         }
         string coordsStr = string.Join(" ", averages.Select(a => $"({a.Item1},{a.Item2:F2})"));
         string dataStr = string.Join(" & ", averages.Select(a => $"{a.Item2:F2}"));
         pgfCoordinates.AppendLine(bench.Name + ": " + coordsStr);
         texTabularData.AppendLine(dataStr);
-        Console.WriteLine("---------------------------------------------");
+        Console.WriteLine(bench.Name + ": " + bench.ExpectedProgram);
+        Console.WriteLine();
       }
       Console.WriteLine("For PGF:");
       Console.WriteLine(pgfCoordinates);

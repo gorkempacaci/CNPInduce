@@ -22,12 +22,10 @@ namespace Synthesis
       var tups = new ITerm[][] { new ITerm[] { list(), list(1, 2, 3), list(3, 2, 1) } };
       var foldrel = new AlphaRelation(names, tups);
       var freeFact = new FreeFactory();
-      FoldL.UnFoldL(foldrel, (0, 1, 2), freeFact, out var pTuples, out var qTuples);
+      FoldL.UnFoldL(foldrel, (0, 1, 2), freeFact, out var pTuples);
       var stringer = new PrettyStringer(nvb);
       var pTuplesString = stringer.Visit(pTuples, FoldL.FoldLValences.RecursiveCaseNames);
-      var qTuplesString = stringer.Visit(qTuples, FoldL.FoldLValences.BaseCaseNames);
-      Assert.AreEqual("{{a:1, b:[], ab:F0}, {a:2, b:F0, ab:F1}, {a:3, b:F1, ab:F2}}", pTuplesString, "Recursive case tuples should match");
-      Assert.AreEqual("{{a:F2, b:[3, 2, 1]}}", qTuplesString, "Base case tuples should match.");
+      Assert.AreEqual("{{a:1, b:[], ab:F0}, {a:2, b:F0, ab:F1}, {a:3, b:F1, ab:[3, 2, 1]}}", pTuplesString, "Recursive case tuples should match");
     }
 
     [TestMethod]
@@ -35,8 +33,18 @@ namespace Synthesis
     {
       string typeStr = "{b0:in, as:in, b:out}";
       string atusStr = "{{b0:[], as:[1,2,3], b:[3,2,1]}}";
-      assertFirstResultFor(typeStr, atusStr, "foldl(cons, id)");
+      assertFirstResultFor(typeStr, atusStr, "foldl(cons)");
     }
 
+    
+    [TestMethod]
+    public void Reverse2()
+    {
+      string typeStr = "{as:in, bs:out}";
+      string atusStr = "{{as:[], bs:[]}, {as:[1,2,3], bs:[3,2,1]}}";
+      // proj(foldr(proj(cons, {a->a, ab->b, b->ab})), {b0->as, as->bs})
+      assertFirstResultFor(typeStr, atusStr, "proj(and(const(b0, []), foldl(cons)), {as->as, b->bs})");
+    }
+    
   }
 }

@@ -14,33 +14,23 @@ namespace CNP.Language
     private const Mode Out = Mode.Out;
 
     public readonly static FoldValenceSeries FoldRValences = FoldValenceSeries.FoldSerieFromArrays(
-      new[] { "b0", "as", "b" }, new[] { "a", "b", "ab" }, new[] { "a", "b" },
+      new[] { "b0", "as", "b" }, new[] { "a", "b", "ab" },
       new[] {
-        (new[]{In, In, Out}, new[]{In, In, Out }, new[]{In, Out }),
-        (new[]{In, In, Out}, new[]{In, Out, Out }, new[]{In, Out }),
-        (new[]{In, In, Out}, new[]{Out, In, Out }, new[]{In, Out }),
-        (new[]{In, In, Out}, new[]{Out, Out, Out }, new[]{In, Out }),
-        (new[]{In, In, Out}, new[]{In, In, Out }, new[]{Out, Out }),
-        (new[]{In, In, Out}, new[]{In, Out, Out }, new[]{Out, Out }),
-        (new[]{In, In, Out}, new[]{Out, In, Out }, new[]{Out, Out }),
-        (new[]{In, In, Out}, new[]{Out, Out, Out }, new[]{Out, Out }),
+        (new[]{In, In, Out}, new[]{In, In, Out }),
+        (new[]{In, In, Out}, new[]{In, Out, Out }),
+        (new[]{In, In, Out}, new[]{Out, In, Out }),
+        (new[]{In, In, Out}, new[]{Out, Out, Out }),
 
-        (new[]{Out,In,Out}, new[]{In,In,Out}, new[]{Out, Out }),
-        (new[]{Out,In,Out}, new[]{In,Out,Out}, new[]{Out, Out }),
-        (new[]{Out,In,Out}, new[]{Out,In,Out}, new[]{Out, Out }),
-        (new[]{Out,In,Out}, new[]{Out,Out,Out}, new[]{Out, Out }),
+        (new[]{Out,In,Out}, new[]{In,Out,Out}),
+        (new[]{Out,In,Out}, new[]{Out,Out,Out}),
 
-        (new[]{In, Out, Out}, new[]{Out, In, Out}, new[]{In, Out}),
-        (new[]{In, Out, Out}, new[]{Out, Out, Out}, new[]{In, Out}),
-        (new[]{In, Out, Out}, new[]{Out, In, Out}, new[]{Out, Out}),
-        (new[]{In, Out, Out}, new[]{Out, Out, Out}, new[]{Out, Out}),
+        (new[]{In, Out, Out}, new[]{Out, In, Out}),
+        (new[]{In, Out, Out}, new[]{Out, Out, Out}),
 
-        (new[]{Out, Out, Out}, new[]{Out, In, Out}, new[]{Out, Out}),
-        (new[]{Out, Out, Out}, new[]{Out, Out, Out}, new[]{Out, Out})
+        (new[]{Out, Out, Out}, new[]{Out, Out, Out})
       });
 
     public IProgram Recursive { get; }
-    public IProgram Base { get; }
 
     /// <summary>
     /// The valence that lead to this program.
@@ -51,28 +41,24 @@ namespace CNP.Language
     /// </summary>
     public string DebugObservationString { get; set; }
 
-    public FoldR(IProgram recursiveCase, IProgram baseCase)
+    public FoldR(IProgram recursiveCase)
     {
       Recursive = recursiveCase;
-      Base = baseCase;
     }
 
     ObservedProgram IProgram.FindLeftmostHole()
     {
-      return Recursive.FindLeftmostHole() ?? Base.FindLeftmostHole();
+      return Recursive.FindLeftmostHole();
     }
 
     (ObservedProgram, int) IProgram.FindRootmostHole(int calleesDistanceToRoot)
     {
-      var rec = Recursive.FindRootmostHole(calleesDistanceToRoot + 1);
-      var bas = Base.FindRootmostHole(calleesDistanceToRoot + 1);
-      if (bas.Item2 < rec.Item2) return bas; else return rec;
+      return Recursive.FindRootmostHole(calleesDistanceToRoot + 1);
     }
 
     public void ReplaceFree(Free free, ITerm term)
     {
       Recursive.ReplaceFree(free, term);
-      Base.ReplaceFree(free, term);
     }
 
     public string Accept(ICNPVisitor ps)
@@ -87,7 +73,7 @@ namespace CNP.Language
 
     public string GetTreeQualifier()
     {
-      return "foldr(" + Recursive.GetTreeQualifier() + "," + Base.GetTreeQualifier() + ")";
+      return "foldr(" + Recursive.GetTreeQualifier() + ")";
     }
 
     /// <summary>
@@ -98,30 +84,44 @@ namespace CNP.Language
       return IFold.CreateAtFirstHole(env, FoldRValences, factoryFoldR, UnFoldR);
     }
 
-    static IFold.CreateFold factoryFoldR = (rec, bas) => new FoldR(rec, bas);
+    static IFold.CreateFold factoryFoldR = (rec) => new FoldR(rec);
 
 
-    public static bool UnFoldR(AlphaRelation foldRel, (short b0, short @as, short b) nameIndices, FreeFactory freeFac, out ITerm[][] pTuples, out ITerm[][] qTuples)
+    public static bool UnFoldR(AlphaRelation foldRel, (short b0, short @as, short b) nameIndices, FreeFactory freeFac, out ITerm[][] pTuples)
     {
       List<ITerm[]> pTuplesList = new();
-      List<ITerm[]> qTuplesList = new();
       for (int ri = 0; ri < foldRel.TuplesCount; ri++)
       {
-        ITerm b0 = foldRel.Tuples[ri][nameIndices.b0];
-        ITerm @as = foldRel.Tuples[ri][nameIndices.@as];
-        ITerm b = foldRel.Tuples[ri][nameIndices.b];
-        if (!unfoldFoldrToPQ(b0, @as, b, freeFac, pTuplesList, qTuplesList))
+        ITerm seed = foldRel.Tuples[ri][nameIndices.b0];
+        ITerm list = foldRel.Tuples[ri][nameIndices.@as];
+        ITerm result = foldRel.Tuples[ri][nameIndices.b];
+        while(list is TermList termList)
         {
-          pTuples = null;
-          qTuples = null;
-          return false;
+          ITerm head = termList.Head;
+          ITerm tail = termList.Tail;
+          if (tail is NilTerm)
+          {
+            pTuplesList.Add(new ITerm[] { head, seed, result });
+          }
+          else
+          {
+            var acc = freeFac.NewFree();
+            pTuplesList.Add(new ITerm[] { head, acc, result });
+            result = acc;
+          }
+          list = tail;
         }
       }
-      pTuples = pTuplesList.ToArray();
-      qTuples = qTuplesList.ToArray();
-      if (pTuples.Any() && qTuples.Any())
+      if (pTuplesList.Any())
+      {
+        pTuplesList.Reverse();
+        pTuples = pTuplesList.ToArray();
         return true;
-      else return false;
+      } else
+      {
+        pTuples = null;
+        return false;
+      }
     }
 
     /*
@@ -145,21 +145,21 @@ namespace CNP.Language
            foldr(Y, [], Z) :- Q(Y, Z).
            foldr(Y, [X|T], W) :- foldr(Y, T, Z), P(X, Z, W).
      */
-    static bool unfoldFoldrToPQ(ITerm b0, ITerm @as, ITerm b, FreeFactory freeFac, List<ITerm[]> atusP, List<ITerm[]> atusQ)
-    {
-      if (@as is TermList li)
-      {
-        Free f = freeFac.NewFree();
-        atusP.Add(new[] { li.Head, f, b });
-        return unfoldFoldrToPQ(b0, li.Tail, f, freeFac, atusP, atusQ);
-      }
-      else if (@as is NilTerm)
-      {
-        atusQ.Add(new[] { b0, b });
-        return true;
-      }
-      else return false;
-    }
+    //static bool unfoldFoldrToPQ(ITerm b0, ITerm @as, ITerm b, FreeFactory freeFac, List<ITerm[]> atusP, List<ITerm[]> atusQ)
+    //{
+    //  if (@as is TermList li)
+    //  {
+    //    Free f = freeFac.NewFree();
+    //    atusP.Add(new[] { li.Head, f, b });
+    //    return unfoldFoldrToPQ(b0, li.Tail, f, freeFac, atusP, atusQ);
+    //  }
+    //  else if (@as is NilTerm)
+    //  {
+    //    atusQ.Add(new[] { b0, b });
+    //    return true;
+    //  }
+    //  else return false;
+    //}
 
 
 

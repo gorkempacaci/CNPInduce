@@ -6,6 +6,13 @@ namespace CNP.Language
 
   public class Plus : LibraryProgram
   {
+    /*
+     Other library predicates:
+    - lt
+    - lte
+    - smallerOf : {a, b, ab} == ab=a if a<=b, else ab=b. (then min=fold(smallerOf))
+    
+     */
     private static ElementaryValenceSeries PlusValences =
       ElementaryValenceSeries.SeriesFromArrays(new[] { "a", "b", "ab" },
                                     new[]

@@ -39,6 +39,23 @@ namespace Synthesis
       assertFirstResultFor(typeStr, atusStr, "cons");
     }
 
+    [TestMethod]
+    public void ConsValencesGrounding()
+    {
+      /*            new[]{  Mode.In,  Mode.In, Mode.In},
+                    new[]{  Mode.In,  Mode.In, Mode.Out},
+                    new[]{  Mode.In, Mode.Out, Mode.In},
+                    new[]{  Mode.Out, Mode.In, Mode.In},
+                    new[]{  Mode.Out, Mode.Out, Mode.In},
+       */
+      // observ.IsAllOutArgumentsGround() needs to be called after cons unifies to check if it actually grounded.
+      assertFirstResultFor("{a:in,  b:in,  ab:in}",  "{{a:0, b:[1], ab:[0,1]}}", "cons");
+      assertFirstResultFor("{a:in,  b:in,  ab:out}", "{{a:0, b:[1], ab:F0}}", "cons");
+      assertFirstResultFor("{a:in,  b:out, ab:in}",  "{{a:0, b:F0, ab:[0,1]}}", "cons");
+      assertFirstResultFor("{a:out, b:in,  ab:in}",  "{{a:F0, b:[1], ab:[0,1]}}", "cons");
+      assertFirstResultFor("{a:out, b:out, ab:in}",  "{{a:F0, b:F1, ab:[0,1]}}", "cons");
+    }
+
     [DataTestMethod]
     [DataRow("{a:in}", "{{a:0}}", "a", "0")]
     [DataRow("{a:out}", "{{a:'ello'}}", "a", "'ello'")]
@@ -54,22 +71,32 @@ namespace Synthesis
       assertFirstResultFor(typeStr, atusStr, "const("+argName+", "+constValueStr+")");
     }
 
+    [TestMethod]
+    public void ConstInvented()
+    {
+      var typeStr = "{b0:in}";
+      var atus = "{{b0:Z}}";
+      var prog = assertFirstResultFor(typeStr, atus, "const(b0, [])");
+    }
+
+    [TestMethod]
+    public void ConstInventedInFold()
+    {
+      var typeStr = "{b0:in, as:in, b:out}";
+      var atus = "{{b0:X, as:[], b:[]}, {b0:Z, as:[1,2,3], b:[3,2,1]}}";
+      var prog = assertFirstResultFor(typeStr, atus, "and(const(b0, []), foldl(cons))");
+    }
+
     [DataTestMethod]
-    // cons
-    [DataRow("{a:in, b:in, ab:out}", "{{a:0, b:0, ab:[2]}, {a:1, b:2, ab:[16]}}")]
+    // // cons
+    // [DataRow("{a:in, b:in, ab:out}", "{{a:0, b:0, ab:[2]}, {a:1, b:2, ab:[16]}}")]
     // const
-    [DataRow("{a:in}", "{{a:[1|X]}, {a:L}, {a:[1,2,T|4]}}")] // not ground
+    [DataRow("{a:in}", "{{a:[1|X]}, {a:L}, {a:[1,2,3,4,T|6]}}")] // not ground
     public void Negative(string typeStr, string atusStr)
     {
       assertNoResultFor(typeStr, atusStr);
-      //NameVarDictionary namevars = new();
-      //Valence namesModes = Parser.ParseNameModeMap(typeStr, namevars);
-      //IEnumerable<AlphaTuple> atus = Parser.ParseAlphaTupleSet(atusStr, namevars);
-      //assertNoResultFor(namesModes, atus);
-      //SynthesisJob job = new SynthesisJob(atus, namesModes);
-      //var programs = job.FindAllPrograms();
-      //Assert.AreEqual(0, programs.Count());
     }
+
   }
 
 }

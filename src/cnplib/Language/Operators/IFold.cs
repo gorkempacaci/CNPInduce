@@ -1,30 +1,1 @@
-﻿using System;using System.Collections.Generic;using System.Reflection;using CNP.Parsing;using CNP.Helper;using System.Linq;
-namespace CNP.Language{  public interface IFold : IProgram  {    public IProgram Base { get; }    public IProgram Recursive { get; }
-
-    bool IProgram.IsClosed => Recursive.IsClosed && Base.IsClosed;    int IProgram.GetHeight()    {      return Math.Max(Recursive.GetHeight(), Base.GetHeight());    }    delegate IFold CreateFold(IProgram recursive, IProgram bas);    delegate bool UnFold(AlphaRelation foldRel, (short b0, short @as, short b) nameIndices, FreeFactory freeFac, out ITerm[][] pRelation, out ITerm[][] qRelation);    protected static IEnumerable<ProgramEnvironment> CreateAtFirstHole(ProgramEnvironment oldEnv, FoldValenceSeries foldValences, CreateFold newFold, UnFold unfolder)    {      ObservedProgram origObservation = oldEnv.Root.FindHole();      if (origObservation.RemainingSearchDepth<2)
-        return Array.Empty<ProgramEnvironment>();      foldValences.GroundingAlternatives(origObservation.Valence, oldEnv.NameBindings, out var groundingAlternatives);      if (!groundingAlternatives.Any())        return Array.Empty<ProgramEnvironment>();      var newPrograms = new List<ProgramEnvironment>();      foreach (var alt in groundingAlternatives)      {        var newEnv = oldEnv.Clone();        var newObs= newEnv.Root.FindHole();
-        if (newEnv.NameBindings.TryBindingAllNamesToGround(newObs.Valence, (ins:alt.ins, outs:alt.outs)))
-        {
-          string[] groundNames = newEnv.NameBindings.GetNamesForVars(newObs.Observables.Names);
-          short b0 = (short)Array.IndexOf(groundNames, "b0");
-          short @as = (short)Array.IndexOf(groundNames, "as");
-          short b = (short)Array.IndexOf(groundNames, "b");
-          var nameIndices = (b0: b0, @as: @as, b: b);
-          if (unfolder(newObs.Observables, nameIndices, newEnv.Frees, out var pTuples, out var qTuples))
-          {
-            // build p-observation
-            NameVar[] pNames = new[] { newEnv.NameBindings.AddNameVar(foldValences.RecursiveCaseNames[0]), newEnv.NameBindings.AddNameVar(foldValences.RecursiveCaseNames[1]), newEnv.NameBindings.AddNameVar(foldValences.RecursiveCaseNames[2]) };
-            AlphaRelation pRelation = new(pNames, pTuples);
-            ValenceVar pVal = ValenceVar.FromModeIndices(pNames, alt.rec);
-            ObservedProgram pObs = new ObservedProgram(pRelation, pVal, newObs.RemainingSearchDepth - 1, ObservedProgram.Constraint.None);
-            // build q-observation
-            NameVar[] qNames = new[] { newEnv.NameBindings.AddNameVar(foldValences.BaseCaseNames[0]), newEnv.NameBindings.AddNameVar(foldValences.BaseCaseNames[1]) };
-            AlphaRelation qRelation = new(qNames, qTuples);
-            ValenceVar qVal = ValenceVar.FromModeIndices(qNames, alt.bas);
-            ObservedProgram qObs = new ObservedProgram(qRelation, qVal, newObs.RemainingSearchDepth - 1, ObservedProgram.Constraint.None);
-            // build fold
-            IFold fld = newFold(pObs, qObs);
-            var outEnv = newEnv.Clone((newObs, fld));
-            newPrograms.Add(outEnv);
-          }
-        }      }      return newPrograms;    }  }  }
+﻿using System;using System.Collections.Generic;using System.Reflection;using CNP.Parsing;using CNP.Helper;using System.Linq;namespace CNP.Language{  public interface IFold : IProgram  {    public IProgram Recursive { get; }    bool IProgram.IsClosed => Recursive.IsClosed;    int IProgram.GetHeight()    {      return Recursive.GetHeight() + 1;    }    delegate IFold CreateFold(IProgram recursive);    delegate bool UnFold(AlphaRelation foldRel, (short b0, short @as, short b) nameIndices, FreeFactory freeFac, out ITerm[][] pRelation);    protected static IEnumerable<ProgramEnvironment> CreateAtFirstHole(ProgramEnvironment oldEnv, FoldValenceSeries foldValences, CreateFold newFold, UnFold unfolder)    {      ObservedProgram origObservation = oldEnv.Root.FindHole();      if (origObservation.RemainingSearchDepth<2)        return Array.Empty<ProgramEnvironment>();      if (origObservation.Observables.TuplesCount == 0)        return Array.Empty<ProgramEnvironment>();      foldValences.GroundingAlternatives(origObservation.Valence, oldEnv.NameBindings, out var groundingAlternatives);      if (!groundingAlternatives.Any())        return Array.Empty<ProgramEnvironment>();      var newPrograms = new List<ProgramEnvironment>();      foreach (var alt in groundingAlternatives)      {        var newEnv = oldEnv.Clone();        var newObs= newEnv.Root.FindHole();        if (newEnv.NameBindings.TryBindingAllNamesToGround(newObs.Valence, (ins:alt.ins, outs:alt.outs)))        {          string[] groundNames = newEnv.NameBindings.GetNamesForVars(newObs.Observables.Names);          short b0 = (short)Array.IndexOf(groundNames, "b0");          short @as = (short)Array.IndexOf(groundNames, "as");          short b = (short)Array.IndexOf(groundNames, "b");          var nameIndices = (b0: b0, @as: @as, b: b);          if (unfolder(newObs.Observables, nameIndices, newEnv.Frees, out var pTuples))          {            // build p-observation            NameVar[] pNames = new[] { newEnv.NameBindings.AddNameVar(foldValences.RecursiveCaseNames[0]), newEnv.NameBindings.AddNameVar(foldValences.RecursiveCaseNames[1]), newEnv.NameBindings.AddNameVar(foldValences.RecursiveCaseNames[2]) };            AlphaRelation pRelation = new(pNames, pTuples);            ValenceVar pVal = ValenceVar.FromModeIndices(pNames, alt.rec);            ObservedProgram pObs = new ObservedProgram(pRelation, pVal, newObs.RemainingSearchDepth - 1, ObservedProgram.Constraint.None);            // build fold            IFold fld = newFold(pObs);            fld.SaveDebugInformationString(newEnv, newObs, $" with order (b0={b0}, as={@as}, b={b})");            var outEnv = newEnv.Clone((newObs, fld));            newPrograms.Add(outEnv);          }        }      }      return newPrograms;    }  }  }

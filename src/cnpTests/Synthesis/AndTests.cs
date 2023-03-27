@@ -60,8 +60,8 @@ namespace Synthesis
       var programsInNextStep = And.CreateAtFirstHole(env);
       
       Assert.AreEqual(24, programsInNextStep.Count(), "24 alternations");
-      var firstExpectedLH = Parser.ParseAlphaTupleSet("{{a:1, b:2}, {a:2, b:4}}", names, frees);
-      var firstExpectedRH = Parser.ParseAlphaTupleSet("{{b:2}, {b:4}}", names, frees);
+      var firstExpectedLH = Parser.ParseAlphaTupleSet("{{b:2}, {b:4}}", names, frees);
+      var firstExpectedRH = Parser.ParseAlphaTupleSet("{{a:1, b:2}, {a:2, b:4}}", names, frees);
       var firstActualEnv = programsInNextStep.First();
       var firstActual = (And)firstActualEnv.Root;
       var firstActualStringer = new PrettyStringer(firstActualEnv.NameBindings);

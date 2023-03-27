@@ -58,6 +58,25 @@ namespace CNP.Language
       return modes;
     }
 
+    /// <summary>
+    /// Returns the indices of someNames in the given allNames array. Assumes someNames are in the order they appear in the allNames array.
+    /// OPTIMIZE: can return ins and outs at the same time like the one above.
+    /// </summary>
+    public (short[] ins, short[] outs) GetIndicesOfInsOrOutsIn(in NameVar[] allNames)
+    {
+      var indices = (ins: new short[Ins.Length], outs: new short[Outs.Length]);
+      int ii = 0, oi = 0;
+      for (short i=0; i<allNames.Length; i++)
+      {
+        if (ii<Ins.Length && allNames[i].Index == Ins[ii].Index)
+          indices.ins[ii++] = i;
+        else if (oi<Outs.Length && allNames[i].Index == Outs[oi].Index)
+          indices.outs[oi++] = i;
+        else throw new ArgumentException("Valence names are not in the same order as observation.");
+      }
+      return indices;
+    }
+
     public static ValenceVar FromArray(KeyValuePair<NameVar, Mode>[] pairs)
     {
       var (ins, outs) = pairs.WhereAndNot(kv => kv.Value == Mode.In);
@@ -71,14 +90,14 @@ namespace CNP.Language
       return new ValenceVar(insNames, outsNames);
     }
 
+    public ValenceVar Accept(CloningContext cc)
+    {
+      return cc.Clone(this);
+    }
+
     public string Accept(ICNPVisitor ps)
     {
       return ps.Visit(this);
-    }
-
-    public ValenceVar Clone(CloningContext cc)
-    {
-      return cc.Clone(this);
     }
 
     public override int GetHashCode() => ModeNumber;

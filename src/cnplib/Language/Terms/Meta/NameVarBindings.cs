@@ -50,11 +50,6 @@ namespace CNP.Language
       return Difference[indexNV1, indexNV2];
     }
 
-    public bool IsDifferent(NameVar nv1, NameVar nv2)
-    {
-      return Difference[nv1.Index, nv2.Index];
-    }
-
     public void AssertDifferent(NameVar nv1, NameVar nv2)
     {
       Difference[nv1.Index, nv2.Index] = true;

@@ -84,18 +84,36 @@ namespace CNP.Language
         if (!env.UnifyInPlace(tuple0, tuplen)) // unify [0, 1] and [1, 0]
           return Array.Empty<ProgramEnvironment>();
       }
-      if (!tuple0[0].IsGround())
-      {
-        return Array.Empty<ProgramEnvironment>();
-      }
       var name = obsOriginal.Observables.Names[0];
-      if (env.NameBindings.GetNameForVar(name)=="u")
-      {
-        ;
+      if (tuple0[0].IsGround())
+      { // found the constant through decomposition / initial example
+        var constProg = new Const(name, tuple0[0]);
+        var newEnv = env.Clone((obsOriginal, constProg));
+        return new ProgramEnvironment[] { newEnv };
       }
-      var constProg = new Const(name, tuple0[0]);
-      var newEnv = env.Clone((obsOriginal, constProg));
-      return new ProgramEnvironment[] { newEnv };
+      else
+      { // suggest common constants
+        ITerm[] commonConstants = new ITerm[] { new NilTerm(),
+                                                new ConstantTerm(0),
+                                                new ConstantTerm(1),
+                                                new ConstantTerm(-1)
+        };
+        List<ProgramEnvironment> ccEnvironments = new();
+        foreach(ITerm cc in commonConstants)
+        {
+          var newEnv = env.Clone();
+          var newObs = newEnv.Root.FindHole();
+          if (newEnv.UnifyInPlace(newObs.Observables.Tuples[0], new ITerm[] { cc }))
+          {
+            var constProg = new Const(newObs.Observables.Names[0], cc);
+            var clonedEnv = newEnv.Clone((newObs, constProg));
+            ccEnvironments.Add(clonedEnv);
+          }
+        }
+        return ccEnvironments;
+      }
+
+
     }
 
   }

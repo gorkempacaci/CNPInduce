@@ -98,12 +98,12 @@ namespace CNP
 
     public string Visit(FoldL fl)
     {
-      return "foldl(" + fl.Recursive.Accept(this) + ", " + fl.Base.Accept(this) + ")";
+      return "foldl(" + fl.Recursive.Accept(this) + ")";
     }
 
     public string Visit(FoldR fr)
     {
-      return "foldr(" + fr.Recursive.Accept(this) + ", " + fr.Base.Accept(this) + ")";
+      return "foldr(" + fr.Recursive.Accept(this) + ")";
     }
 
     public string Visit(Proj pj)

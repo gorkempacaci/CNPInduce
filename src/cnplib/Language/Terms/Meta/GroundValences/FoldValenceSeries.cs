@@ -14,33 +14,30 @@ namespace CNP.Language
   {
     public readonly string[] Names;
     public readonly string[] RecursiveCaseNames;
-    public readonly string[] BaseCaseNames;
     public readonly IReadOnlyDictionary<int, FoldModeIndices[]> FoldModesByModeNumber;
 
-    public FoldValenceSeries(string[] names, string[] recNames, string[] baseNames, IReadOnlyDictionary<int, FoldModeIndices[]> foldModesByNumber)
+    public FoldValenceSeries(string[] names, string[] recNames, IReadOnlyDictionary<int, FoldModeIndices[]> foldModesByNumber)
     {
       this.Names = names;
       this.RecursiveCaseNames = recNames;
-      this.BaseCaseNames = baseNames;
       this.FoldModesByModeNumber = foldModesByNumber;
     }
 
 
-    public static FoldValenceSeries FoldSerieFromArrays(string[] Names, string[] RecursiveCaseNames, string[] BaseCaseNames, (Mode[] FoldModes, Mode[] RecModes, Mode[] BasModes)[] FoldModeTriplesArray)
+    public static FoldValenceSeries FoldSerieFromArrays(string[] Names, string[] RecursiveCaseNames, (Mode[] FoldModes, Mode[] RecModes)[] FoldModeTriplesArray)
     {
       var foldModeTriplesIndices = FoldModeTriplesArray.Select(e => new
         FoldModeIndices(ModeIndices.IndicesFromArray(e.FoldModes),
-                               ModeIndices.IndicesFromArray(e.RecModes),
-                               ModeIndices.IndicesFromArray(e.BasModes)))
+                               ModeIndices.IndicesFromArray(e.RecModes)))
                                                        .GroupBy(e => e.GetHashCode())
                                                        .ToDictionary(g => g.Key, g => g.ToArray());
-      return new FoldValenceSeries(Names, RecursiveCaseNames, BaseCaseNames, foldModeTriplesIndices);
+      return new FoldValenceSeries(Names, RecursiveCaseNames, foldModeTriplesIndices);
     }
 
     /// <summary>
     /// Returns the list of compatible valences with all their permutations assigning free names to ground names in the valence list. If the valencevar's name is ground to begin with, that name is returned as the single alternative. Does not modify the names. In the groundingAlternatives, for each alternative, modeIndices for the baseCase and recCase are also returned. The names for these are static so there is no grounding for these.
     /// </summary>
-    public void GroundingAlternatives(ValenceVar vv, NameVarBindings vvbind, out List<(string[] ins, string[] outs, ModeIndices rec, ModeIndices bas)> groundingAlternatives)
+    public void GroundingAlternatives(ValenceVar vv, NameVarBindings vvbind, out List<(string[] ins, string[] outs, ModeIndices rec)> groundingAlternatives)
     {
       groundingAlternatives = new();
       if (FoldModesByModeNumber.TryGetValue(vv.ModeNumber, out FoldModeIndices[] foldValenceAlternatives))
@@ -56,7 +53,7 @@ namespace CNP.Language
             {
               foreach (var insAlt in inAlternatives)
                 foreach (var outsAlt in outAlternatives)
-                  groundingAlternatives.Add((insAlt, outsAlt, valenceAltCombi.RecursiveCaseModes, valenceAltCombi.BaseCaseModes));
+                  groundingAlternatives.Add((insAlt, outsAlt, valenceAltCombi.RecursiveCaseModes));
             }
             else continue; // no out-unifications
           }

@@ -8,7 +8,7 @@ using System.Diagnostics;
 namespace CNP.Language
 {
 
-  public struct Cons : IProgram
+  public class Cons : IProgram
   {
     private static ElementaryValenceSeries ConsValences =
   ElementaryValenceSeries.SeriesFromArrays(new[] { "a", "b", "ab" },
@@ -92,9 +92,11 @@ namespace CNP.Language
               break;
             }
           }
-          if (unificationSuccess)
+          if (unificationSuccess && observ.IsAllOutArgumentsGround())
           {
-            programs.Add(currEnv.Clone((observ, new Cons())));
+            Cons cns = new Cons();
+            (cns as IProgram).SaveDebugInformationString(currEnv, observ);
+            programs.Add(currEnv.Clone((observ, cns)));
           }
         } // if not then this alt is skipped
       }

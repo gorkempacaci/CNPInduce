@@ -104,8 +104,13 @@ namespace CNP.Language
     }
 
 
-    private static (short index, Mode mode)[] getModesAsNonNull(Mode?[] modes) =>
-  modes.Select((mm, i) => ((short)i, mm)).Where(e => e.mm.HasValue).Select(e => (e.Item1, e.mm.Value)).ToArray();
+    private static (short index, Mode mode)[] getModesAsNonNull(Mode?[] modes)
+    {
+      return modes.Select((mm, i) => ((short)i, mm))
+                  .Where(e => e.mm.HasValue)
+                  .Select(e => (e.Item1, e.mm.Value))
+                  .ToArray();
+    }
 
     private static (NameVar[] names, short[] indices, NameVar[] namesOfIns, NameVar[] namesOfOuts) getNamesIndicesModesForNames(Mode?[] modes, NameVar[] names)
     {
@@ -125,37 +130,5 @@ namespace CNP.Language
       }
       return (namesarr, indicesarr, namesOfIns.ToArray(), namesOfOuts.ToArray());
     }
-
-
-
-    //public static IEnumerable<ProgramEnvironment> CreateAtFirstHole2(ProgramEnvironment origEnv)
-    //{
-    //  var origObservation = origEnv.Root.FindHole();
-    //  if (origObservation.RemainingSearchDepth<2)
-    //    return Array.Empty<ProgramEnvironment>();
-    //  if ((origObservation.Constraints & ObservedProgram.Constraint.NotAnd) == ObservedProgram.Constraint.NotAnd)
-    //    return Array.Empty<ProgramEnvironment>();
-    //  IEnumerable<AndValence> allValenceCombs = AndValence.Generate(origObservation.Valence);
-    //  if (!allValenceCombs.Any())
-    //    return Array.Empty<ProgramEnvironment>();
-    //  List<ProgramEnvironment> programs = new List<ProgramEnvironment>();
-    //  foreach(AndValence valComb in allValenceCombs)
-    //  {
-    //    //NameVar.AddNameConstraintsInPairsIfNeeded(valComb.Names);
-    //    var pNames = valComb.LHValence.Ins.Concat(valComb.LHValence.Outs).ToArray();
-    //    var pObs = origObservation.Observables.GetCropped(pNames);
-    //    var pProg = new ObservedProgram(pObs, valComb.LHValence, origObservation.RemainingSearchDepth-1, ObservedProgram.Constraint.NotAnd);
-
-    //    var qNames = valComb.RHValence.Ins.Concat(valComb.RHValence.Outs).ToArray();
-    //    var qObs = origObservation.Observables.GetCropped(qNames);
-    //    var qProg = new ObservedProgram(qObs, valComb.RHValence, origObservation.RemainingSearchDepth-1, ObservedProgram.Constraint.NotAnd);
-
-    //    var andProg = new And(pProg, qProg);
-
-    //    var program = origEnv.Clone((origObservation, andProg), (valComb.OnlyLHNames,valComb.OnlyRHNames));
-    //    programs.Add(program);
-    //  }
-    //  return programs;
-    //} 
   }
 }

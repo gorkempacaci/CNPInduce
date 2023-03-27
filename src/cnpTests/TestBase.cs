@@ -49,8 +49,8 @@ public class TestBase
   protected static Const constant(NameVar dom, ConstantTerm t) => new Const(dom, t);
   protected static Const constant(NameVar dom, NilTerm t) => new Const(dom, t);
   protected static And and(IProgram p, IProgram q) => new And(p, q);
-  protected static FoldR foldr(IProgram rec, IProgram bas) => new FoldR(recursiveCase: rec, baseCase: bas);
-  protected static FoldL foldl(IProgram rec, IProgram bas) => new FoldL(recursiveCase: rec, baseCase: bas);
+  protected static FoldR foldr(IProgram rec) => new FoldR(recursiveCase: rec);
+  protected static FoldL foldl(IProgram rec) => new FoldL(recursiveCase: rec);
   protected static Proj proj(IProgram source, params (NameVar,NameVar)[] projections) => new Proj(source, new ProjectionMap(projections.Select(tu => new KeyValuePair<NameVar,NameVar>(tu.Item1,tu.Item2)).ToArray()));
   #endregion
 
@@ -109,7 +109,7 @@ public class TestBase
     return env;
   }
 
-  protected void assertFirstResultFor(string domains, string atusStr, string expectedProgramString, int searchDepth=TEST_SEARCH_DEPTH)
+  protected ProgramEnvironment assertFirstResultFor(string domains, string atusStr, string expectedProgramString, int searchDepth=TEST_SEARCH_DEPTH)
   {
     ProgramEnvironment preEnv = buildEnvironment(domains, atusStr, searchDepth);
     SynthesisJob job = new SynthesisJob(preEnv, new ThreadCount(TEST_THREAD_COUNT), SearchOptions.FindOnlyFirstProgram);
@@ -118,7 +118,9 @@ public class TestBase
     Assert.IsTrue(programs.Any(), "There should be at least one program.");
     ProgramEnvironment env = programs.First();
     PrettyStringer ps = new PrettyStringer(env.NameBindings);
-    Assert.AreEqual(expectedProgramString, env.Root.Accept(ps));
+    string debugString = env.Root.Accept(DebugPrinter.Contextless);
+    Assert.AreEqual(expectedProgramString, env.Root.Accept(ps), "DEBUG: " + debugString);
+    return env;
   }
 
   protected void assertNoResultFor(string domains, string atusStr, int searchDepth=TEST_SEARCH_DEPTH)
@@ -126,7 +128,7 @@ public class TestBase
     ProgramEnvironment env = buildEnvironment(domains, atusStr, searchDepth);
     SynthesisJob job = new SynthesisJob(env, new ThreadCount(TEST_THREAD_COUNT), SearchOptions.FindAllPrograms);
     var programs = job.FindPrograms();
-    var strings = string.Join("\n", programs.Take(3).Select(p => p.Root.Accept(PrettyStringer.Contextless)));
+    var strings = string.Join("\n", programs.Take(3).Select(p => p.Root.Accept(new PrettyStringer(p.NameBindings))));
     Assert.AreEqual(0, programs.Count(), "A program should not have been found. First 3:\n" + strings);
   }
 

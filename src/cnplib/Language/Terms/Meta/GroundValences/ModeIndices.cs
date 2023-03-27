@@ -36,7 +36,7 @@ namespace CNP.Language
   /// Pairs fold's mode array to modes of recursive and base components. For fold to guarantee the
   /// mode array (for termination), the components have to guarantee the given mode arrays.
   /// </summary>
-  public readonly record struct FoldModeIndices(ModeIndices FoldModes, ModeIndices RecursiveCaseModes, ModeIndices BaseCaseModes)
+  public readonly record struct FoldModeIndices(ModeIndices FoldModes, ModeIndices RecursiveCaseModes)
   {
     public override int GetHashCode() => GroundValence.CalculateValenceModeNumber(FoldModes.Ins.Length, FoldModes.Outs.Length);
   }

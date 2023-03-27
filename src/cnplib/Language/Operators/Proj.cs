@@ -107,8 +107,13 @@ namespace CNP.Language
           }
         }
         var sourceRel = new AlphaRelation(sourceNamesAll, newTups);
-        var sourceObs = new ObservedProgram(sourceRel, sourceValence, obs.RemainingSearchDepth - 1, obs.Constraints | ObservedProgram.Constraint.NotProjection);
+        // if allowing new unbound arguments in the source, forcing the source to be an AND is 
+        // a way to make sure the predicate expression will be well-formed. Other ways of doing this
+        // are more convoluted because for example there's no way to fold
+        var constraint = elim_outs > 0 ? ObservedProgram.Constraint.OnlyAndElemLib : ObservedProgram.Constraint.NotProjection;
+        var sourceObs = new ObservedProgram(sourceRel, sourceValence, obs.RemainingSearchDepth - 1, constraint);
         Proj newProj = new Proj(sourceObs, projMap);
+        (newProj as IProgram).SaveDebugInformationString(env, obs);
         var newEnv = env.Clone((obs, newProj));
         programs.Add(newEnv);
       }

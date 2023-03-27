@@ -25,6 +25,9 @@ namespace CNP.Language
 
     public int PositionalModeNumber => CalculatePositionalModeNumber(OpModes);
 
+    public readonly int NumberOfLHArguments = LHModes.Where(m => m is not null).Count();
+    public readonly int NumberOfRHArguments = RHModes.Where(m => m is not null).Count();
+
     private static readonly int[] twosPow = new int[] { 1, 2, 4, 8, 16, 32, 64, 128, 256 };
     // see overload upon modification
     public static int CalculatePositionalModeNumber(Mode[] opModes)
@@ -99,7 +102,23 @@ namespace CNP.Language
           if (allProtoAndValences[arityIndex][modeIndex] != null)
             throw new ArgumentOutOfRangeException("AndValenceSeries.Generate: one position is overwritten twice in the ProtoAndValence[] array.");
 #endif
-          allProtoAndValences[arityIndex][modeIndex] = GenerateForSingleOpModeList(opModeListsByArity[arityIndex][i]).ToArray();
+          var valencesForArityAndModeIndex = GenerateForSingleOpModeList(opModeListsByArity[arityIndex][i]);
+          var sorted = valencesForArityAndModeIndex.OrderBy(p => p.NumberOfLHArguments);
+          allProtoAndValences[arityIndex][modeIndex] = sorted.ToArray();
+        }
+      }
+
+      foreach (var arityGroup in (allProtoAndValences))
+      {
+        foreach (var valArrForMode in arityGroup)
+        {
+          foreach (var val in valArrForMode)   
+          {
+            if (val.LHModes.Length != val.RHModes.Length)
+            {
+              Console.WriteLine(val.ToString());
+            }
+          }
         }
       }
       return new AndValenceSeries(allProtoAndValences);

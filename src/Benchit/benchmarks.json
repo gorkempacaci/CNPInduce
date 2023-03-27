@@ -1,30 +1,41 @@
 {
-    "SearchDepth":4,
-    "Tasks":
-    [
+    "SearchDepth": 4,
+    "Tasks": [
+        {
+            "Name": "head",
+            "Valence": "{list:in, h:out}",
+            "Examples": "{{list:[1,2,3], h:1}, {list:[2], h:2}}",
+            "ExpectedProgram": "proj(cons, {ab->list, a->h})"
+        },
         {
             "Name": "append",
             "Valence": "{b0:in, as:in, b:out}",
             "Examples": "{{b0:[3,4], as:[1,2], b:[1,2,3,4]}}",
-            "ExpectedProgram": "foldr(cons, id)"
+            "ExpectedProgram": "foldr(cons)"
         },
         {
-            "Name": "reverse3",
+            "Name": "reverse/3",
             "Valence": "{b0:in, as:in, b:out}",
             "Examples": "{{b0:[], as:[1,2,3], b:[3,2,1]}}",
-            "ExpectedProgram": "foldl(cons, id)"
+            "ExpectedProgram": "foldl(cons)"
         },
         {
-            "Name": "proj-foldr-cons",
+            "Name": "append'",
             "Valence": "{list1:in, list2:in, list3:out}",
-            "Examples": "{{list1:['a','b'], list2:['c','d'], list3:['a','b','c','d']}}",
-            "ExpectedProgram": "proj(foldr(cons, id), {as->list1, b0->list2, b->list3})"
+            "Examples": "{{list1:[], list2:[], list3:[]}, {list1:[1,2], list2:[3,4], list3:[1,2,3,4]}}",
+            "ExpectedProgram": "proj(foldr(cons), {as->list1, b0->list2, b->list3})"
+        },
+        {
+            "Name": "sumall",
+            "Valence": "{b0:in, as:in, b:out}",
+            "Examples": "{{b0:0, as:[[1], [2]], b:3}, {b0:0, as:[[1,2,3], [4,5,6], [7,8,9]], b:45}}",
+            "ExpectedProgram": "foldl(proj(foldl(+), {as->a, b0->b, b->ab}))"
         },
         {
             "Name": "flatten/3",
             "Valence": "{b0:in, as:in, b:out}",
-            "Examples": "{{b0:[], as:[[1,2], [3,4]], b:[1,2,3,4]}, {b0:[], as:[['a'],['b'],['c']], b:['a','b','c']}}",
-            "ExpectedProgram": "foldr(proj(foldr(cons, id), {as->a, b0->b, b->ab}), id)"
+            "Examples": "{{b0:[], as:[[1,2]], b:[1, 2]}, {b0:[], as:[[1,2], [3,4], [5,6]], b:[1,2,3,4,5,6]}}",
+            "ExpectedProgram": "foldr(proj(foldr(cons), {as->a, b0->b, b->ab}))"
         }
     ]
 }
