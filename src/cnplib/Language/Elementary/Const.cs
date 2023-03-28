@@ -6,7 +6,7 @@ using CNP.Helper.EagerLinq;
 namespace CNP.Language
 {
   //TODO: if straight semantics are implemented, const(a, 5) should unify with proj(a, id), or any tuple that has {a:5}.
-  public struct Const : IProgram
+  public class Const : IProgram
   {
     public readonly NameVar ArgumentName;
     public readonly ITerm Value;
@@ -76,6 +76,7 @@ namespace CNP.Language
       if (obsOriginal.Observables.TuplesCount == 0)
         throw new ArgumentException("Const: Observation is empty.");
       var tuple0 = obsOriginal.Observables.Tuples[0];
+      var debugInfo = obsOriginal.GetDebugInformation(env);
       for (int ri = 1; ri < obsOriginal.Observables.TuplesCount; ri++)
       {
         var tuplen = obsOriginal.Observables.Tuples[ri];
@@ -86,7 +87,7 @@ namespace CNP.Language
       if (tuple0[0].IsGround())
       { // found the constant through decomposition / initial example
         var constProg = new Const(name, tuple0[0]);
-        (constProg as IProgram).SaveDebugInformationString(env, obsOriginal);
+        (constProg as IProgram).SetDebugInformation(debugInfo);
         var newEnv = env.Clone((obsOriginal, constProg));
         return new ProgramEnvironment[] { newEnv };
       }
@@ -105,7 +106,7 @@ namespace CNP.Language
           if (newEnv.UnifyInPlace(newObs.Observables.Tuples[0], new ITerm[] { cc }))
           {
             var constProg = new Const(newObs.Observables.Names[0], cc);
-            (constProg as IProgram).SaveDebugInformationString(newEnv, newObs);
+            (constProg as IProgram).SetDebugInformation(debugInfo);
             var clonedEnv = newEnv.Clone((newObs, constProg));
             ccEnvironments.Add(clonedEnv);
           }

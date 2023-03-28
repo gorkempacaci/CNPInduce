@@ -215,9 +215,7 @@ namespace CNP
       {
         var obss = obs.Observables.Accept(this);
         var val = obs.Valence.Accept(this);
-        var remaining = obs.RemainingSearchDepth;
-        var constr = obs.Constraints;
-        return new ObservedProgram(obss, val, remaining, constr);
+        return new ObservedProgram(obss, val, obs.RemainingSearchDepth, obs.RemainingUnboundArguments, obs.Constraints);
       }
     }
     

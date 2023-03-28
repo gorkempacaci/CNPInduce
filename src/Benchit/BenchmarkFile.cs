@@ -7,13 +7,13 @@ namespace Benchit
 {
   public readonly record struct BenchmarkFileEntry(string Name, string ExpectedProgram, string Valence, string Examples)
   {
-    public SynTask Parse(int searchDepth)
+    public SynTask Parse(int searchDepth, int maxUnboundArguments)
     {
       NameVarBindings names = new();
       FreeFactory frees = new();
       ValenceVar vv = Parser.ParseValence(Valence, names);
       AlphaRelation examples = Parser.ParseAlphaTupleSet(Examples, names, frees);
-      ObservedProgram obs = new ObservedProgram(examples, vv, searchDepth, ObservedProgram.Constraint.None);
+      ObservedProgram obs = new ObservedProgram(examples, vv, searchDepth, maxUnboundArguments, ObservedProgram.Constraint.None);
       ProgramEnvironment env = new ProgramEnvironment(obs, names, frees);
       return new SynTask(Name, ExpectedProgram, env);
     }
@@ -24,6 +24,7 @@ namespace Benchit
   public class BenchmarkFile
   {
     public int SearchDepth { get; set; }
+    public int MaxUnboundArguments { get; set; }
     public BenchmarkFileEntry[] Tasks { get; set; } = Array.Empty<BenchmarkFileEntry>();
     
     
@@ -35,7 +36,7 @@ namespace Benchit
       {
         try
         {
-          synTasks.Add(Tasks[i].Parse(SearchDepth)); // parse valences and examples into CNP
+          synTasks.Add(Tasks[i].Parse(SearchDepth, MaxUnboundArguments)); // parse valences and examples into CNP
         }
         catch (Exception e)
         {

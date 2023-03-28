@@ -9,7 +9,7 @@ namespace CNP.Language
   {
     public const int AND_MAX_ARITY = 5;
 
-    private readonly static AndValenceSeries AndValences = AndValenceSeries.Generate(AND_MAX_ARITY);
+    public readonly static AndValenceSeries AndValences = AndValenceSeries.Generate(AND_MAX_ARITY);
 
     public readonly IProgram LHOperand, RHOperand;
 
@@ -68,6 +68,7 @@ namespace CNP.Language
         return Array.Empty<ProgramEnvironment>();
       if ((origObservation.Constraints & ObservedProgram.Constraint.NotAnd) == ObservedProgram.Constraint.NotAnd)
         return Array.Empty<ProgramEnvironment>();
+      var debugInfo = origObservation.GetDebugInformation(origEnv);
       Mode[] modes = origObservation.Valence.GetModesOrderedByNames(origObservation.Observables.Names);
       ProtoAndValence[] valences = AndValences.GetValencesForOpMode(modes);
       NameVar[] opNames = origObservation.Observables.Names;
@@ -79,15 +80,16 @@ namespace CNP.Language
         var (rhNames, rhIndices, rhNamesOfIns, rhNamesOfOuts) = getNamesIndicesModesForNames(protVal.RHModes, opNames);
         var (lhTuples, rhTuples) = origObservation.Observables.GetCroppedTo2ByIndices(lhIndices, rhIndices);
         int remSearchDepth = origObservation.RemainingSearchDepth - 1;
+        int remUnbound = origObservation.RemainingUnboundArguments;
         var constraint = ObservedProgram.Constraint.NotAnd;
         var lhRel = new AlphaRelation(lhNames, lhTuples);
         var lhVal = new ValenceVar(lhNamesOfIns, lhNamesOfOuts);
-        var lhObs = new ObservedProgram(lhRel, lhVal, remSearchDepth, constraint);
+        var lhObs = new ObservedProgram(lhRel, lhVal, remSearchDepth, remUnbound, constraint);
         var rhRel = new AlphaRelation(rhNames, rhTuples);
         var rhVal = new ValenceVar(rhNamesOfIns, rhNamesOfOuts);
-        var rhObs = new ObservedProgram(rhRel, rhVal, remSearchDepth, constraint);
+        var rhObs = new ObservedProgram(rhRel, rhVal, remSearchDepth, remUnbound, constraint);
         var andProg = new And(lhObs, rhObs);
-        (andProg as IProgram).SaveDebugInformationString(origEnv, origObservation);
+        (andProg as IProgram).SetDebugInformation(debugInfo);
         var onlyLHNames = protVal.OnlyLHIndices.Select(i => opNames[i]).ToArray();
         var onlyRHNames = protVal.OnlyRHIndices.Select(i => opNames[i]).ToArray();
         var prog = origEnv.Clone((origObservation, andProg), (onlyLHNames,onlyRHNames));

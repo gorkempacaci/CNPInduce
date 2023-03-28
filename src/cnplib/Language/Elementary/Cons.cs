@@ -78,6 +78,8 @@ namespace CNP.Language
           int a = Array.IndexOf(obsNames, "a");
           int b = Array.IndexOf(obsNames, "b");
           int ab = Array.IndexOf(obsNames, "ab");
+          var debugInfo = observ.GetDebugInformation(currEnv);
+          debugInfo.valenceString += $" [{obsNames[a]}|{obsNames[b]}]={obsNames[ab]}";
           bool unificationSuccess = true;
           for (int ri = 0; ri < observ.Observables.TuplesCount; ri++)
           {
@@ -93,7 +95,7 @@ namespace CNP.Language
           if (unificationSuccess && observ.IsAllOutArgumentsGround())
           {
             Cons cns = new Cons();
-            (cns as IProgram).SaveDebugInformationString(currEnv, observ);
+            (cns as IProgram).SetDebugInformation(debugInfo);
             programs.Add(currEnv.Clone((observ, cns)));
           }
         } // if not then this alt is skipped

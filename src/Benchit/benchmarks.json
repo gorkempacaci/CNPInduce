@@ -1,5 +1,6 @@
 {
     "SearchDepth": 4,
+    "MaxUnboundArguments": 1,
     "Tasks": [
         {
             "Name": "head",
@@ -8,21 +9,21 @@
             "ExpectedProgram": "proj(cons, {ab->list, a->h})"
         },
         {
-            "Name": "append",
-            "Valence": "{b0:in, as:in, b:out}",
-            "Examples": "{{b0:[3,4], as:[1,2], b:[1,2,3,4]}}",
-            "ExpectedProgram": "foldr(cons)"
-        },
-        {
             "Name": "reverse/3",
             "Valence": "{b0:in, as:in, b:out}",
             "Examples": "{{b0:[], as:[1,2,3], b:[3,2,1]}}",
             "ExpectedProgram": "foldl(cons)"
         },
         {
+            "Name": "append",
+            "Valence": "{b0:in, as:in, b:out}",
+            "Examples": "{{b0:[], as:[1], b:[1]}, {b0:[3,4], as:[1,2], b:[1,2,3,4]}}",
+            "ExpectedProgram": "foldr(cons)"
+        },
+        {
             "Name": "append'",
             "Valence": "{list1:in, list2:in, list3:out}",
-            "Examples": "{{list1:[], list2:[], list3:[]}, {list1:[1,2], list2:[3,4], list3:[1,2,3,4]}}",
+            "Examples": "{{list1:[], list2:[1], list3:[1]}, {list1:[1,2], list2:[3,4], list3:[1,2,3,4]}}",
             "ExpectedProgram": "proj(foldr(cons), {as->list1, b0->list2, b->list3})"
         },
         {
@@ -30,6 +31,12 @@
             "Valence": "{as:in, bs:out}",
             "Examples": "{{as:['a'], bs:['a']}, {as:[1,2,3], bs:[3,2,1]}}",
             "ExpectedProgram": "proj(and(const(b0, []), foldl(cons)), {as->as, b->bs})"
+        },
+        {
+            "Name": "sum",
+            "Valence": "{list:in, sum:out}",
+            "Examples": "{{list:[], sum:0}, {list:[1,2,3], sum:6}}",
+            "ExpectedProgram": "proj(and(const(b0, 0), foldl(+)), {as->list, b->sum})"
         },
         {
             "Name": "sumall",

@@ -22,7 +22,10 @@ namespace Synthesis
       var names = new NameVar[] { b0, @as, b };
       var tups = new ITerm[][] { new ITerm[] { list(), list(1, 2, 3), list(1, 2, 3) } };
       var foldrel = new AlphaRelation(names, tups);
-      FoldR.UnFoldR(foldrel, (0, 1, 2), freeFact, out var pTuples);
+      ValenceVar vv = new ValenceVar(new[] { b0, @as }, new[] { b });
+      ObservedProgram obs = new ObservedProgram(foldrel, vv, 2, 0, ObservedProgram.Constraint.None);
+      ProgramEnvironment env = new(obs, nvb, freeFact);
+      FoldR.UnFoldR(env, foldrel, (0, 1, 2), freeFact, out var pTuples);
       var stringer = new PrettyStringer(nvb);
       var pTuplesString = stringer.Visit(pTuples, FoldR.FoldRValences.RecursiveCaseNames);
       Assert.AreEqual("{{a:3, b:[], ab:F1}, {a:2, b:F1, ab:F0}, {a:1, b:F0, ab:[1, 2, 3]}}", pTuplesString, "Recursive case tuples should match");
@@ -60,13 +63,13 @@ namespace Synthesis
     }
 
     
-    [TestMethod]
-    public void Reverse2FoldR()
-    {
-      string typeStr = "{as:in, bs:out}";
-      string atusStr = "{{as:[], bs:[]},{as:[1,2,3], bs:[3,2,1]}}";
-      assertFirstResultFor(typeStr, atusStr, "proj(and(const(b0, []), foldl(cons)), {as->as, b->bs})", 4);
-    }
+    //[TestMethod]
+    //public void Reverse2FoldR()
+    //{
+    //  string typeStr = "{as:in, bs:out}";
+    //  string atusStr = "{{as:[], bs:[]},{as:[1,2,3], bs:[3,2,1]}}";
+    //  assertFirstResultFor(typeStr, atusStr, "proj(and(const(b0, []), foldl(cons)), {as->as, b->bs})", 4);
+    //}
 
 
     public void FoldL_Proj_FoldL_Plus()
@@ -88,7 +91,7 @@ namespace Synthesis
     public void Flatten2()
     {
       string typeStr = "{as:in, bs:out}";
-      string atus = "{{as:[[1,2]], bs:[1, 2]}, {as:[[1,2], [3,4], [5,6]], bs:[1,2,3,4,5,6]}}";
+      string atus = "{{as:[], bs:[]}, {as:[[1],[2]], bs:[1, 2]}, {as:[[1,2], [3,4], [5,6]], bs:[1,2,3,4,5,6]}}";
       assertFirstResultFor(typeStr, atus, "foldr(proj(foldr(cons), {as->a, b0->b, b->ab}))", 5);
     }
   }

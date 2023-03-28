@@ -25,10 +25,10 @@ namespace CNP.Language
     /// </summary>
     string DebugObservationString { get; set; }
 
-    public void SaveDebugInformationString(ProgramEnvironment e, ObservedProgram o, string valenceNote = "")
+    public void SetDebugInformation((string valenceString, string observationString) info)
     {
-      this.DebugValenceString = o.Valence.Accept(DebugPrinter.Contextless) + valenceNote;
-      this.DebugObservationString = o.Observables.Accept(DebugPrinter.Contextless);
+      DebugValenceString = info.valenceString;
+      DebugObservationString = info.observationString;
     }
 
     public sealed string ToString()

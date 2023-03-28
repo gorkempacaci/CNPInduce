@@ -14,6 +14,8 @@ namespace Benchit
 
   public class Program
   {
+    const int WAIT_BETWEEN_RUNS_MS = 200;
+    const int WAIT_BETWEEN_TASKS_MS = 2000;
 
     [RequiresAssemblyFiles()]
     public static int Main(string[] args)
@@ -29,6 +31,9 @@ namespace Benchit
       // PRINTING CNP VERSION
       string cnpTimeString = System.IO.File.GetCreationTime(typeof(IProgram).Assembly.Location).ToString();
       Console.WriteLine("Using CNP: " + cnpTimeString);
+      Console.WriteLine("Preinitializing. ");
+      SynthesisJob.PreInitialize();
+      Thread.Sleep(1000);
       // INITIALIZING ARGUMENTS
       string filename = args[0];
       int arg_repeats = int.Parse(args[2]);
@@ -68,7 +73,7 @@ namespace Benchit
           for (int r = 0; r < repeats; r++)
           {
             GC.Collect();
-            Thread.Sleep(100);
+            Thread.Sleep(WAIT_BETWEEN_RUNS_MS);
           beginning:
             SynthesisJob job = new SynthesisJob(bench.ProgramEnv, new ThreadCount(thCount), SearchOptions.FindOnlyFirstProgram);
             DateTime t0 = DateTime.UtcNow;
@@ -99,7 +104,7 @@ namespace Benchit
             else
             {
               succeess = false;
-              Console.Write("{0,7}", "F");
+              Console.Write("{0,8}", "F");
               errors.Append($"({bench.Name}), Threads {thCount}, Repeat {r + 1}, Program not found.");
             }
           }
@@ -108,9 +113,14 @@ namespace Benchit
             double avgRepeats = durationsRpt.Average();
             Console.WriteLine("{0,8:F3}", avgRepeats);
             averages[thci] = (threadCounts[thci], avgRepeats);
-          } else Console.WriteLine("{0,8}", "N/A");
+          }
+          else
+          {
+            Console.WriteLine("{0,8}", "N/A");
+            break;
+          }
           GC.Collect();
-          Thread.Sleep(1000);
+          Thread.Sleep(WAIT_BETWEEN_TASKS_MS);
         }
         string coordsStr = string.Join(" ", averages.Select(a => $"({a.Item1},{a.Item2:F2})"));
         string dataStr = string.Join(" & ", averages.Select(a => $"{a.Item2:F2}"));

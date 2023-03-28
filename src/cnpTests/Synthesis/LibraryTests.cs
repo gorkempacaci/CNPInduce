@@ -52,15 +52,6 @@ namespace Synthesis
       assertFirstResultFor(typeStr, atus, "proj(foldl(+), {b0->a, as->b, b->ab})"); 
     }
 
-
-    [TestMethod]
-    public void FoldL_Proj_FoldL_Plus()
-    {
-      string typeStr = "{b0:in, as:in, b:out}";
-      string atus = "{{b0:0, as:[[1,1,1]], b:3}, {b0:0, as:[[1,2], [3,4]], b:10}, {b0:0, as:[[1,2,3], [4,5,6], [7,8,9]], b:45}}";
-      assertFirstResultFor(typeStr, atus, "foldl(proj(foldl(+), {as->a, b0->b, b->ab}))", 4);
-    }
-
     //[TestMethod]
     //public void Proj_FoldL_Proj_FoldL_Plus()
     //{

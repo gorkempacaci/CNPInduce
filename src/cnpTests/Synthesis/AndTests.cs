@@ -19,7 +19,7 @@ namespace Synthesis
       FreeFactory frees = new();
       ValenceVar v = Parser.ParseValence("{a:in}", names);
       AlphaRelation rel = Parser.ParseAlphaTupleSet("{{a:1}, {a:2}}", names, frees);
-      ObservedProgram obs = new ObservedProgram(rel, v, 2, ObservedProgram.Constraint.None);
+      ObservedProgram obs = new ObservedProgram(rel, v, 2, 0, ObservedProgram.Constraint.None);
       ProgramEnvironment env = new ProgramEnvironment(obs, names, frees);
       var programsInNextStep = And.CreateAtFirstHole(env);
       Assert.AreEqual(4, programsInNextStep.Count(), "4 alternations");
@@ -54,7 +54,7 @@ namespace Synthesis
       FreeDictionary freeDict = new FreeDictionary(frees);
       ValenceVar v = Parser.ParseValence("{a:in, b:out}", names);
       AlphaRelation rel = Parser.ParseAlphaTupleSet("{{a:1, b:2}, {a:2, b:4}}", names, frees);
-      ObservedProgram obs = new ObservedProgram(rel, v, 2, ObservedProgram.Constraint.None);
+      ObservedProgram obs = new ObservedProgram(rel, v, 2, 0, ObservedProgram.Constraint.None);
       ProgramEnvironment env = new ProgramEnvironment(obs, names, frees);
       PrettyStringer expectedStringer = new PrettyStringer(names);
       var programsInNextStep = And.CreateAtFirstHole(env);

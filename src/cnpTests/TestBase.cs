@@ -14,7 +14,7 @@ using CNP;
 [TestClass]
 public class TestBase
 {
-
+  public const int TEST_ALLOWED_UNBOUND_ARGS = 1;
   public const int TEST_SEARCH_DEPTH = 4;
   public const int TEST_THREAD_COUNT = 1; // ideal 4 on mbp 2019 8c
   /*  Threads Time to run Tests.Synthesis.Elementary
@@ -54,57 +54,13 @@ public class TestBase
   protected static Proj proj(IProgram source, params (NameVar,NameVar)[] projections) => new Proj(source, new ProjectionMap(projections.Select(tu => new KeyValuePair<NameVar,NameVar>(tu.Item1,tu.Item2)).ToArray()));
   #endregion
 
-  //protected static string nietBruijnString(AlphaRelation ts)
-  //{
-  //  CNP.PrettyStringer ps = new(CNP.PrettyStringer.Options.Contextless);
-  //  return string.Join(", ", nietBruijn(ts).Select(at => at.Accept(ps)));
-  //}
-
-  //protected static IEnumerable<AlphaTuple> nietBruijn(IEnumerable<AlphaTuple> ts)
-  //{
-  //  TermReferenceDictionary trd = new();
-  //  var newTs = ts.Select(t => t.Clone(trd));
-  //  ReplaceFreesWithLambdaStrings(GetDistinctNewFreesIn(trd));
-  //  return newTs;
-  //}
-
-  /// <summary>
-  /// Converts frees _1, _2 to strings λ0, λ1,... where the number is the order of variables.
-  /// </summary>
-  //protected static AlphaTuple nietBruijn(AlphaTuple atu)
-  //{
-  //  TermReferenceDictionary trd = new();
-  //  atu = atu.Clone(trd);
-  //  ReplaceFreesWithLambdaStrings(GetDistinctNewFreesIn(trd));
-  //  return atu;
-  //}
-
-  //protected static ITerm nietBruijnTerm(ITerm t)
-  //{
-  //  TermReferenceDictionary trd = new();
-  //  t = t.Clone(trd);
-  //  ReplaceFreesWithLambdaStrings(GetDistinctNewFreesIn(trd));
-  //  return t;
-  //}
-
-
-  //private static IEnumerable<Free> GetDistinctNewFreesIn(TermReferenceDictionary trd)
-  //{
-  //  return trd.Values.Where(t => t is Free).Select(t => t as Free);
-  //}
-
-  //private static void ReplaceFreesWithLambdaStrings(IEnumerable<Free> distinctFrees)
-  //{
-  //  distinctFrees.For((Free f, int i) => f.ReplaceInAllContexts(new ConstantTerm("λ" + i.ToString())));
-  //}
-
   protected ProgramEnvironment buildEnvironment(string domains, string atusStr, int searchDepth)
   {
     NameVarBindings names = new();
     FreeFactory frees = new();
     ValenceVar namesModes = Parser.ParseValence(domains, names);
     AlphaRelation atus = Parser.ParseAlphaTupleSet(atusStr, names, frees);
-    ObservedProgram obs = new ObservedProgram(atus, namesModes, searchDepth, ObservedProgram.Constraint.None);
+    ObservedProgram obs = new ObservedProgram(atus, namesModes, searchDepth, TEST_ALLOWED_UNBOUND_ARGS, ObservedProgram.Constraint.None);
     ProgramEnvironment env = new ProgramEnvironment(obs, names, frees);
     return env;
   }
@@ -118,8 +74,9 @@ public class TestBase
     Assert.IsTrue(programs.Any(), "There should be at least one program.");
     ProgramEnvironment env = programs.First();
     PrettyStringer ps = new PrettyStringer(env.NameBindings);
-    string debugString = env.Root.Accept(DebugPrinter.Contextless);
-    Assert.AreEqual(expectedProgramString, env.Root.Accept(ps), "DEBUG: " + debugString);
+    DebugPrinter p = new DebugPrinter(env.NameBindings);
+    string debugString = env.Root.Accept(p);
+    Assert.AreEqual(expectedProgramString, env.Root.Accept(ps), "\n DEBUG: " + debugString);
     return env;
   }
 

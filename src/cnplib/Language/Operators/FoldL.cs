@@ -83,7 +83,7 @@ namespace CNP.Language
     static IFold.CreateFold factoryFoldL = (rec) => new FoldL(rec);
 
 
-    public static bool UnFoldL(AlphaRelation foldRel, (short b0, short @as, short b) nameIndices, FreeFactory freeFac, out ITerm[][] pTuples)
+    public static bool UnFoldL(ProgramEnvironment env, AlphaRelation foldRel, (short b0, short @as, short b) nameIndices, FreeFactory freeFac, out ITerm[][] pTuples)
     {
       List<ITerm[]> pTuplesList = new();
       for (int ri = 0; ri < foldRel.TuplesCount; ri++)
@@ -106,6 +106,17 @@ namespace CNP.Language
             seed = carry;
           }
           list = tail;
+        }
+        if (list is NilTerm)
+        {
+          ITerm[] site = foldRel.Tuples[ri];
+          ITerm[] unifier = new ITerm[] { null, null, null };
+          unifier[nameIndices.b0] = site[nameIndices.b];
+        }
+        else
+        {
+          pTuples = null;
+          return false;
         }
       }
       if (pTuplesList.Any())

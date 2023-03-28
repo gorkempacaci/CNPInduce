@@ -50,11 +50,11 @@ namespace Language
     {
       var obs1Rel = new AlphaRelation(new[] { nA, nB }, new[] { new ITerm[] { fX, fY }, new ITerm[] { constterm("h"), constterm("h") } });
       var obs1Val = new ValenceVar(new[] { nA }, new[] { nB });
-      var obs1 = new ObservedProgram(obs1Rel, obs1Val, 1, ObservedProgram.Constraint.None);
+      var obs1 = new ObservedProgram(obs1Rel, obs1Val, 1, 0, ObservedProgram.Constraint.None);
 
       var obs2Rel = new AlphaRelation(new[] { nB, nA }, new[] { new ITerm[] { fY, constterm("j") }, new ITerm[] { constterm("h"), constterm("h") } });
       var obs2Val = new ValenceVar(new[] { nB }, new[] { nA });
-      var obs2 = new ObservedProgram(obs2Rel, obs2Val, 1, ObservedProgram.Constraint.None);
+      var obs2 = new ObservedProgram(obs2Rel, obs2Val, 1, 0, ObservedProgram.Constraint.None);
 
       var and = new And(proj(obs1, (nA, nU), (nB, nV)), proj(obs2, (nB, nU), (nA, nV)));
 
@@ -105,7 +105,7 @@ namespace Language
       AlphaRelation rel = new AlphaRelation(new[] { a }, tups);
 
       ValenceVar vv = new ValenceVar(new[] { a }, Array.Empty<NameVar>());
-      ObservedProgram obs = new ObservedProgram(rel, vv, 2, ObservedProgram.Constraint.None);
+      ObservedProgram obs = new ObservedProgram(rel, vv, 2, 0, ObservedProgram.Constraint.None);
 
       Assert.AreEqual(f, obs.Observables.Tuples[0][0]);
       obs.ReplaceFree(f, constterm(9));
@@ -125,7 +125,7 @@ namespace Language
       AlphaRelation rel = new AlphaRelation(new[] { a }, tups);
 
       ValenceVar vv = new ValenceVar(new[] { a }, Array.Empty<NameVar>());
-      ObservedProgram obs = new ObservedProgram(rel, vv, 2, ObservedProgram.Constraint.None);
+      ObservedProgram obs = new ObservedProgram(rel, vv, 2, 0, ObservedProgram.Constraint.None);
 
       ProgramEnvironment penv = new ProgramEnvironment(obs, nms, fact);
 
@@ -146,7 +146,7 @@ namespace Language
       AlphaRelation rel = new AlphaRelation(new[] { a }, tups);
 
       ValenceVar vv = new ValenceVar(new[] { a }, Array.Empty<NameVar>());
-      ObservedProgram obs = new ObservedProgram(rel, vv, 2, ObservedProgram.Constraint.None);
+      ObservedProgram obs = new ObservedProgram(rel, vv, 2, 1, ObservedProgram.Constraint.None);
 
       Proj projProg = proj(obs, (a, a));
 
@@ -170,7 +170,7 @@ namespace Language
       AlphaRelation rel = new AlphaRelation(new[] { a }, tups);
 
       ValenceVar vv = new ValenceVar(new[] { a }, Array.Empty<NameVar>());
-      ObservedProgram obs = new ObservedProgram(rel, vv, 2, ObservedProgram.Constraint.None);
+      ObservedProgram obs = new ObservedProgram(rel, vv, 2, 0, ObservedProgram.Constraint.None);
 
       Proj projProg = proj(obs, (a, a));
       And andProg = and(projProg, projProg);
@@ -208,7 +208,7 @@ namespace Language
     {
       AlphaRelation rel = new AlphaRelation(new[] { nA }, new ITerm[][] { new[] { origTerm } });
       ValenceVar vv = new ValenceVar(new[] { nA }, Array.Empty<NameVar>());
-      ObservedProgram obs = new ObservedProgram(rel, vv, 1, ObservedProgram.Constraint.None);
+      ObservedProgram obs = new ObservedProgram(rel, vv, 1, TEST_ALLOWED_UNBOUND_ARGS, ObservedProgram.Constraint.None);
       ProgramEnvironment env = new ProgramEnvironment(obs, names, frees);
       ITerm[] unifierTerms = new[] { unifierTerm };
       bool success = env.UnifyInPlace(rel.Tuples[0], unifierTerms);

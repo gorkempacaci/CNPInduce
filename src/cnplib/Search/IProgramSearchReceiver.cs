@@ -8,9 +8,5 @@ namespace CNP.Search
         /// Returns true to indicate the search should stop.
         /// </summary>
         bool FoundNewProgram(ProgramEnvironment p);
-        /// <summary>
-        /// Notifies that the search is done.
-        /// </summary>
-        void SearchIsFinished();
     }
 }

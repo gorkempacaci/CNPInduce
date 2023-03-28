@@ -12,10 +12,16 @@ namespace CNP.Search
   // TODO: Add job constants.
   public class SynthesisJob : IProgramSearchReceiver
   {
-    const int DEFAULT_MAX_DEPTH = 3;
     ProgramSearch search;
     SearchOptions searchOptions;
     ConcurrentQueue<ProgramEnvironment> programs = new ConcurrentQueue<ProgramEnvironment>();
+
+    public static void PreInitialize()
+    {
+      var foldlval = FoldL.FoldLValences.FoldModesByModeNumber.ToString();
+      var foldrval = FoldR.FoldRValences.FoldModesByModeNumber.ToString();
+      var andval = And.AndValences.ToString();
+    }
 
     /// <param name="tuples">Tuples of the program observation.</param>
     /// <param name="valence">Valence of the program</param>
@@ -43,11 +49,6 @@ namespace CNP.Search
       if (searchOptions == SearchOptions.FindOnlyFirstProgram)
         return true;
       else return false; // false means do not stop searching
-    }
-
-    public void SearchIsFinished()
-    {
-
     }
   }
 

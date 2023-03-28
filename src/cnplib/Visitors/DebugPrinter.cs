@@ -8,23 +8,10 @@ namespace CNP
   public class DebugPrinter : ICNPVisitor
   {
     NameVarBindings names;
-    bool isContextless;
-
-    public static DebugPrinter Contextless = new DebugPrinter(VisitorOptions.Contextless);
-
-    public DebugPrinter(VisitorOptions op)
-    {
-      if (op == VisitorOptions.Contextless)
-      {
-        isContextless = true;
-      }
-      else throw new ArgumentException();
-    }
 
     public DebugPrinter(NameVarBindings nvb)
     {
       names = nvb;
-      isContextless = false;
     }
 
     public string Visit(ConstantTerm ct)
@@ -111,7 +98,7 @@ namespace CNP
 
     public string Visit(AlphaRelation at)
     {
-      return Visit(at.Tuples, isContextless ? at.Names.Select(n => n.Accept(this)).ToArray() : names.GetNamesForVars(at.Names));
+      return Visit(at.Tuples, names.GetNamesForVars(at.Names));
     }
 
     public string Visit(ITerm[][] tuples, string[] colNames)
@@ -145,7 +132,7 @@ namespace CNP
     public string Visit(NameVar nv)
     {
       string n;
-      if (isContextless || (n = names.GetNameForVar(nv)) == null)
+      if ((n = names.GetNameForVar(nv)) == null)
         return "n" + nv.Index;
       else return n;
     }
