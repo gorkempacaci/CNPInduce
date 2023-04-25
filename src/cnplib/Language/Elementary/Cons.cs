@@ -64,42 +64,45 @@ namespace CNP.Language
     {
       List<ProgramEnvironment> programs = new();
       ObservedProgram oldObs = env.Root.FindHole();
-      if (oldObs.Observables.TuplesCount == 0)
-        throw new ArgumentException("Cons: Observation is empty.");
-
-      ConsValences.GroundingAlternatives(oldObs.Valence, env.NameBindings, out var alts);
-      foreach (var altNames in alts)
+      for(int oi=0; oi<oldObs.Observations.Length; oi++)
       {
-        var currEnv = env.Clone();
-        var observ = currEnv.Root.FindHole();
-        if (currEnv.NameBindings.TryBindingAllNamesToGround(observ.Valence, altNames))
-        { // then all names for valence are ground
-          string[] obsNames = currEnv.NameBindings.GetNamesForVars(observ.Observables.Names);
-          int a = Array.IndexOf(obsNames, "a");
-          int b = Array.IndexOf(obsNames, "b");
-          int ab = Array.IndexOf(obsNames, "ab");
-          var debugInfo = observ.GetDebugInformation(currEnv);
-          debugInfo.valenceString += $" [{obsNames[a]}|{obsNames[b]}]={obsNames[ab]}";
-          bool unificationSuccess = true;
-          for (int ri = 0; ri < observ.Observables.TuplesCount; ri++)
-          {
-            var tuple = observ.Observables.Tuples[ri];
-            var unifier = new ITerm[tuple.Length];
-            unifier[ab] = new TermList(tuple[a], tuple[b]);
-            if (!currEnv.UnifyInPlace(tuple, unifier))
+        var obs = oldObs.Observations[oi];
+        ConsValences.GroundingAlternatives(obs.Valence, env.NameBindings, out var alts);
+        foreach (var altNames in alts)
+        {
+          var currEnv = env.Clone();
+          var observ = currEnv.Root.FindHole();
+          var obsAlt = observ.Observations[oi];
+          if (currEnv.NameBindings.TryBindingAllNamesToGround(obsAlt.Valence, altNames))
+          { // then all names for valence are ground
+            string[] obsNames = currEnv.NameBindings.GetNamesForVars(obsAlt.Examples.Names);
+            int a = Array.IndexOf(obsNames, "a");
+            int b = Array.IndexOf(obsNames, "b");
+            int ab = Array.IndexOf(obsNames, "ab");
+            var debugInfo = obsAlt.GetDebugInformation(currEnv);
+            debugInfo.valenceString += $" [{obsNames[a]}|{obsNames[b]}]={obsNames[ab]}";
+            bool unificationSuccess = true;
+            for (int ri = 0; ri < obsAlt.Examples.TuplesCount; ri++)
             {
-              unificationSuccess = false;
-              break;
+              var tuple = obsAlt.Examples.Tuples[ri];
+              var unifier = new ITerm[tuple.Length];
+              unifier[ab] = new TermList(tuple[a], tuple[b]);
+              if (!currEnv.UnifyInPlace(tuple, unifier))
+              {
+                unificationSuccess = false;
+                break;
+              }
             }
-          }
-          if (unificationSuccess && observ.IsAllOutArgumentsGround())
-          {
-            Cons cns = new Cons();
-            (cns as IProgram).SetDebugInformation(debugInfo);
-            programs.Add(currEnv.Clone((observ, cns)));
-          }
-        } // if not then this alt is skipped
+            if (unificationSuccess && obsAlt.IsAllOutArgumentsGround())
+            {
+              Cons cns = new Cons();
+              (cns as IProgram).SetDebugInformation(debugInfo);
+              programs.Add(currEnv.Clone((observ, cns)));
+            }
+          } // if not then this alt is skipped
+        }
       }
+      
       return programs;
     }
 

@@ -29,7 +29,7 @@ namespace Benchit
         return 0;
       }
       // PRINTING CNP VERSION
-      string cnpTimeString = System.IO.File.GetCreationTime(typeof(IProgram).Assembly.Location).ToString();
+      string cnpTimeString = System.IO.File.GetCreationTime(typeof(CNP.Language.IProgram).Assembly.Location).ToString();
       Console.WriteLine("Using CNP: " + cnpTimeString);
       Console.WriteLine("Preinitializing. ");
       SynthesisJob.PreInitialize();
@@ -89,7 +89,7 @@ namespace Benchit
               ProgramEnvironment firstProgram = programs.First()!;
               PrettyStringer ps = new PrettyStringer(firstProgram.NameBindings);
               string foundProgramString = firstProgram.Root.Accept(ps);
-              if (foundProgramString == bench.ExpectedProgram)
+              if (bench.ExpectedPrograms.Contains(foundProgramString))
               {
                 durationsRpt[r] = (t1 - t0).TotalSeconds;
                 Console.Write("{0,8:F3}", durationsRpt[r]);
@@ -98,7 +98,7 @@ namespace Benchit
               {
                 succeess = false;
                 Console.Write("{0,8}", "F");
-                errors.AppendLine($"({bench.Name}) \n Expecting: {bench.ExpectedProgram} \n Found: {foundProgramString}");
+                errors.AppendLine($"({bench.Name}) \n Expecting: {bench.ExpectedPrograms} \n Found: {foundProgramString}");
               }
             }
             else
@@ -126,7 +126,7 @@ namespace Benchit
         string dataStr = string.Join(" & ", averages.Select(a => $"{a.Item2:F2}"));
         pgfCoordinates.AppendLine(bench.Name + ": " + coordsStr);
         texTabularData.AppendLine(dataStr);
-        Console.WriteLine(bench.Name + ": " + bench.ExpectedProgram);
+        Console.WriteLine(bench.Name + ": " + bench.ExpectedPrograms[0] + (bench.ExpectedPrograms.Length>1?",...":""));
         Console.WriteLine();
       }
       Console.WriteLine("For PGF:");

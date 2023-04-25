@@ -115,7 +115,15 @@ namespace CNP
 
     public string Visit(ObservedProgram op)
     {
-      return op.Valence.Accept(this) + "#" + op.Observables.TuplesCount + "(Dr. " + op.RemainingSearchDepth + ")";
+      if (op.Observations.Length==1)
+      {
+        return op.Observations[0].Valence.Accept(this) + "#" + op.Observations[0].Examples.TuplesCount + "(RD=" + op.RemainingSearchDepth + $", RU={op.RemainingUnboundArguments})";
+      }
+      else
+      {
+        return $"({op.Observations.Length} obrvs, RD={op.RemainingSearchDepth}, RU={op.RemainingUnboundArguments})";
+      }
+
     }
 
     // META TERMS

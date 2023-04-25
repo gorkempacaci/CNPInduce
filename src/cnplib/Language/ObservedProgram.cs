@@ -5,6 +5,71 @@ using CNP.Helper.EagerLinq;
 
 namespace CNP.Language
 {
+  /// <summary>
+  /// A set of examples with a valence. Examples are a sample from the extension of a predicate expression which has the given valence.
+  /// </summary>
+  public class Observation
+  {
+    /// <summary>
+    /// Examples are conjunctive. All have to hold 
+    /// </summary>
+    public readonly AlphaRelation Examples; 
+    public readonly ValenceVar Valence;
+    private readonly short[] _indicesOfInArgs;
+    private readonly short[] _indicesOfOutArgs;
+
+    public Observation(AlphaRelation examples, ValenceVar valence)
+    {
+      (_indicesOfInArgs, _indicesOfOutArgs) = valence.GetIndicesOfInsOrOutsIn(examples.Names);
+      Examples = examples;
+      Valence = valence;
+    }
+
+
+    public (string valenceString, string observationString) GetDebugInformation(ProgramEnvironment env)
+    {
+      var db = new DebugPrinter(env.NameBindings);
+      var valence = Valence.Accept(db);
+      var observ = Examples.Accept(db);
+      return (valence, observ);
+    }
+
+
+    /// <summary>
+    /// Returns true if all arguments where Mode is IN are ground terms in the first tuple of this observation. Doesn't check the remaining tuples because they might becomes ground as the first one is unified.
+    /// </summary>
+    public bool IsAllINArgumentsGroundForFirstTuple()
+    {
+      var firstTuple = Examples.Tuples[0];
+      for (int i = 0; i < _indicesOfInArgs.Length; i++)
+      {
+        if (!firstTuple[_indicesOfInArgs[i]].IsGround())
+          return false;
+      }
+      return true;
+    }
+
+    /// <summary>
+    /// Returns true if all out arguments of all tuples are ground.
+    /// </summary>
+    public bool IsAllOutArgumentsGround()
+    {
+      for (int i = 0; i < Examples.TuplesCount; i++)
+      {
+        var tuple = Examples.Tuples[i];
+        for (int oii = 0; oii < _indicesOfOutArgs.Length; oii++)
+          if (!tuple[_indicesOfOutArgs[oii]].IsGround())
+            return false;
+      }
+
+      return true;
+    }
+
+    public Observation Clone(CloningContext cc)
+    {
+      return cc.Clone(this);
+    }
+  }
 
   /// <summary>
   /// An unbound program variable, an observation. Immutable object.
@@ -18,12 +83,7 @@ namespace CNP.Language
       /// </summary>
       OnlyAndElemLib = 4}
 
-    public readonly AlphaRelation Observables;
-    public readonly ValenceVar Valence;
     public readonly Constraint Constraints;
-
-    private readonly short[] _indicesOfInArgs;
-    private readonly short[] _indicesOfOutArgs;
     
     /// <summary>
     /// Sub-tree depth allowed for this hole. 0 should not exist, 1 would only match elementary predicates, higher values would match operators as well.
@@ -35,30 +95,40 @@ namespace CNP.Language
     /// </summary>
     public readonly int RemainingUnboundArguments;
 
+
     /// <summary>
     /// The valence that lead to this program.
     /// </summary>
     public string DebugValenceString { get; set; }
+
     /// <summary>
     /// The observations that lead to this program.
     /// </summary>
     public string DebugObservationString { get; set; }
 
-    public ObservedProgram(AlphaRelation obss, ValenceVar val, int remSearchDepth, int remUnboundArgs, Constraint constraints)
+    /// <summary>
+    /// Disjunctive. If any of these observations is matched to a predicate, the search path is resolved.
+    /// If it's matched to an operator, the disjunctive observations need all to be propagated.
+    /// </summary>
+    public Observation[] Observations { get; private set; }
+
+    public ObservedProgram(AlphaRelation rel, ValenceVar val, int remSearchDepth, int remUnboundArgs, Constraint constraints)
+      : this(new [] { new Observation(rel, val) }, remSearchDepth, remUnboundArgs, constraints) { }
+
+    public ObservedProgram(Observation[] observations, int remSearchDepth, int remUnboundArgs, Constraint constraints)
     {
-      this.Observables = obss;
-      this.Valence = val;
+      Observations = observations;
       this.Constraints = constraints;
       this.RemainingSearchDepth = remSearchDepth;
       this.RemainingUnboundArguments = remUnboundArgs;
-      (_indicesOfInArgs, _indicesOfOutArgs) = val.GetIndicesOfInsOrOutsIn(obss.Names);
     }
 
 
 
     public void ReplaceFree(Free free, ITerm term)
     {
-      Observables.ReplaceFreeInPlace(free, term);
+      foreach(Observation o in Observations)
+        o.Examples.ReplaceFreeInPlace(free, term);
     }
 
     public bool IsClosed => false;
@@ -87,44 +157,6 @@ namespace CNP.Language
     {
       return "O";
     }
-
-    public (string valenceString, string observationString) GetDebugInformation(ProgramEnvironment env)
-    {
-      var db = new DebugPrinter(env.NameBindings);
-      var valence = Valence.Accept(db);
-      var observ = Observables.Accept(db);
-      return (valence, observ);
-    }
-
-    /// <summary>
-    /// Returns true if all arguments where Mode is IN are ground terms in the first tuple of this observation. Doesn't check the remaining tuples because they might becomes ground as the first one is unified.
-    /// </summary>
-    public bool IsAllINArgumentsGroundForFirstTuple()
-    {
-      var firstTuple = Observables.Tuples[0];
-      for (int i = 0; i < _indicesOfInArgs.Length; i++)
-      {
-        if (!firstTuple[_indicesOfInArgs[i]].IsGround())
-          return false;
-      }
-      return true;
-    }
-
-    /// <summary>
-    /// Returns true if all out arguments of all tuples are ground.
-    /// </summary>
-    public bool IsAllOutArgumentsGround()
-    {
-      for(int i=0; i<Observables.TuplesCount; i++)
-      {
-        var tuple = Observables.Tuples[i];
-        for(int oii=0; oii<_indicesOfOutArgs.Length; oii++)
-          if (!tuple[_indicesOfOutArgs[oii]].IsGround())
-            return false;
-      }
-
-      return true;
-    }
-  
+      
   }
 }

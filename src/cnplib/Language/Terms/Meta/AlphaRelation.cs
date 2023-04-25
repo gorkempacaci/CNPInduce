@@ -30,7 +30,7 @@ namespace CNP.Language
     public readonly int CountOfElements;
 
     /// <summary>
-    /// Stores given arrays as is. Terms are given as ITerm[NumberOfTuples][NumberOfDomains]
+    /// Stores given arrays as is. Terms are given as ITerm[NumberOfTuples][NumberOfDomains]. Assumes NumberOfTuples to be non-zero. 
     /// </summary>
     public AlphaRelation(NameVar[] _names, ITerm[][] _tuples)
     {
@@ -74,10 +74,11 @@ namespace CNP.Language
       }
     }
 
-    public AlphaRelation Accept(CloningContext cc)
+    public AlphaRelation Clone(CloningContext cc)
     {
       return cc.Clone(this);
     }
+
     public string Accept(ICNPVisitor ps)
     {
       return ps.Visit(this);

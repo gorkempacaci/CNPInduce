@@ -84,6 +84,7 @@ namespace Synthesis
     {
       string typeStr = "{b0:in, as:in, b:out}";
       string atus = "{{b0:[], as:[[1,2]], b:[1, 2]}, {b0:[], as:[[1,2], [3,4], [5,6]], b:[1,2,3,4,5,6]}}";
+      //string atus = "{{b0:[], as:[[1,2], [3,4], [5,6]], b:[1,2,3,4,5,6]}}";
       assertFirstResultFor(typeStr, atus, "foldr(proj(foldr(cons), {as->a, b0->b, b->ab}))", 4);
     }
 
@@ -91,7 +92,8 @@ namespace Synthesis
     public void Flatten2()
     {
       string typeStr = "{as:in, bs:out}";
-      string atus = "{{as:[], bs:[]}, {as:[[1],[2]], bs:[1, 2]}, {as:[[1,2], [3,4], [5,6]], bs:[1,2,3,4,5,6]}}";
+      //string atus = "{{as:[], bs:[]}, {as:[[1],[2]], bs:[1, 2]}, {as:[[1,2], [3,4], [5,6]], bs:[1,2,3,4,5,6]}}";
+      string atus = "{{as:[[1]], bs:[1]}, {as:[[1,2], [3,4], [5,6]], bs:[1,2,3,4,5,6]}}";
       assertFirstResultFor(typeStr, atus, "foldr(proj(foldr(cons), {as->a, b0->b, b->ab}))", 5);
     }
   }

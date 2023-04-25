@@ -25,7 +25,7 @@ namespace CNP.Language
     /// </summary>
     string DebugObservationString { get; set; }
 
-    public void SetDebugInformation((string valenceString, string observationString) info)
+    public virtual void SetDebugInformation((string valenceString, string observationString) info)
     {
       DebugValenceString = info.valenceString;
       DebugObservationString = info.observationString;
@@ -40,29 +40,29 @@ namespace CNP.Language
     /// <summary>
     /// Replaces the given free with the given term recursively in all subprograms and terms/subterms.
     /// </summary>
-    void ReplaceFree(Free free, ITerm term);
+    public abstract void ReplaceFree(Free free, ITerm term);
 
-    string Accept(ICNPVisitor ps);
+    public abstract string Accept(ICNPVisitor ps);
 
-    IProgram Clone(CloningContext cc);
+    public abstract IProgram Clone(CloningContext cc);
 
     /// <summary>
     /// Returns the first ObservedProgram in the subtree, first as in in-order, LNR search.
     /// If there is no hole, returns null.
     /// </summary>
-    ObservedProgram FindLeftmostHole();
+    public abstract ObservedProgram FindLeftmostHole();
 
     /// <summary>
     /// Returns the height of this program tree. Calculates on demand.
     /// </summary>
     /// <returns></returns>
-    int GetHeight();
+    public abstract int GetHeight();
 
     /// <summary>
     /// Returns a qualifying string for the type of expression tree. For example, and(p,and(p,p)) is one where p is elementary operators. Contains no spaces.
     /// </summary>
     /// <returns></returns>
-    string GetTreeQualifier();
+    public abstract string GetTreeQualifier();
 
     
   }

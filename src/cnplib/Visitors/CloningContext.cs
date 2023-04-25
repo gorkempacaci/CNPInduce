@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-
+using System.Linq;
 using CNP.Helper;
 using CNP.Language;
 using CNP.Search;
@@ -36,9 +36,9 @@ namespace CNP
     /// </summary>
     public void AssertDifferencesUsingOldIndices(NameVar[] @as, NameVar[] bs)
     {
-      for(int ai=0;ai<@as.Length;ai++)
+      for (int ai = 0; ai < @as.Length; ai++)
       {
-        for(int bi=0; bi<bs.Length; bi++)
+        for (int bi = 0; bi < bs.Length; bi++)
         {
           assertPreCloned(@as[ai].Index, out NameVar newA, out bool _);
           assertPreCloned(bs[bi].Index, out NameVar newB, out bool _);
@@ -213,19 +213,26 @@ namespace CNP
       }
       else
       {
-        var obss = obs.Observables.Accept(this);
-        var val = obs.Valence.Accept(this);
-        return new ObservedProgram(obss, val, obs.RemainingSearchDepth, obs.RemainingUnboundArguments, obs.Constraints);
+        var thiz = this; // OMG
+        var obss = obs.Observations.Select(o => o.Clone(thiz)).ToArray();
+        return new ObservedProgram(obss,obs.RemainingSearchDepth, obs.RemainingUnboundArguments, obs.Constraints);
       }
     }
-    
-     // MISC
 
-     private static void CopyDebugInformation(in IProgram oldProgram, IProgram newProgram)
-     {
-       newProgram.DebugObservationString = oldProgram.DebugObservationString;
-       newProgram.DebugValenceString = oldProgram.DebugValenceString;
-     }
+    public Observation Clone(Observation o)
+    {
+      var examples = o.Examples.Clone(this);
+      var val = o.Valence.Clone(this);
+      return new Observation(examples, val);
+    }
+
+    // MISC
+
+    private static void CopyDebugInformation(in IProgram oldProgram, IProgram newProgram)
+    {
+      newProgram.DebugObservationString = oldProgram.DebugObservationString;
+      newProgram.DebugValenceString = oldProgram.DebugValenceString;
+    }
   }
 
   // CLONE at root(origObservation, newProgram)

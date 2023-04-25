@@ -5,7 +5,7 @@ using CNP.Parsing;
 
 namespace Benchit
 {
-  public readonly record struct BenchmarkFileEntry(string Name, string ExpectedProgram, string Valence, string Examples)
+  public readonly record struct BenchmarkFileEntry(string Name, string[] ExpectedPrograms, string Valence, string Examples)
   {
     public SynTask Parse(int searchDepth, int maxUnboundArguments)
     {
@@ -15,11 +15,11 @@ namespace Benchit
       AlphaRelation examples = Parser.ParseAlphaTupleSet(Examples, names, frees);
       ObservedProgram obs = new ObservedProgram(examples, vv, searchDepth, maxUnboundArguments, ObservedProgram.Constraint.None);
       ProgramEnvironment env = new ProgramEnvironment(obs, names, frees);
-      return new SynTask(Name, ExpectedProgram, env);
+      return new SynTask(Name, ExpectedPrograms, env);
     }
   }
 
-  public readonly record struct SynTask(string Name, string ExpectedProgram, ProgramEnvironment ProgramEnv) { }
+  public readonly record struct SynTask(string Name, string[] ExpectedPrograms, ProgramEnvironment ProgramEnv) { }
 
   public class BenchmarkFile
   {
@@ -66,9 +66,9 @@ namespace Benchit
     public static string GetExampleBenchmarksFileString()
     {
       BenchmarkFileEntry[] arr = new BenchmarkFileEntry[] {
-      new(){ Name="append", ExpectedProgram="foldr(cons, id)", Valence="{b0:in, as:in, bs:out}",
+      new(){ Name="append", ExpectedPrograms=new[]{"foldr(cons, id)" }, Valence="{b0:in, as:in, bs:out}",
         Examples="{{b0:[4,5,6], as:[1,2,3], bs:[1,2,3,4,5,6]}]"},
-      new(){ Name="reverse3", ExpectedProgram="foldl(cons, id)", Valence="{b0:in, as:in, bs:out}",
+      new(){ Name="reverse3", ExpectedPrograms=new[]{"foldl(cons, id)" }, Valence="{b0:in, as:in, bs:out}",
         Examples="[{b0:[], as:[1,2,3], b:[3,2,1]}]"}
       };
       BenchmarkFile file = new BenchmarkFile { SearchDepth = 4, Tasks = arr };

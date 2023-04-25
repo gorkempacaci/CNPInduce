@@ -28,31 +28,36 @@ namespace CNP.Language
     {
       var empty = Array.Empty<ProgramEnvironment>();
       var obs = env.Root.FindHole();
-      PlusValences.GroundingAlternatives(obs.Valence, env.NameBindings, out var alternatives);
-      var programs = new List<ProgramEnvironment>(alternatives.Count);
-      foreach(var alt in alternatives)
+      var programs = new List<ProgramEnvironment>();
+      for (int oi=0; oi<obs.Observations.Length; oi++)
       {
-        var newEnv = env.Clone();
-        var newObs = newEnv.Root.FindHole();
-        if (newEnv.NameBindings.TryBindingAllNamesToGround(newObs.Valence, alt))
+        PlusValences.GroundingAlternatives(obs.Observations[oi].Valence, env.NameBindings, out var alternatives);
+
+        foreach (var alt in alternatives)
         {
-          (int a, int b, int ab) = newEnv.NameBindings.GetNameIndices(newObs, "a", "b", "ab");
-          foreach (var tuple in newObs.Observables.Tuples)
+          var newEnv = env.Clone();
+          var newObs = newEnv.Root.FindHole();
+          if (newEnv.NameBindings.TryBindingAllNamesToGround(newObs.Observations[oi].Valence, alt))
           {
-            if (tuple[a] is ConstantTerm c_a && tuple[b] is ConstantTerm c_b &&
-                c_a.Value is int valA && c_b.Value is int valB)
+            (int a, int b, int ab) = newEnv.NameBindings.GetNameIndices(newObs.Observations[oi], "a", "b", "ab");
+            foreach (var tuple in newObs.Observations[oi].Examples.Tuples)
             {
-              int valAB = valA + valB;
-              var unifierTuple = new ITerm[] { null, null, new ConstantTerm(valAB) };
-              if (!newEnv.UnifyInPlace(tuple, unifierTuple))
-                return empty;
+              if (tuple[a] is ConstantTerm c_a && tuple[b] is ConstantTerm c_b &&
+                  c_a.Value is int valA && c_b.Value is int valB)
+              {
+                int valAB = valA + valB;
+                var unifierTuple = new ITerm[] { null, null, new ConstantTerm(valAB) };
+                if (!newEnv.UnifyInPlace(tuple, unifierTuple))
+                  return empty;
+              }
+              else return empty;
             }
-            else return empty;
+            var outEnv = newEnv.Clone((newObs, new Plus()));
+            programs.Add(outEnv);
           }
-          var outEnv = newEnv.Clone((newObs, new Plus()));
-          programs.Add(outEnv);
         }
       }
+
       return programs;
     }
   }

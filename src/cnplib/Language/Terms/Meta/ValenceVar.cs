@@ -90,7 +90,7 @@ namespace CNP.Language
       return new ValenceVar(insNames, outsNames);
     }
 
-    public ValenceVar Accept(CloningContext cc)
+    public ValenceVar Clone(CloningContext cc)
     {
       return cc.Clone(this);
     }

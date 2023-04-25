@@ -59,30 +59,34 @@ namespace CNP.Language
     public static IEnumerable<ProgramEnvironment> CreateAtFirstHole(ProgramEnvironment oldEnv)
     {
       ObservedProgram oldObs = oldEnv.Root.FindHole();
-      if (oldObs.Observables.TuplesCount == 0)
-        throw new ArgumentException("Id: Observation is empty.");
       List<ProgramEnvironment> programs = new();
-      IdValences.GroundingAlternatives(oldObs.Valence, oldEnv.NameBindings, out var alts);
-      // at this point we know all rows unified like 'id' should.
-      foreach (var alt in alts)
+      for (int oi = 0; oi < oldObs.Observations.Length; oi++)
       {
-        var currEnv = oldEnv.Clone();
-        var currObs = currEnv.Root.FindHole();
-        // first try unifying the terms since names don't matter for id
-        for (int ri = 0; ri < currObs.Observables.TuplesCount; ri++)
+        if (oldObs.Observations[oi].Examples.TuplesCount == 0)
+          throw new ArgumentException("Id: Observation is empty.");
+
+        IdValences.GroundingAlternatives(oldObs.Observations[oi].Valence, oldEnv.NameBindings, out var alts);
+        // at this point we know all rows unified like 'id' should.
+        foreach (var alt in alts)
         {
-          var tuple = currObs.Observables.Tuples[ri];
-          var unifier = new ITerm[2] { tuple[1], tuple[0] };
-          if (!currEnv.UnifyInPlace(tuple, unifier))
-            return Array.Empty<ProgramEnvironment>();
-        }
-        if (currEnv.NameBindings.TryBindingAllNamesToGround(currObs.Valence, alt))
-        {
-          ProgramEnvironment newEnv = currEnv.Clone((currObs, new Id()));
-          programs.Add(newEnv);
-          if (newEnv.Root is And and && and.LHOperand is Const c)
+          var currEnv = oldEnv.Clone();
+          var currObs = currEnv.Root.FindHole();
+          // first try unifying the terms since names don't matter for id
+          for (int ri = 0; ri < currObs.Observations[oi].Examples.TuplesCount; ri++)
           {
-            ;
+            var tuple = currObs.Observations[oi].Examples.Tuples[ri];
+            var unifier = new ITerm[2] { tuple[1], tuple[0] };
+            if (!currEnv.UnifyInPlace(tuple, unifier))
+              return Array.Empty<ProgramEnvironment>();
+          }
+          if (currEnv.NameBindings.TryBindingAllNamesToGround(currObs.Observations[oi].Valence, alt))
+          {
+            ProgramEnvironment newEnv = currEnv.Clone((currObs, new Id()));
+            programs.Add(newEnv);
+            if (newEnv.Root is And and && and.LHOperand is Const c)
+            {
+              ;
+            }
           }
         }
       }

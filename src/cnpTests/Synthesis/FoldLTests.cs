@@ -45,7 +45,7 @@ namespace Synthesis
     public void Reverse2()
     {
       string typeStr = "{as:in, bs:out}";
-      string atusStr = "{{as:[], bs:[]}, {as:[1,2,3], bs:[3,2,1]}}";
+      string atusStr = "{{as:[1,2,3], bs:[3,2,1]}, {as:[], bs:[]}}";
       // proj(foldr(proj(cons, {a->a, ab->b, b->ab})), {b0->as, as->bs})
       assertFirstResultFor(typeStr, atusStr, "proj(and(const(b0, []), foldl(cons)), {as->as, b->bs})");
     }

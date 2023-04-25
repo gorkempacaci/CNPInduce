@@ -87,6 +87,7 @@ namespace CNP.Language
       List<ITerm[]> pTuplesList = new();
       for (int ri = 0; ri < foldRel.TuplesCount; ri++)
       {
+        List<ITerm[]> pTuplesPerFoldTuple = new List<ITerm[]>();
         ITerm seed = foldRel.Tuples[ri][nameIndices.b0];
         ITerm list = foldRel.Tuples[ri][nameIndices.@as];
         ITerm result = foldRel.Tuples[ri][nameIndices.b];
@@ -96,12 +97,12 @@ namespace CNP.Language
           ITerm tail = termList.Tail;
           if (tail is NilTerm)
           {
-            pTuplesList.Add(new ITerm[] { head, seed, result });
+            pTuplesPerFoldTuple.Add(new ITerm[] { head, seed, result });
           }
           else
           {
             var acc = freeFac.NewFree();
-            pTuplesList.Add(new ITerm[] { head, acc, result });
+            pTuplesPerFoldTuple.Add(new ITerm[] { head, acc, result });
             result = acc;
           }
           list = tail;
@@ -117,10 +118,11 @@ namespace CNP.Language
           pTuples = null;
           return false;
         }
+        pTuplesPerFoldTuple.Reverse();
+        pTuplesList.AddRange(pTuplesPerFoldTuple);
       }
       if (pTuplesList.Any())
       {
-        pTuplesList.Reverse();
         pTuples = pTuplesList.ToArray();
         return true;
       } else

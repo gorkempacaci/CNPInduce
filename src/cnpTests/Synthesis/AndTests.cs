@@ -31,10 +31,10 @@ namespace Synthesis
           {
             if (andProg.RHOperand is ObservedProgram rhObs)
             {
-              Assert.AreEqual(lhObs.Observables.TuplesCount, rhObs.Observables.TuplesCount, "LH and RH tuple counts should be equal.");
-              for (int ri=0; ri<lhObs.Observables.Tuples.Length; ri++)
+              Assert.AreEqual(lhObs.Observations[0].Examples.TuplesCount, rhObs.Observations[0].Examples.TuplesCount, "LH and RH tuple counts should be equal.");
+              for (int ri=0; ri < lhObs.Observations[0].Examples.Tuples.Length; ri++)
               {
-                bool LRequal = Iterators.SequenceEqualPos(lhObs.Observables.Tuples[ri], rhObs.Observables.Tuples[ri], out int whereNot);
+                bool LRequal = Iterators.SequenceEqualPos(lhObs.Observations[0].Examples.Tuples[ri], rhObs.Observations[0].Examples.Tuples[ri], out int whereNot);
                 Assert.IsTrue(LRequal, "LH and RH observations should be equal.");
               }
             }
@@ -67,8 +67,8 @@ namespace Synthesis
       var firstActualStringer = new PrettyStringer(firstActualEnv.NameBindings);
       var firstActualLH = firstActual.LHOperand as ObservedProgram;
       var firstActualRH = firstActual.RHOperand as ObservedProgram;
-      Assert.AreEqual(firstExpectedLH.Accept(expectedStringer), firstActualLH.Observables.Accept(firstActualStringer), "First valence, LH");
-      Assert.AreEqual(firstExpectedRH.Accept(expectedStringer), firstActualRH.Observables.Accept(firstActualStringer), "First valence, RH ");
+      Assert.AreEqual(firstExpectedLH.Accept(expectedStringer), firstActualLH.Observations[0].Examples.Accept(firstActualStringer), "First valence, LH");
+      Assert.AreEqual(firstExpectedRH.Accept(expectedStringer), firstActualRH.Observations[0].Examples.Accept(firstActualStringer), "First valence, RH ");
       var lastExpectedLH = Parser.ParseAlphaTupleSet("{{a:1,b:2}, {a:2, b:4}}", names, frees);
       var lastExpectedRH = Parser.ParseAlphaTupleSet("{{a:1,b:2}, {a:2, b:4}}", names, frees);
       var lastActualEnv = programsInNextStep.Last();
@@ -76,8 +76,8 @@ namespace Synthesis
       var lastActualStringer = new PrettyStringer(lastActualEnv.NameBindings);
       var lastActualLH = lastActual.LHOperand as ObservedProgram;
       var lastActualRH = lastActual.RHOperand as ObservedProgram;
-      Assert.AreEqual(lastExpectedLH.Accept(expectedStringer), lastActualLH.Observables.Accept(lastActualStringer), "Last valence LH tuples");
-      Assert.AreEqual(lastExpectedRH.Accept(expectedStringer), lastActualRH.Observables.Accept(lastActualStringer), "Last valence RH tuples");
+      Assert.AreEqual(lastExpectedLH.Accept(expectedStringer), lastActualLH.Observations[0].Examples.Accept(lastActualStringer), "Last valence LH tuples");
+      Assert.AreEqual(lastExpectedRH.Accept(expectedStringer), lastActualRH.Observations[0].Examples.Accept(lastActualStringer), "Last valence RH tuples");
     }
 
     [TestMethod]

@@ -60,11 +60,11 @@ namespace Language
 
       var penv = new ProgramEnvironment(and, names, frees);
 
-      Assert.AreEqual(fY, (((Proj)((And)penv.Root).RHOperand).Source as ObservedProgram).Observables.Tuples[0][0]);
+      Assert.AreEqual(fY, (((Proj)((And)penv.Root).RHOperand).Source as ObservedProgram).Observations[0].Examples.Tuples[0][0]);
 
       penv.ReplaceFree(fY, constterm("j"));
 
-      Assert.AreEqual(constterm("j"), (((Proj)((And)penv.Root).RHOperand).Source as ObservedProgram).Observables.Tuples[0][0]);
+      Assert.AreEqual(constterm("j"), (((Proj)((And)penv.Root).RHOperand).Source as ObservedProgram).Observations[0].Examples.Tuples[0][0]);
 
     }
 
@@ -107,9 +107,9 @@ namespace Language
       ValenceVar vv = new ValenceVar(new[] { a }, Array.Empty<NameVar>());
       ObservedProgram obs = new ObservedProgram(rel, vv, 2, 0, ObservedProgram.Constraint.None);
 
-      Assert.AreEqual(f, obs.Observables.Tuples[0][0]);
+      Assert.AreEqual(f, obs.Observations[0].Examples.Tuples[0][0]);
       obs.ReplaceFree(f, constterm(9));
-      Assert.AreEqual(constterm(9), obs.Observables.Tuples[0][0]);
+      Assert.AreEqual(constterm(9), obs.Observations[0].Examples.Tuples[0][0]);
     }
 
 
@@ -129,9 +129,9 @@ namespace Language
 
       ProgramEnvironment penv = new ProgramEnvironment(obs, nms, fact);
 
-      Assert.AreEqual(f, (penv.Root as ObservedProgram).Observables.Tuples[0][0]);
+      Assert.AreEqual(f, (penv.Root as ObservedProgram).Observations[0].Examples.Tuples[0][0]);
       penv.ReplaceFree(f, constterm(9));
-      Assert.AreEqual(constterm(9), (penv.Root as ObservedProgram).Observables.Tuples[0][0]);
+      Assert.AreEqual(constterm(9), (penv.Root as ObservedProgram).Observations[0].Examples.Tuples[0][0]);
     }
 
     [TestMethod]
@@ -152,9 +152,9 @@ namespace Language
 
       ProgramEnvironment penv = new ProgramEnvironment(projProg, nms, fact);
 
-      Assert.AreEqual(f, (((Proj)penv.Root).Source as ObservedProgram).Observables.Tuples[0][0]);
+      Assert.AreEqual(f, (((Proj)penv.Root).Source as ObservedProgram).Observations[0].Examples.Tuples[0][0]);
       penv.ReplaceFree(f, constterm(9));
-      Assert.AreEqual(constterm(9), (((Proj)penv.Root).Source as ObservedProgram).Observables.Tuples[0][0]);
+      Assert.AreEqual(constterm(9), (((Proj)penv.Root).Source as ObservedProgram).Observations[0].Examples.Tuples[0][0]);
     }
 
 
@@ -177,9 +177,9 @@ namespace Language
 
       ProgramEnvironment penv = new ProgramEnvironment(andProg, nms, fact);
 
-      Assert.AreEqual(f, (((Proj)((And)penv.Root).RHOperand).Source as ObservedProgram).Observables.Tuples[0][0]);
+      Assert.AreEqual(f, (((Proj)((And)penv.Root).RHOperand).Source as ObservedProgram).Observations[0].Examples.Tuples[0][0]);
       penv.ReplaceFree(f, constterm(9));
-      Assert.AreEqual(constterm(9), (((Proj)((And)penv.Root).RHOperand).Source as ObservedProgram).Observables.Tuples[0][0]);
+      Assert.AreEqual(constterm(9), (((Proj)((And)penv.Root).RHOperand).Source as ObservedProgram).Observations[0].Examples.Tuples[0][0]);
     }
 
 

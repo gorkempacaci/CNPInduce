@@ -91,7 +91,7 @@ namespace CNP
 
     public string Visit(ObservedProgram op)
     {
-      return $"{{\"name\":\"observation\", \"valence\":\\\"{op.Valence.Accept(this)}\\\", \"observables\":\"{op.Observables.Accept(this)}\", RemainingSearchDepth:{op.RemainingSearchDepth}}}";
+      return $"{{\"name\":\"observation\", \"first valence\":\\\"{op.Observations[0].Valence.Accept(this)}\\\", \"observables\":\"#{op.Observations.Length}\", RemainingSearchDepth:{op.RemainingSearchDepth}}}";
     }
 
     // META TERMS
