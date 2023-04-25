@@ -63,6 +63,7 @@ namespace Benchit
       bool theVeryFirstRun = true;
       foreach (SynTask bench in tasks ?? Array.Empty<SynTask>())
       {
+        Console.WriteLine(bench.Name + ": " + bench.ExpectedPrograms[0] + (bench.ExpectedPrograms.Length > 1 ? ",..." : ""));
         (int, double)[] averages = new (int, double)[threadCounts.Length];
         for (int thci = 0; thci < threadCounts.Length; thci++)
         {
@@ -126,7 +127,6 @@ namespace Benchit
         string dataStr = string.Join(" & ", averages.Select(a => $"{a.Item2:F2}"));
         pgfCoordinates.AppendLine(bench.Name + ": " + coordsStr);
         texTabularData.AppendLine(dataStr);
-        Console.WriteLine(bench.Name + ": " + bench.ExpectedPrograms[0] + (bench.ExpectedPrograms.Length>1?",...":""));
         Console.WriteLine();
       }
       Console.WriteLine("For PGF:");
