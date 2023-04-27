@@ -77,26 +77,33 @@ namespace CNP.Language
         NameVar[] opNames = origObservation.Observations[oi].Examples.Names;
         for (int i = 0; i < valences.Length; i++)
         {
-          ProtoAndValence protVal = valences[i];
-          var (lhNames, lhIndices, lhNamesOfIns, lhNamesOfOuts) = getNamesIndicesModesForNames(protVal.LHModes, opNames);
-          var (rhNames, rhIndices, rhNamesOfIns, rhNamesOfOuts) = getNamesIndicesModesForNames(protVal.RHModes, opNames);
-          var (lhTuples, rhTuples) = origObservation.Observations[oi].Examples.GetCroppedTo2ByIndices(lhIndices, rhIndices);
           int remSearchDepth = origObservation.RemainingSearchDepth - 1;
           int remUnbound = origObservation.RemainingUnboundArguments;
           var constraint = ObservedProgram.Constraint.NotAnd;
+          ProtoAndValence protVal = valences[i];
+
+          var (lhNames, lhIndices, lhNamesOfIns, lhNamesOfOuts) = getNamesIndicesModesForNames(protVal.LHModes, opNames);
+          var lhTuples = origObservation.Observations[oi].Examples.GetCroppedByIndices(lhIndices);
+
+          var rhNamesIndicesModesList = protVal.RHModesArr.Select(RHModes => getNamesIndicesModesForNames(RHModes, opNames));
+          var rhTuplesList = rhNamesIndicesModesList.Select(rh => origObservation.Observations[oi].Examples.GetCroppedByIndices(rh.indices));
+          
           var lhRel = new AlphaRelation(lhNames, lhTuples);
           var lhVal = new ValenceVar(lhNamesOfIns, lhNamesOfOuts);
           var lhObs = new Observation(lhRel, lhVal);
-          var lhObsP = new ObservedProgram(new[] {lhObs}, remSearchDepth, remUnbound, constraint);
-          var rhRel = new AlphaRelation(rhNames, rhTuples);
-          var rhVal = new ValenceVar(rhNamesOfIns, rhNamesOfOuts);
-          var rhObs = new Observation(rhRel, rhVal);
-          var rhObsP = new ObservedProgram(new[] {rhObs}, remSearchDepth, remUnbound, constraint);
+
+          var rhRelList = Enumerable.Zip(rhNamesIndicesModesList, rhTuplesList).Select(z => new AlphaRelation(z.First.names, z.Second));
+          var rhValList = rhNamesIndicesModesList.Select(nim => new ValenceVar(nim.namesOfIns, nim.namesOfOuts));
+          var rhObsList = Enumerable.Zip(rhRelList, rhValList).Select(z => new Observation(z.First, z.Second));
+
+          var lhObsP = new ObservedProgram(new[] { lhObs }, remSearchDepth, remUnbound, constraint);
+          var rhObsP = new ObservedProgram(rhObsList.ToArray() , remSearchDepth, remUnbound, constraint);
           var andProg = new And(lhObsP, rhObsP);
           (andProg as IProgram).SetDebugInformation(debugInfo);
-          var onlyLHNames = protVal.OnlyLHIndices.Select(i => opNames[i]).ToArray();
-          var onlyRHNames = protVal.OnlyRHIndices.Select(i => opNames[i]).ToArray();
-          var prog = origEnv.Clone((origObservation, andProg), (onlyLHNames, onlyRHNames));
+          //BUG after and-valence grouping this name difference bit needs to be done differently
+          //var onlyLHNames = protVal.OnlyLHIndices.Select(i => opNames[i]).ToArray();
+          //var onlyRHNames = protVal.OnlyRHIndices.Select(i => opNames[i]).ToArray();
+          var prog = origEnv.Clone((origObservation, andProg));//, (onlyLHNames, onlyRHNames));
           programs.Add(prog);
         }
       }

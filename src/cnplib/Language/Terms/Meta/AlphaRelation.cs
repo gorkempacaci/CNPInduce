@@ -44,20 +44,16 @@ namespace CNP.Language
     /// <summary>
     /// Crops columns of this relation to the colums given by protoValence's LH and RH parts. ProtoAndValence's modes need to be in the same order as this alpharelation's names.
     /// </summary>
-    public (ITerm[][] lhTerms, ITerm[][] rhTerms) GetCroppedTo2ByIndices(short[] lhIndices, short[] rhIndices)
+    public ITerm[][] GetCroppedByIndices(short[] indices)
     {
-      var lhTuples = new ITerm[Tuples.Length][];
-      var rhTuples = new ITerm[Tuples.Length][];
-      for(int ti=0; ti<Tuples.Length; ti++)
+      var tuples = new ITerm[Tuples.Length][];
+      for(int tupi=0; tupi<Tuples.Length; tupi++)
       {
-        lhTuples[ti] = new ITerm[lhIndices.Length];
-        for (int lti = 0; lti < lhIndices.Length; lti++)
-          lhTuples[ti][lti] = Tuples[ti][lhIndices[lti]];
-        rhTuples[ti] = new ITerm[rhIndices.Length];
-        for (int rti = 0; rti < rhIndices.Length; rti++)
-          rhTuples[ti][rti] = Tuples[ti][rhIndices[rti]];
+        tuples[tupi] = new ITerm[indices.Length];
+        for (int termi = 0; termi < indices.Length; termi++)
+          tuples[tupi][termi] = Tuples[tupi][indices[termi]];
       }
-      return (lhTuples, rhTuples);
+      return tuples;
     }
 
     /// <summary>

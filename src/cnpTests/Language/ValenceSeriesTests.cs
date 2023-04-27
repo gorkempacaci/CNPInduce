@@ -55,12 +55,12 @@ namespace Language
     {
       var modes = new Mode[] { Mode.In };
       var protosActual = AndValenceSeries.GenerateForSingleOpModeList(modes).ToArray();
-      var protosExpected = new ProtoAndValence[]
+      var protosExpected = new ProtoAndValenceSingle[]
       {
-        new ProtoAndValence(modes, new Mode?[]{Mode.In}, new Mode?[]{Mode.In}, Array.Empty<short>(), Array.Empty<short>()),
-        new ProtoAndValence(modes, new Mode?[]{Mode.In}, new Mode?[]{Mode.Out}, Array.Empty<short>(), Array.Empty<short>()),
-        new ProtoAndValence(modes, new Mode?[]{Mode.Out}, new Mode?[]{Mode.In}, Array.Empty<short>(), Array.Empty<short>()),
-        new ProtoAndValence(modes, new Mode?[]{Mode.Out}, new Mode?[]{Mode.Out}, Array.Empty<short>(), Array.Empty<short>())
+        new ProtoAndValenceSingle(new Mode?[]{Mode.In}, new Mode?[]{Mode.In}, Array.Empty<short>(), Array.Empty<short>()),
+        new ProtoAndValenceSingle(new Mode?[]{Mode.In}, new Mode?[]{Mode.Out}, Array.Empty<short>(), Array.Empty<short>()),
+        new ProtoAndValenceSingle(new Mode?[]{Mode.Out}, new Mode?[]{Mode.In}, Array.Empty<short>(), Array.Empty<short>()),
+        new ProtoAndValenceSingle(new Mode?[]{Mode.Out}, new Mode?[]{Mode.Out}, Array.Empty<short>(), Array.Empty<short>())
       };
       assertProtoValsEqual(protosExpected, protosActual);
     }
@@ -70,10 +70,10 @@ namespace Language
     {
       var modes = new Mode[] { Mode.Out };
       var protosActual = AndValenceSeries.GenerateForSingleOpModeList(modes).ToArray();
-      var protosExpected = new ProtoAndValence[]
+      var protosExpected = new ProtoAndValenceSingle[]
       {
-        new ProtoAndValence(modes, new Mode?[]{Mode.Out}, new Mode?[]{Mode.In}, Array.Empty<short>(), Array.Empty<short>()),
-        new ProtoAndValence(modes, new Mode?[]{Mode.Out}, new Mode?[]{Mode.Out}, Array.Empty<short>(), Array.Empty<short>())
+        new ProtoAndValenceSingle(new Mode?[]{Mode.Out}, new Mode?[]{Mode.In}, Array.Empty<short>(), Array.Empty<short>()),
+        new ProtoAndValenceSingle(new Mode?[]{Mode.Out}, new Mode?[]{Mode.Out}, Array.Empty<short>(), Array.Empty<short>())
       };
       assertProtoValsEqual(protosExpected, protosActual);
     }
@@ -87,32 +87,31 @@ namespace Language
     public void And_Arity2(int expectedNumberOfProtoValences, params Mode[] modes)
     {
       var protosActual = AndValenceSeries.GenerateForSingleOpModeList(modes).ToArray();
-      string protosString = allProtosToString(protosActual);
+      //string protosString = allProtosToString(protosActual);
       Assert.AreEqual(expectedNumberOfProtoValences, protosActual.Length);
     }
 
 
-    private static string allProtosToString(ProtoAndValence[] protos)
-    {
-      StringBuilder sb = new StringBuilder();
-      foreach (ProtoAndValence e in protos)
-      {
-        string lhModesJoined = string.Join(", ", e.LHModes.Select(m => m is null ? "null" : m.ToString()));
-        string rhModesJoined = string.Join(", ", e.RHModes.Select(m => m is null ? "null" : m.ToString()));
-        string onlyLHJoined = string.Join(", ", e.OnlyLHIndices.Select(m => m.ToString()));
-        string onlyRHJoined = string.Join(", ", e.OnlyRHIndices.Select(m => m.ToString()));
-        sb.AppendLine($"new ProtoAndValence(modes, new Mode?[]{{{lhModesJoined}}}, new Mode?[]{{{rhModesJoined}}}, new short[]{{{onlyLHJoined}}}, new short[]{{{onlyRHJoined}}}),");
-      }
-      string s = sb.ToString();
-      return s;
-    }
+    //private static string allProtosToString(ProtoAndValence[] protos)
+    //{
+    //  StringBuilder sb = new StringBuilder();
+    //  foreach (ProtoAndValence e in protos)
+    //  {
+    //    string lhModesJoined = string.Join(", ", e.LHModes.Select(m => m is null ? "null" : m.ToString()));
+    //    string rhModesJoined = string.Join(", ", e.RHModes.Select(m => m is null ? "null" : m.ToString()));
+    //    string onlyLHJoined = string.Join(", ", e.OnlyLHIndices.Select(m => m.ToString()));
+    //    string onlyRHJoined = string.Join(", ", e.OnlyRHIndices.Select(m => m.ToString()));
+    //    sb.AppendLine($"new ProtoAndValence(modes, new Mode?[]{{{lhModesJoined}}}, new Mode?[]{{{rhModesJoined}}}, new short[]{{{onlyLHJoined}}}, new short[]{{{onlyRHJoined}}}),");
+    //  }
+    //  string s = sb.ToString();
+    //  return s;
+    //}
 
-    private static void assertProtoValsEqual(ProtoAndValence[] expecteds, ProtoAndValence[] actuals)
+    private static void assertProtoValsEqual(ProtoAndValenceSingle[] expecteds, ProtoAndValenceSingle[] actuals)
     {
       Assert.AreEqual(expecteds.Length, actuals.Length);
       for (int i = 0; i < expecteds.Length; i++)
       {
-        CollectionAssert.AreEqual(expecteds[i].OpModes, actuals[i].OpModes);
         CollectionAssert.AreEqual(expecteds[i].LHModes, actuals[i].LHModes);
         CollectionAssert.AreEqual(expecteds[i].RHModes, actuals[i].RHModes);
         CollectionAssert.AreEqual(expecteds[i].OnlyLHIndices, actuals[i].OnlyLHIndices);

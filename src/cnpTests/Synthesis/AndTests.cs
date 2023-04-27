@@ -21,9 +21,12 @@ namespace Synthesis
       AlphaRelation rel = Parser.ParseAlphaTupleSet("{{a:1}, {a:2}}", names, frees);
       ObservedProgram obs = new ObservedProgram(rel, v, 2, 0, ObservedProgram.Constraint.None);
       ProgramEnvironment env = new ProgramEnvironment(obs, names, frees);
-      var programsInNextStep = And.CreateAtFirstHole(env);
-      Assert.AreEqual(4, programsInNextStep.Count(), "4 alternations");
-      foreach(ProgramEnvironment p in programsInNextStep)
+      var programsInNextStep = And.CreateAtFirstHole(env).ToArray();
+      Assert.AreEqual(2, programsInNextStep.Count(), "2 alternations");
+      var obsCount = programsInNextStep.Sum(p => ((p.Root as And).RHOperand as ObservedProgram).Observations.Length);
+      Assert.AreEqual(4, obsCount, "4 total observations");
+
+      foreach (ProgramEnvironment p in programsInNextStep)
       {
         if (p.Root is And andProg)
         {
@@ -58,8 +61,11 @@ namespace Synthesis
       ProgramEnvironment env = new ProgramEnvironment(obs, names, frees);
       PrettyStringer expectedStringer = new PrettyStringer(names);
       var programsInNextStep = And.CreateAtFirstHole(env);
-      
-      Assert.AreEqual(24, programsInNextStep.Count(), "24 alternations");
+
+      Assert.AreEqual(5, programsInNextStep.Count(), "2 alternations");
+      var obsCount = programsInNextStep.Sum(p => ((p.Root as And).RHOperand as ObservedProgram).Observations.Length);
+      Assert.AreEqual(24, obsCount, "4 total observations");
+
       var firstExpectedLH = Parser.ParseAlphaTupleSet("{{b:2}, {b:4}}", names, frees);
       var firstExpectedRH = Parser.ParseAlphaTupleSet("{{a:1, b:2}, {a:2, b:4}}", names, frees);
       var firstActualEnv = programsInNextStep.First();
@@ -70,7 +76,7 @@ namespace Synthesis
       Assert.AreEqual(firstExpectedLH.Accept(expectedStringer), firstActualLH.Observations[0].Examples.Accept(firstActualStringer), "First valence, LH");
       Assert.AreEqual(firstExpectedRH.Accept(expectedStringer), firstActualRH.Observations[0].Examples.Accept(firstActualStringer), "First valence, RH ");
       var lastExpectedLH = Parser.ParseAlphaTupleSet("{{a:1,b:2}, {a:2, b:4}}", names, frees);
-      var lastExpectedRH = Parser.ParseAlphaTupleSet("{{a:1,b:2}, {a:2, b:4}}", names, frees);
+      var lastExpectedRH = Parser.ParseAlphaTupleSet("{{b:2}, {b:4}}", names, frees);
       var lastActualEnv = programsInNextStep.Last();
       var lastActual = (And)lastActualEnv.Root;
       var lastActualStringer = new PrettyStringer(lastActualEnv.NameBindings);

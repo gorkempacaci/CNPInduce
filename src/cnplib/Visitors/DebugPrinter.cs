@@ -156,7 +156,7 @@ namespace CNP
     {
       var opModes = "[" + string.Join(", ", pav.OpModes.Select(m => m.ToString())) + "]";
       var lhModes = "[" + string.Join(", ", pav.LHModes.Select(m => m is null ? "_" : m.ToString())) + "]";
-      var rhModes = "[" + string.Join(", ", pav.RHModes.Select(m => m is null ? "_" : m.ToString())) + "]";
+      var rhModes = "[" + string.Join(", ", pav.RHModesArr[0].Select(m => m is null ? "_" : m.ToString())) + "],...";
       return opModes + "(" + lhModes + ", " + rhModes + ")";
     }
   }

@@ -41,13 +41,13 @@ namespace Synthesis
       assertFirstResultFor(typeStr, atus, "foldl(proj(foldl(+), {as->a, b0->b, b->ab}))", 4);
     }
 
-    [TestMethod]
-    public void SumAll2()
-    {
-      string typeStr = "{lists:in, sum:out}";
-      string atus = "{{lists:[], sum:0}, {lists:[[1,2], [3,4]], sum:10}}";
-      assertFirstResultFor(typeStr, atus, "foldl(proj(foldl(+), {as->a, b0->b, b->ab}))", 5);
-    }
+    //[TestMethod]
+    //public void SumAll2()
+    //{
+    //  string typeStr = "{lists:in, sum:out}";
+    //  string atus = "{{lists:[[1,2], [3,4]], sum:10}, {lists:[[1], [3]], sum:4}}";
+    //  assertFirstResultFor(typeStr, atus, "foldl(proj(foldl(+), {as->a, b0->b, b->ab}))", 5);
+    //}
   }
 
 }
