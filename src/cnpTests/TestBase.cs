@@ -54,20 +54,20 @@ public class TestBase
   protected static Proj proj(IProgram source, params (NameVar,NameVar)[] projections) => new Proj(source, new ProjectionMap(projections.Select(tu => new KeyValuePair<NameVar,NameVar>(tu.Item1,tu.Item2)).ToArray()));
   #endregion
 
-  protected ProgramEnvironment buildEnvironment(string domains, string atusStr, int searchDepth)
+  protected ProgramEnvironment buildEnvironment(string domains, string atusStr, int searchDepth, int allowedUnboundArgs)
   {
     NameVarBindings names = new();
     FreeFactory frees = new();
     ValenceVar namesModes = Parser.ParseValence(domains, names);
     AlphaRelation atus = Parser.ParseAlphaTupleSet(atusStr, names, frees);
-    ObservedProgram obs = new ObservedProgram(atus, namesModes, searchDepth, TEST_ALLOWED_UNBOUND_ARGS, ObservedProgram.Constraint.None);
+    ObservedProgram obs = new ObservedProgram(atus, namesModes, searchDepth, allowedUnboundArgs, ObservedProgram.Constraint.None);
     ProgramEnvironment env = new ProgramEnvironment(obs, names, frees);
     return env;
   }
 
-  protected ProgramEnvironment assertFirstResultFor(string domains, string atusStr, string expectedProgramString, int searchDepth=TEST_SEARCH_DEPTH)
+  protected ProgramEnvironment assertFirstResultFor(string domains, string atusStr, string expectedProgramString, int searchDepth=TEST_SEARCH_DEPTH, int allowedUnboundArguments= TEST_ALLOWED_UNBOUND_ARGS)
   {
-    ProgramEnvironment preEnv = buildEnvironment(domains, atusStr, searchDepth);
+    ProgramEnvironment preEnv = buildEnvironment(domains, atusStr, searchDepth, allowedUnboundArguments);
     SynthesisJob job = new SynthesisJob(preEnv, new ThreadCount(TEST_THREAD_COUNT), SearchOptions.FindOnlyFirstProgram);
     var programs = job.FindPrograms();
     //Assert.AreEqual(1, programs.Count(), "A program should be found.");
@@ -80,9 +80,9 @@ public class TestBase
     return env;
   }
 
-  protected void assertNoResultFor(string domains, string atusStr, int searchDepth=TEST_SEARCH_DEPTH)
+  protected void assertNoResultFor(string domains, string atusStr, int searchDepth=TEST_SEARCH_DEPTH, int allowedUnboundArguments=TEST_ALLOWED_UNBOUND_ARGS)
   {
-    ProgramEnvironment env = buildEnvironment(domains, atusStr, searchDepth);
+    ProgramEnvironment env = buildEnvironment(domains, atusStr, searchDepth, allowedUnboundArguments);
     SynthesisJob job = new SynthesisJob(env, new ThreadCount(TEST_THREAD_COUNT), SearchOptions.FindAllPrograms);
     var programs = job.FindPrograms();
     var strings = string.Join("\n", programs.Take(3).Select(p => p.Root.Accept(new PrettyStringer(p.NameBindings))));

@@ -15,7 +15,7 @@ namespace Benchit
   public class Program
   {
     const int WAIT_BETWEEN_RUNS_MS = 200;
-    const int WAIT_BETWEEN_TASKS_MS = 2000;
+    const int WAIT_BETWEEN_TASKS_MS = 3000;
 
     [RequiresAssemblyFiles()]
     public static int Main(string[] args)
@@ -99,7 +99,8 @@ namespace Benchit
               {
                 succeess = false;
                 Console.Write("{0,8}", "F");
-                errors.AppendLine($"({bench.Name}) \n Expecting: {bench.ExpectedPrograms} \n Found: {foundProgramString}");
+                string expecting = bench.ExpectedPrograms[0] + (bench.ExpectedPrograms.Length > 1 ? "(or similar)" : "");
+                errors.AppendLine($"({bench.Name}) \n Expecting: {expecting} \n Found: {foundProgramString}");
               }
             }
             else

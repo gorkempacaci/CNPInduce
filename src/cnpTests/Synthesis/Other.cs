@@ -24,6 +24,14 @@ namespace Synthesis
       var prog = assertFirstResultFor(typeStr, atus, "proj(cons, {ab->list, a->h})");
     }
 
+    //[TestMethod]
+    //public void Last()
+    //{
+    //  var typeStr = "{list:in, l:out}";
+    //  var atus = "{{list:[1,2,3], l:3}, {list:[2], l:2}}";
+    //  var prog = assertFirstResultFor(typeStr, atus, "proj(and(proj(cons, {ab->list, a->h}), proj(foldl(cons),...))", 5, 1);
+    //}
+
     [TestMethod]
     public void Sum()
     {
@@ -31,7 +39,6 @@ namespace Synthesis
       var atus = "{{list:[], sum:0}, {list:[1,2,3], sum:6}}";
       var prog = assertFirstResultFor(typeStr, atus, "proj(and(const(b0, 0), foldl(+)), {as->list, b->sum})");
     }
-
 
     [TestMethod]
     public void SumAll3()
@@ -41,13 +48,13 @@ namespace Synthesis
       assertFirstResultFor(typeStr, atus, "foldl(proj(foldl(+), {as->a, b0->b, b->ab}))", 4);
     }
 
-    //[TestMethod]
-    //public void SumAll2()
-    //{
-    //  string typeStr = "{lists:in, sum:out}";
-    //  string atus = "{{lists:[[1,2], [3,4]], sum:10}, {lists:[[1], [3]], sum:4}}";
-    //  assertFirstResultFor(typeStr, atus, "foldl(proj(foldl(+), {as->a, b0->b, b->ab}))", 5);
-    //}
+    [TestMethod]
+    public void SumAll2()
+    {
+      string typeStr = "{lists:in, sum:out}";
+      string atus = "{{lists:[[1,2], [3,4]], sum:10}, {lists:[[1], [3]], sum:4}}";
+      assertFirstResultFor(typeStr, atus, "proj(and(const(b0, 0), foldl(proj(foldl(+), {as->a, b0->b, b->ab}))), {as->lists, b->sum})", 6);
+    }
   }
 
 }
