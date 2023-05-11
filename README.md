@@ -1,4 +1,16 @@
-﻿# Parallel CombInduce
+# How to run the benchmarks
+
+Load the solution and run the Benchit project. Tested on .Net 7. 
+
+> `./benchit benchmarks.json [1,2,3,4] 3`
+
+Runs the suite in `benchmarks.json` with 1, 2, 3, 4 threads, each with 3 repeats, reporting the average of these 3 repeats.
+
+# Disclaimer
+
+**Parallel CombInduce** is under active development, and there may be times the main branch is not healthy.
+
+# Parallel CombInduce
 
 CNP synthesizer implemented in C#.
 - Object-level mutable unification for efficiency
