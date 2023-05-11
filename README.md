@@ -8,7 +8,7 @@ Runs the suite in `benchmarks.json` with 1, 2, 3, 4 threads, each with 3 repeats
 
 # Disclaimer
 
-**Parallel CombInduce** is under active development, and there may be times the main branch is not healthy.
+**Parallel CombInduce** is under active development, and there may be times the main branch is not healthy. Check under 'Actions' that the version you're checking out is 'green', meaning all the tests have passed for that version. 
 
 # Parallel CombInduce
 
