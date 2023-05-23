@@ -15,6 +15,13 @@ namespace Synthesis
   [TestClass]
   public class Other : TestBase
   {
+    //[TestMethod]
+    //public void Inc()
+    //{
+    //  var typeStr = "{a:in, b:out}";
+    //  var atus = "{{a:0, b:1}, {a:1, b:2}}";
+    //  var prog = assertFirstResultFor(typeStr, atus, "proj(cons, {ab->list, a->h})");
+    //}
 
     [TestMethod]
     public void Head()

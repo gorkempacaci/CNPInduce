@@ -38,16 +38,16 @@ namespace CNP.Search
     {
       threadObjects = new List<SearchBrancher>(ThreadCount);
       systemThreads = new List<Thread>(ThreadCount);
-      Terminator hungerTracker = new Terminator(CancellationSource, ThreadCount);
+      //Terminator hungerTracker = new Terminator(CancellationSource, ThreadCount);
+      CountdownEvent cde = new CountdownEvent(1);
       for (int i = 0; i < ThreadCount; i++)
       {
-        SearchBrancher pst = new SearchBrancher(this, searchQueue, hungerTracker, CancellationSource, searchReceiver, i);
+        SearchBrancher pst = new SearchBrancher(this, searchQueue, cde, CancellationSource, searchReceiver, i);
         threadObjects.Add(pst);
         Thread t = new Thread(pst.ConsumeProduceLoop);
         t.Priority = ThreadPriority.Highest;
         t.Name = "Synth" + i;
         systemThreads.Add(t);
-        //Interlocked.Increment(ref BusyThreadCount);
         t.Start();
       }
     }

@@ -25,13 +25,15 @@ namespace Benchit
   {
     public int SearchDepth { get; set; }
     public int MaxUnboundArguments { get; set; }
+    public int WaitBetweenRunsMaxms { get; set; } // max ms wait between runs
     public BenchmarkFileEntry[] Tasks { get; set; } = Array.Empty<BenchmarkFileEntry>();
     
     
 
-    private SynTask[] ParseAllTasks()
+    private SynTask[] ParseAllTasks(out int maxWaitMsBetweenRuns)
     {
       List<SynTask> synTasks = new();
+      maxWaitMsBetweenRuns = WaitBetweenRunsMaxms;
       for (int i = 0; i < Tasks.Length; i++)
       {
         try
@@ -47,14 +49,14 @@ namespace Benchit
       return synTasks.ToArray();
     }
 
-    public static SynTask[] ReadFromFile(string filename)
+    public static SynTask[] ReadFromFile(string filename, out int maxWaitmsBetweenRuns)
     {
       string jsonContent = File.ReadAllText(filename);
       try
       {
         BenchmarkFile file = JsonSerializer.Deserialize<BenchmarkFile>(jsonContent)!;
         Console.WriteLine("Number of benchmarks read: " + file.Tasks.Length);
-        return file.ParseAllTasks();
+        return file.ParseAllTasks(out maxWaitmsBetweenRuns);
       }
       catch(Exception e)
       {

@@ -9,7 +9,12 @@ namespace CNP.Language
   {
     public const int AND_MAX_ARITY = 5;
 
-    public readonly static AndValenceSeries AndValences = AndValenceSeries.Generate(AND_MAX_ARITY);
+    static And()
+    {
+      AndValences = AndValenceSeries.Generate(AND_MAX_ARITY);
+    }
+
+    public readonly static AndValenceSeries AndValences;
 
     public readonly IProgram LHOperand, RHOperand;
 

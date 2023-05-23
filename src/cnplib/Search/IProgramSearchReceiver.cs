@@ -7,6 +7,6 @@ namespace CNP.Search
         /// <summary>
         /// Returns true to indicate the search should stop.
         /// </summary>
-        bool FoundNewProgram(ProgramEnvironment p);
+        bool FoundNewSolution(ProgramEnvironment p);
     }
 }

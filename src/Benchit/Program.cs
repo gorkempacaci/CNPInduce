@@ -14,8 +14,8 @@ namespace Benchit
 
   public class Program
   {
-    const int WAIT_BETWEEN_RUNS_MS = 200;
-    const int WAIT_BETWEEN_TASKS_MS = 3000;
+    const int WAIT_BETWEEN_RUNS_MS = 100;
+    const int WAIT_BETWEEN_TASKS_MS = 1000;
 
     [RequiresAssemblyFiles()]
     public static int Main(string[] args)
@@ -29,8 +29,14 @@ namespace Benchit
         return 0;
       }
       // PRINTING CNP VERSION
-      string cnpTimeString = System.IO.File.GetCreationTime(typeof(CNP.Language.IProgram).Assembly.Location).ToString();
-      Console.WriteLine("Using CNP: " + cnpTimeString);
+      try
+      {
+        string cnpTimeString = System.IO.File.GetCreationTime(typeof(CNP.Language.IProgram).Assembly.Location).ToString();
+        Console.WriteLine("Using CNP: " + cnpTimeString);
+      } catch (Exception)
+      {
+        Console.WriteLine("Printing CNP version failed. (possibly single executable)");
+      }
       Console.WriteLine("Preinitializing. ");
       SynthesisJob.PreInitialize();
       Thread.Sleep(1000);
@@ -42,14 +48,14 @@ namespace Benchit
       string threadCountsBackToString = string.Join(",", arg_threadCounts);
       Console.WriteLine($"Arguments (Filename:{filename}, ThreadCounts:[{threadCountsBackToString}], Repeats:{arg_repeats}");
       // PARSE JSON FILE
-      SynTask[] tasks = BenchmarkFile.ReadFromFile(filename);
+      SynTask[] tasks = BenchmarkFile.ReadFromFile(filename, out int maxWaitTimeMsBetweenRuns);
 
       Console.WriteLine("Parsing done.");
-      int result = Run(tasks: tasks, threadCounts: arg_threadCounts, repeats: arg_repeats);
+      int result = Run(tasks: tasks, threadCounts: arg_threadCounts, repeats: arg_repeats, maxWaitTimeMsBetweenRuns);
       return result;
     }
 
-    static int Run(SynTask[] tasks, int[] threadCounts, int repeats)
+    static int Run(SynTask[] tasks, int[] threadCounts, int repeats, int maxWaitMSBetweenRuns)
     {
       StringBuilder errors = new StringBuilder();
       StringBuilder pgfCoordinates = new();
@@ -73,13 +79,10 @@ namespace Benchit
           bool succeess = true;
           for (int r = 0; r < repeats; r++)
           {
-            GC.Collect();
-            Thread.Sleep(WAIT_BETWEEN_RUNS_MS);
           beginning:
             SynthesisJob job = new SynthesisJob(bench.ProgramEnv, new ThreadCount(thCount), SearchOptions.FindOnlyFirstProgram);
-            DateTime t0 = DateTime.UtcNow;
-            var programs = job.FindPrograms();
-            DateTime t1 = DateTime.UtcNow;
+            DateTime t0 = DateTime.UtcNow, t1 = DateTime.UtcNow;
+            var programs = job.FindPrograms(p => { t1 = DateTime.UtcNow; });
             if (theVeryFirstRun)
             {
               theVeryFirstRun = false;
@@ -109,6 +112,9 @@ namespace Benchit
               Console.Write("{0,8}", "F");
               errors.Append($"({bench.Name}), Threads {thCount}, Repeat {r + 1}, Program not found.");
             }
+            GC.Collect(2, GCCollectionMode.Forced, true);
+            int howMuchToWait = Math.Min((int)(durationsRpt[r] * 1000), maxWaitMSBetweenRuns);
+            Thread.Sleep(howMuchToWait);
           }
           if (succeess)
           {
@@ -121,8 +127,6 @@ namespace Benchit
             Console.WriteLine("{0,8}", "N/A");
             break;
           }
-          GC.Collect();
-          Thread.Sleep(WAIT_BETWEEN_TASKS_MS);
         }
         string coordsStr = string.Join(" ", averages.Select(a => $"({a.Item1},{a.Item2:F2})"));
         string dataStr = string.Join(" & ", averages.Select(a => $"{a.Item2:F2}"));

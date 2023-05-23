@@ -13,7 +13,9 @@ namespace CNP.Language
     private const Mode In = Mode.In;
     private const Mode Out = Mode.Out;
 
-    public readonly static FoldValenceSeries FoldRValences = FoldValenceSeries.FoldSerieFromArrays(
+    static FoldR()
+    {
+      FoldRValences = FoldValenceSeries.FoldSerieFromArrays(
       new[] { "b0", "as", "b" }, new[] { "a", "b", "ab" },
       new[] {
         (new[]{In, In, Out}, new[]{In, In, Out }),
@@ -29,6 +31,9 @@ namespace CNP.Language
 
         (new[]{Out, Out, Out}, new[]{Out, Out, Out})
       });
+    }
+
+    public readonly static FoldValenceSeries FoldRValences;
 
     public IProgram Recursive { get; }
 

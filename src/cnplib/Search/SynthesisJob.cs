@@ -14,7 +14,9 @@ namespace CNP.Search
   {
     ProgramSearch search;
     SearchOptions searchOptions;
+    Action<ProgramEnvironment> solutionObserver = null;
     ConcurrentQueue<ProgramEnvironment> programs = new ConcurrentQueue<ProgramEnvironment>();
+    ConcurrentQueue<ProgramEnvironment> solutions = new ConcurrentQueue<ProgramEnvironment>();
 
     public static void PreInitialize()
     {
@@ -32,20 +34,23 @@ namespace CNP.Search
       searchOptions = sOpt;
     }
 
+
+
     /// <summary>
     /// Finds all programs up to depth with given search options. Blocks until search is complete. Guarantees that in the returned list, shallower programs come first.
     /// </summary> 
-    public IEnumerable<ProgramEnvironment> FindPrograms()
+    public IEnumerable<ProgramEnvironment> FindPrograms(Action<ProgramEnvironment> SolutionObserver = null)
     {
+      this.solutionObserver = SolutionObserver;
       search.StartThreads();
       search.WaitUntilDone();
-      //var set = programs.ToHashSet(); // don't repeat same program twice. TODO: Very inefficient to convert to set after the fact. This should be handled while the search is populating the list.
-      return programs;
+      return solutions;
     }
 
-    public bool FoundNewProgram(ProgramEnvironment p)
+    public bool FoundNewSolution(ProgramEnvironment p)
     {
-      programs.Enqueue(p);
+      solutions.Enqueue(p);
+      solutionObserver?.Invoke(p);
       if (searchOptions == SearchOptions.FindOnlyFirstProgram)
         return true;
       else return false; // false means do not stop searching
@@ -56,24 +61,5 @@ namespace CNP.Search
   {
     FindOnlyFirstProgram,
     FindAllPrograms
-  }
-
-  public struct ThreadCount
-  {
-    int numberOfThreads;
-    /// <summary>
-    /// If n=0, it means one thread per logical processor.
-    /// </summary>
-    /// <param name="n"></param>
-    public ThreadCount(int n)
-    {
-      numberOfThreads = n;
-    }
-    public int GetNumberOfThreads()
-    {
-      if (numberOfThreads == 0)
-        return Environment.ProcessorCount;
-      else return numberOfThreads;
-    }
   }
 }

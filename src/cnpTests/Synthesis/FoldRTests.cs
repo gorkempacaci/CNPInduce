@@ -88,14 +88,14 @@ namespace Synthesis
       assertFirstResultFor(typeStr, atus, "foldr(proj(foldr(cons), {as->a, b0->b, b->ab}))", 4);
     }
 
-    //[TestMethod]
-    //public void Flatten2()
-    //{
-    //  string typeStr = "{as:in, bs:out}";
-    //  //string atus = "{{as:[], bs:[]}, {as:[[1],[2]], bs:[1, 2]}, {as:[[1,2], [3,4], [5,6]], bs:[1,2,3,4,5,6]}}";
-    //  string atus = "{{as:[[1,2], [3,4], [5,6]], bs:[1,2,3,4,5,6]}, {as:[[1]], bs:[1]}, {as:[[1,2]], bs:[1,2]}}";
-    //  assertFirstResultFor(typeStr, atus, "foldr(proj(foldr(cons), {as->a, b0->b, b->ab}))", 5, 3);
-    //}
+    [TestMethod]
+    public void Flatten2()
+    {
+      string typeStr = "{as:in, bs:out}";
+      //string atus = "{{as:[], bs:[]}, {as:[[1],[2]], bs:[1, 2]}, {as:[[1,2], [3,4], [5,6]], bs:[1,2,3,4,5,6]}}";
+      string atus = "{{as:[[1,2], [3,4], [5,6]], bs:[1,2,3,4,5,6]}, {as:[[1]], bs:[1]}, {as:[[1,2]], bs:[1,2]}}";
+      assertFirstResultFor(typeStr, atus, "foldr(proj(foldr(cons), {as->a, b0->b, b->ab}))", 5, 3);
+    }
   }
 
   // [TestClass]

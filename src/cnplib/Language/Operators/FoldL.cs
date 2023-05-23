@@ -12,8 +12,9 @@ namespace CNP.Language
     private const Mode In = Mode.In;
     private const Mode Out = Mode.Out;
 
-    //BUG: FOLDL valences are same as foldr
-    public readonly static FoldValenceSeries FoldLValences = FoldValenceSeries.FoldSerieFromArrays(
+    static FoldL()
+    {
+      FoldLValences = FoldValenceSeries.FoldSerieFromArrays(
       new[] { "b0", "as", "b" }, new[] { "a", "b", "ab" },
       new[] {
         (new[]{In, In, Out}, new[]{In, In, Out }),
@@ -29,6 +30,10 @@ namespace CNP.Language
 
         (new[]{Out, Out, Out}, new[]{Out, Out, Out})
       });
+    }
+
+    //BUG: FOLDL valences are same as foldr
+    public readonly static FoldValenceSeries FoldLValences;
 
     public IProgram Recursive { get; }
 

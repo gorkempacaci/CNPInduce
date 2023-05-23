@@ -1,6 +1,7 @@
 {
     "SearchDepth": 6,
     "MaxUnboundArguments": 1,
+    "WaitBetweenRunsMaxms": 3000,
     "Tasks": [
         {
             "Name": "head",
@@ -36,7 +37,10 @@
             "Name": "sum",
             "Valence": "{list:in, sum:out}",
             "Examples": "{{list:[], sum:0}, {list:[1,2,3], sum:6}}",
-            "ExpectedPrograms": [ "proj(and(const(b0, 0), foldl(+)), {as->list, b->sum})" ]
+            "ExpectedPrograms": [
+                "proj(and(const(b0, 0), foldl(+)), {as->list, b->sum})",
+                "proj(and(const(b0, 0), foldr(+)), {as->list, b->sum})"
+            ]
         },
         {
             "Name": "sumall",
@@ -50,11 +54,14 @@
             ]
         },
         {
-            "Name": "sumall2",
+            "Name": "sumall/2",
             "Valence": "{lists:in, sum:out}",
             "Examples": "{{lists:[[1,2], [3,4]], sum:10}, {lists:[[1], [3]], sum:4}}",
             "ExpectedPrograms": [
-                "proj(and(const(b0, 0), foldl(proj(foldl(+), {as->a, b0->b, b->ab}))), {as->lists, b->sum})"
+                "proj(and(const(b0, 0), foldl(proj(foldl(+), {as->a, b0->b, b->ab}))), {as->lists, b->sum})",
+                "proj(and(const(b0, 0), foldl(proj(foldr(+), {as->a, b0->b, b->ab}))), {as->lists, b->sum})",
+                "proj(and(const(b0, 0), foldr(proj(foldl(+), {as->a, b0->b, b->ab}))), {as->lists, b->sum})",
+                "proj(and(const(b0, 0), foldr(proj(foldr(+), {as->a, b0->b, b->ab}))), {as->lists, b->sum})"
             ]
         },
         {
@@ -62,6 +69,12 @@
             "Valence": "{b0:in, as:in, b:out}",
             "Examples": "{{b0:[], as:[[1,2]], b:[1, 2]}, {b0:[], as:[[1,2], [3,4], [5,6]], b:[1,2,3,4,5,6]}}",
             "ExpectedPrograms": [ "foldr(proj(foldr(cons), {as->a, b0->b, b->ab}))" ]
+        },
+        {
+            "Name": "flatten/2",
+            "Valence": "{as:in, bs:out}",
+            "Examples": "{{as:[[1,2], [3,4], [5,6]], bs:[1,2,3,4,5,6]}, {as:[[1]], bs:[1]}, {as:[[1,2]], bs:[1,2]}}",
+            "ExpectedPrograms": [ "proj(and(const(b0, []), foldr(proj(foldr(cons), {as->a, b0->b, b->ab}))), {as->as, b->bs})" ]
         }
     ]
 }
