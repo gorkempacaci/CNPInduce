@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using CNP;
 using CNP.Language;
 
@@ -23,6 +24,9 @@ namespace CNP.Language
 
     public abstract IProgram Clone(CloningContext cc);
     public abstract string Accept(ICNPVisitor ps);
+
+    public abstract IEnumerable<ProgramEnvironment> CreateAtFirstHole(ProgramEnvironment env);
+
   }
 }
 

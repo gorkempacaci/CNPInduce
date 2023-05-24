@@ -79,13 +79,13 @@ namespace Synthesis
       var prog = assertFirstResultFor(typeStr, atus, "const(b0, [])");
     }
 
-    //[TestMethod]
-    //public void ConstInventedInFold()
-    //{
-    //  var typeStr = "{as:in, bs:out}";
-    //  var atus = "{{as:['a'], bs:['a']}, {as:[1,2,3], bs:[3,2,1]}}";
-    //  var prog = assertFirstResultFor(typeStr, atus, "proj(and(const(b0, []), foldl(cons)), {as->as, b->bs})");
-    //}
+    [TestMethod]
+    public void ConstInventedInFold()
+    {
+      var typeStr = "{as:in, bs:out}";
+      var atus = "{{as:['a'], bs:['a']}, {as:[1,2,3], bs:[3,2,1]}}";
+      var prog = assertFirstResultFor(typeStr, atus, "proj(and(const(b0, []), foldl(cons)), {as->as, b->bs})");
+    }
 
     [DataTestMethod]
     // // cons
@@ -94,7 +94,7 @@ namespace Synthesis
     // [DataRow("{a:in}", "{{a:[1|X]}, {a:L}, {a:[1,2,3,4,T|6]}}")] // not ground
     public void Negative(string typeStr, string atusStr)
     {
-      assertNoResultFor(typeStr, atusStr);
+      assertNoResultFor(typeStr, atusStr, 3);
     }
 
   }

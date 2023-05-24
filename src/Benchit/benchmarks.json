@@ -10,25 +10,13 @@
             "ExpectedPrograms": [ "proj(cons, {ab->list, a->h})" ]
         },
         {
-            "Name": "reverse/3",
-            "Valence": "{b0:in, as:in, b:out}",
-            "Examples": "{{b0:[], as:[1,2,3], b:[3,2,1]}}",
-            "ExpectedPrograms": [ "foldl(cons)" ]
-        },
-        {
-            "Name": "append",
-            "Valence": "{b0:in, as:in, b:out}",
-            "Examples": "{{b0:[], as:[1], b:[1]}, {b0:[3,4], as:[1,2], b:[1,2,3,4]}}",
-            "ExpectedPrograms": [ "foldr(cons)" ]
-        },
-        {
             "Name": "append'",
             "Valence": "{list1:in, list2:in, list3:out}",
             "Examples": "{{list1:[], list2:[1], list3:[1]}, {list1:[1,2], list2:[3,4], list3:[1,2,3,4]}}",
             "ExpectedPrograms": [ "proj(foldr(cons), {as->list1, b0->list2, b->list3})" ]
         },
         {
-            "Name": "reverse/2",
+            "Name": "reverse",
             "Valence": "{as:in, bs:out}",
             "Examples": "{{as:['a'], bs:['a']}, {as:[1,2,3], bs:[3,2,1]}}",
             "ExpectedPrograms": [ "proj(and(const(b0, []), foldl(cons)), {as->as, b->bs})" ]
@@ -44,17 +32,6 @@
         },
         {
             "Name": "sumall",
-            "Valence": "{b0:in, as:in, b:out}",
-            "Examples": "{{b0:0, as:[[1], [2]], b:3}, {b0:0, as:[[1,2,3], [4,5,6], [7,8,9]], b:45}}",
-            "ExpectedPrograms": [
-                "foldl(proj(foldl(+), {as->a, b0->b, b->ab}))",
-                "foldl(proj(foldr(+), {as->a, b0->b, b->ab}))",
-                "foldr(proj(foldl(+), {as->a, b0->b, b->ab}))",
-                "foldr(proj(foldr(+), {as->a, b0->b, b->ab}))"
-            ]
-        },
-        {
-            "Name": "sumall/2",
             "Valence": "{lists:in, sum:out}",
             "Examples": "{{lists:[[1,2], [3,4]], sum:10}, {lists:[[1], [3]], sum:4}}",
             "ExpectedPrograms": [
@@ -65,13 +42,7 @@
             ]
         },
         {
-            "Name": "flatten/3",
-            "Valence": "{b0:in, as:in, b:out}",
-            "Examples": "{{b0:[], as:[[1,2]], b:[1, 2]}, {b0:[], as:[[1,2], [3,4], [5,6]], b:[1,2,3,4,5,6]}}",
-            "ExpectedPrograms": [ "foldr(proj(foldr(cons), {as->a, b0->b, b->ab}))" ]
-        },
-        {
-            "Name": "flatten/2",
+            "Name": "flatten",
             "Valence": "{as:in, bs:out}",
             "Examples": "{{as:[[1,2], [3,4], [5,6]], bs:[1,2,3,4,5,6]}, {as:[[1]], bs:[1]}, {as:[[1,2]], bs:[1,2]}}",
             "ExpectedPrograms": [ "proj(and(const(b0, []), foldr(proj(foldr(cons), {as->a, b0->b, b->ab}))), {as->as, b->bs})" ]

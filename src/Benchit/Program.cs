@@ -39,7 +39,7 @@ namespace Benchit
       }
       Console.WriteLine("Preinitializing. ");
       SynthesisJob.PreInitialize();
-      Thread.Sleep(1000);
+      //Thread.Sleep(1000);
       // INITIALIZING ARGUMENTS
       string filename = args[0];
       int arg_repeats = int.Parse(args[2]);
@@ -114,7 +114,7 @@ namespace Benchit
             }
             GC.Collect(2, GCCollectionMode.Forced, true);
             int howMuchToWait = Math.Min((int)(durationsRpt[r] * 1000), maxWaitMSBetweenRuns);
-            Thread.Sleep(howMuchToWait);
+            //Thread.Sleep(howMuchToWait);
           }
           if (succeess)
           {

@@ -3,11 +3,9 @@
   <PropertyGroup>
     <TargetFramework>net7.0</TargetFramework>
     <LangVersion>9.0</LangVersion>
-    <NoStdLib>true</NoStdLib>
     <AssemblyVersion>1.0.1</AssemblyVersion>
-    <Deterministic>false</Deterministic>
-    <SynchReleaseVersion>false</SynchReleaseVersion>
-    <Today>$([System.DateTime]::Now)</Today>
+    <ThreadPoolMinThreads>7</ThreadPoolMinThreads>
+    <!-- On Macos/Intel, export DOTNET_Thread_UseAllCpuGroups=1 helps to use more of the CPU (temporarily, or same parameter in bash_profile to use more of the CPU (albeit the name suggests multiple) -->
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <LangVersion>10.0</LangVersion>

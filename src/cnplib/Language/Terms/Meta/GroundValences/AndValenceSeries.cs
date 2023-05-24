@@ -23,14 +23,13 @@ namespace CNP.Language
 
     public int PositionalModeNumber = CalculatePositionalModeNumber(OpModes);
 
-    public readonly int NumberOfLHArguments = getNumberOfLHArguments(LHModes); 
-    //public readonly int NumberOfRHArguments = RHModes.Where(m => m is not null).Count();
+    public readonly int NumberOfLHArguments = getNumberOfNonNullArguments(LHModes);
 
     private static readonly int[] twosPow = new int[] { 1, 2, 4, 8, 16, 32, 64, 128, 256 };
 
-    private static int getNumberOfLHArguments(Mode?[] lhModes)
+    private static int getNumberOfNonNullArguments(Mode?[] modes)
     {
-      int n = lhModes.Where(m => m is not null).Count();
+      int n = modes.Where(m => m is not null).Count();
       if (n == 0)
         throw new InvalidOperationException();
       return n;
