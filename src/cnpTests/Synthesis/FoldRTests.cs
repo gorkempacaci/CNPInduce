@@ -6,7 +6,7 @@ using System.Linq;
 using CNP.Language;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace Synthesis
+namespace Tests.Synthesis
 {
   [TestClass]
   public class FoldRTests : TestBase
@@ -24,10 +24,10 @@ namespace Synthesis
       var foldrel = new AlphaRelation(names, tups);
       ValenceVar vv = new ValenceVar(new[] { b0, @as }, new[] { b });
       ObservedProgram obs = new ObservedProgram(foldrel, vv, 2, 0, ObservedProgram.Constraint.None);
-      ProgramEnvironment env = new(obs, nvb, freeFact);
-      FoldR.UnFoldR(env, foldrel, (0, 1, 2), freeFact, out var pTuples);
+      //ProgramEnvironment env = new(obs, nvb, freeFact);
+      FoldR.UnFoldR(foldrel, (0, 1, 2), freeFact, out var pTuples);
       var stringer = new PrettyStringer(nvb);
-      var pTuplesString = stringer.Visit(pTuples, FoldR.FoldRValences.RecursiveCaseNames);
+      var pTuplesString = stringer.Visit(pTuples, FoldR.Valences.RecursiveCaseNames);
       Assert.AreEqual("{{a:3, b:[], ab:F1}, {a:2, b:F1, ab:F0}, {a:1, b:F0, ab:[1, 2, 3]}}", pTuplesString, "Recursive case tuples should match");
     }
 

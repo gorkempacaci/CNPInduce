@@ -1,0 +1,41 @@
+{
+  "runtimeTarget": {
+    "name": ".NETCoreApp,Version=v6.0",
+    "signature": ""
+  },
+  "compilationOptions": {},
+  "targets": {
+    ".NETCoreApp,Version=v6.0": {
+      "CNP/1.0.0": {
+        "dependencies": {
+          "CommunityToolkit.HighPerformance": "8.1.0"
+        },
+        "runtime": {
+          "CNP.dll": {}
+        }
+      },
+      "CommunityToolkit.HighPerformance/8.1.0": {
+        "runtime": {
+          "lib/net6.0/CommunityToolkit.HighPerformance.dll": {
+            "assemblyVersion": "8.1.0.0",
+            "fileVersion": "8.1.0.1"
+          }
+        }
+      }
+    }
+  },
+  "libraries": {
+    "CNP/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "CommunityToolkit.HighPerformance/8.1.0": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-kgDi65k02hrgnHy3N0xENecsr0spW13RdIA1tipovi9t16gKziI7uZIu3qkxz0GctCHNM4hfeqXYg//6wHJ6Kw==",
+      "path": "communitytoolkit.highperformance/8.1.0",
+      "hashPath": "communitytoolkit.highperformance.8.1.0.nupkg.sha512"
+    }
+  }
+}

@@ -2,7 +2,7 @@
 using CNP.Language;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace Synthesis
+namespace Tests.Synthesis
 {
   [TestClass]
   public class ProjTests : TestBase

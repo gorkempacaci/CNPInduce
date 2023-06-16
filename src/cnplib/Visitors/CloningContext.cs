@@ -34,18 +34,18 @@ namespace CNP
     /// <summary>
     /// Asserts that every a in @as is different to every b in bs given their old indices. Useful for making sure names on the lh side and rh side of and (unique names) remain unique as they become ground.
     /// </summary>
-    public void AssertDifferencesUsingOldIndices(NameVar[] @as, NameVar[] bs)
-    {
-      for (int ai = 0; ai < @as.Length; ai++)
-      {
-        for (int bi = 0; bi < bs.Length; bi++)
-        {
-          assertPreCloned(@as[ai].Index, out NameVar newA, out bool _);
-          assertPreCloned(bs[bi].Index, out NameVar newB, out bool _);
-          NewNameBindings.AssertDifferent(newA, newB);
-        }
-      }
-    }
+    //public void AssertDifferencesUsingOldIndices(NameVar[] @as, NameVar[] bs)
+    //{
+    //  for (int ai = 0; ai < @as.Length; ai++)
+    //  {
+    //    for (int bi = 0; bi < bs.Length; bi++)
+    //    {
+    //      assertPreCloned(@as[ai].Index, out NameVar newA, out bool _);
+    //      assertPreCloned(bs[bi].Index, out NameVar newB, out bool _);
+    //      NewNameBindings.AssertDifferent(newA, newB);
+    //    }
+    //  }
+    //}
 
     // TERMS
 
@@ -134,25 +134,38 @@ namespace CNP
         newPairs[i] = new KeyValuePair<NameVar, NameVar>(pm.Map[i].Key.Clone(this), pm.Map[i].Value.Clone(this));
       return new ProjectionMap(newPairs);
     }
+
+    private ITerm[][] cloneTuples(RelationBase rel)
+    {
+      #region  Assert domain size
+#if DEBUG
+      if (rel.Tuples.Length > 0)
+        if (rel.ColumnsCount != rel.Tuples[0].Length)
+          throw new ArgumentException("The AlphaRelation to be cloned does not have same number of columns as there are domains in its tuples.");
+#endif
+      #endregion
+      var tuples = new ITerm[rel.TuplesCount][];
+      for (int ti = 0; ti < rel.TuplesCount; ti++)
+      {
+        tuples[ti] = new ITerm[rel.ColumnsCount];
+        for (int di = 0; di < rel.ColumnsCount; di++)
+          tuples[ti][di] = rel.Tuples[ti][di].Clone(this);
+      }
+      return tuples;
+    }
+
     public AlphaRelation Clone(AlphaRelation at)
     {
       var names = new NameVar[at.Names.Length];
       for (int i = 0; i < names.Length; i++)
         names[i] = at.Names[i].Clone(this);
-      #region  Assert domain size
-#if DEBUG
-      if (at.ColumnsCount != names.Length)
-        throw new ArgumentException("The AlphaRelation to be cloned does not have same number of names as there are domains in its tuples.");
-#endif
-      #endregion
-      var tuples = new ITerm[at.TuplesCount][];
-      for (int ti = 0; ti < at.TuplesCount; ti++)
-      {
-        tuples[ti] = new ITerm[at.ColumnsCount];
-        for (int di = 0; di < at.ColumnsCount; di++)
-          tuples[ti][di] = at.Tuples[ti][di].Clone(this);
-      }
-      return new AlphaRelation(names, tuples);
+      return new AlphaRelation(names, cloneTuples(at));
+    }
+
+    public GroundRelation Clone(GroundRelation rel)
+    {
+      var names = rel.Names.Clone() as string[];
+      return new GroundRelation(names, cloneTuples(rel));
     }
 
     // ELEMENTARY

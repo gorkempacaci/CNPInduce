@@ -25,7 +25,7 @@ namespace CNP.Language
     /// </summary>
     string DebugObservationString { get; set; }
 
-    public virtual void SetDebugInformation((string valenceString, string observationString) info)
+    public void SetDebugInformation((string valenceString, string observationString) info)
     {
       DebugValenceString = info.valenceString;
       DebugObservationString = info.observationString;
@@ -58,13 +58,44 @@ namespace CNP.Language
     /// <returns></returns>
     public abstract int GetHeight();
 
+    public int GetComplexityExponent();
+
     /// <summary>
     /// Returns a qualifying string for the type of expression tree. For example, and(p,and(p,p)) is one where p is elementary operators. Contains no spaces.
     /// </summary>
     /// <returns></returns>
     public abstract string GetTreeQualifier();
 
-    
+    /// <summary>
+    /// Runs this program against the 'args' relation.
+    /// </summary>
+    public RunResult Run(ExecutionEnvironment env, GroundRelation args)
+    {
+      env.ArgumentStack.Push(args);
+      RunResult result = _Run(env, args);
+      env.ArgumentStack.Pop();
+      return result;
+    }
+
+    protected RunResult _Run(ExecutionEnvironment env, GroundRelation args);
+
+    /// <summary>
+    /// Used only for execution
+    /// </summary>
+    public string[] GetGroundNames(NameVarBindings nvb);
+
+    public static bool HasProgramSymmetry(IProgram program, BaseEnvironment env)
+    {
+      return program switch
+      {
+        ElementaryProgram e => false,
+        And a => (a.LHOperand.Equals(a.RHOperand)) ? true :
+                      HasProgramSymmetry(a.LHOperand, env) || HasProgramSymmetry(a.RHOperand, env),
+        Proj p => HasProgramSymmetry(p.Source, env),
+        Fold f => HasProgramSymmetry(f.Recursive, env),
+        _ => throw new Exception("HasNameSymmetry doesn't handle this program.")
+      };
+    }
   }
 
 }

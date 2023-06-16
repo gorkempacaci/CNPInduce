@@ -10,7 +10,7 @@ using CNP.Language;
 using CNP.Search;
 using CNP.Helper;
 
-namespace Synthesis
+namespace Tests.Synthesis
 {
   [TestClass]
   public class Other : TestBase
@@ -43,7 +43,7 @@ namespace Synthesis
     public void Sum()
     {
       var typeStr = "{list:in, sum:out}";
-      var atus = "{{list:[], sum:0}, {list:[1,2,3], sum:6}}";
+      var atus = "{{list:[], sum:0}, {list:[1,2,3,4], sum:10}}";
       var prog = assertFirstResultFor(typeStr, atus, "proj(and(const(b0, 0), foldl(+)), {as->list, b->sum})");
     }
 

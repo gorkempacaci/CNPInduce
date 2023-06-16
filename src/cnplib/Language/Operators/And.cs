@@ -33,6 +33,17 @@ namespace CNP.Language
     /// </summary>
     public string DebugObservationString { get; set; }
 
+    public override int GetHashCode()
+    {
+      return 31;
+    }
+
+    public override bool Equals(object obj)
+    {
+      return obj is And and &&
+        and.LHOperand.Equals(and.RHOperand);
+    }
+
     public void ReplaceFree(Free free, ITerm term)
     {
       LHOperand.ReplaceFree(free, term);
@@ -61,10 +72,44 @@ namespace CNP.Language
       return Math.Max(LHOperand.GetHeight(), RHOperand.GetHeight()) + 1;
     }
 
+    public int GetComplexityExponent()
+    {
+      return Math.Max(LHOperand.GetComplexityExponent(), RHOperand.GetComplexityExponent());
+    }
+
     public ObservedProgram FindLeftmostHole()
     {
       return LHOperand.FindLeftmostHole() ?? RHOperand.FindLeftmostHole();
     }
+
+    public string[] GetGroundNames(NameVarBindings nvb)
+    {
+      var lhnames = LHOperand.GetGroundNames(nvb);
+      var rhnames = RHOperand.GetGroundNames(nvb);
+      var andNames = lhnames.Union(rhnames);
+      return andNames.ToArray();
+    }
+
+    public RunResult _Run(ExecutionEnvironment env, GroundRelation args)
+    {
+      var lhNames = LHOperand.GetGroundNames(env.NameBindings);
+      var lhIndices = args.GetIndicesOfGroundNames(lhNames, env.NameBindings);
+      var leftRel = args.GetCroppedByIndices(lhIndices);
+      if (LHOperand.Run(env, leftRel) is RunResult.Success succ)
+      {
+        var rhNames = RHOperand.GetGroundNames(env.NameBindings);
+        var rhIndices = args.GetIndicesOfGroundNames(rhNames, env.NameBindings);
+        var rightRel = args.GetCroppedByIndices(rhIndices);
+        env.ArgumentStack.Push(leftRel);
+        var rightResult = RHOperand.Run(env, rightRel);
+        env.ArgumentStack.Pop();
+        if (rightResult is RunResult.Success succRight)
+          return new RunResult.Success(env);
+        else return new RunResult.Fail(env);
+      }
+      else return new RunResult.Fail(env);
+    }
+
 
     public static IEnumerable<ProgramEnvironment> CreateAtFirstHole(ProgramEnvironment origEnv)
     {
@@ -88,16 +133,15 @@ namespace CNP.Language
           ProtoAndValence protVal = valences[i];
 
           var (lhNames, lhIndices, lhNamesOfIns, lhNamesOfOuts) = getNamesIndicesModesForNames(protVal.LHModes, opNames);
-          var lhTuples = origObservation.Observations[oi].Examples.GetCroppedByIndices(lhIndices);
+          var lhRel = origObservation.Observations[oi].Examples.GetCroppedByIndices(lhIndices);
 
           var rhNamesIndicesModesList = protVal.RHModesArr.Select(RHModes => getNamesIndicesModesForNames(RHModes, opNames));
           var rhTuplesList = rhNamesIndicesModesList.Select(rh => origObservation.Observations[oi].Examples.GetCroppedByIndices(rh.indices));
           
-          var lhRel = new AlphaRelation(lhNames, lhTuples);
           var lhVal = new ValenceVar(lhNamesOfIns, lhNamesOfOuts);
           var lhObs = new Observation(lhRel, lhVal);
 
-          var rhRelList = Enumerable.Zip(rhNamesIndicesModesList, rhTuplesList).Select(z => new AlphaRelation(z.First.names, z.Second));
+          var rhRelList = Enumerable.Zip(rhNamesIndicesModesList, rhTuplesList).Select(z => z.Second);
           var rhValList = rhNamesIndicesModesList.Select(nim => new ValenceVar(nim.namesOfIns, nim.namesOfOuts));
           var rhObsList = Enumerable.Zip(rhRelList, rhValList).Select(z => new Observation(z.First, z.Second));
 
@@ -106,9 +150,19 @@ namespace CNP.Language
           var andProg = new And(lhObsP, rhObsP);
           (andProg as IProgram).SetDebugInformation(debugInfo);
           //BUG after and-valence grouping this name difference bit needs to be done differently
-          //var onlyLHNames = protVal.OnlyLHIndices.Select(i => opNames[i]).ToArray();
-          //var onlyRHNames = protVal.OnlyRHIndices.Select(i => opNames[i]).ToArray();
-          var prog = origEnv.Clone((origObservation, andProg));//, (onlyLHNames, onlyRHNames));
+
+          //var diffs = new List<(NameVar[], NameVar[])>();
+          //if (protVal.OnlyLHIndices.Length == protVal.OnlyRHIndices.Length)
+          //{
+          //  for (int k = 0; k < protVal.OnlyLHIndices.Length; k++)
+          //  {
+          //    var onlyLHNames = protVal.OnlyLHIndices[k].Select(i => opNames[i]).ToArray();
+          //    var onlyRHNames = protVal.OnlyRHIndices[k].Select(i => opNames[i]).ToArray();
+          //    diffs.Add((onlyLHNames, onlyRHNames));
+          //  }
+          //}
+          //else throw new InvalidOperationException("LH and RH -only indices length are not the same.");
+          var prog = origEnv.Clone((origObservation, andProg)); //, diffs.ToArray());
           programs.Add(prog);
         }
       }

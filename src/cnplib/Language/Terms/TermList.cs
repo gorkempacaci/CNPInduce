@@ -88,9 +88,10 @@ namespace CNP.Language
     public IEnumerable<ITerm> ToEnumerable(bool includeTerminalNil = false)
     {
       yield return Head;
-      if (Tail is NilTerm && includeTerminalNil)
+      if (Tail is NilTerm)
       {
-        yield return Tail;
+        if (includeTerminalNil)
+          yield return Tail;
       }
       else
       {

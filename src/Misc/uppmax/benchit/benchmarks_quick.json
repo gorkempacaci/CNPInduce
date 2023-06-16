@@ -7,25 +7,56 @@
             "Name": "head",
             "Valence": "{list:in, h:out}",
             "Examples": "{{list:[1,2,3], h:1}, {list:[2], h:2}}",
+            "NegExamples": "{}",
             "ExpectedPrograms": [ "proj(cons, {ab->list, a->h})" ]
         },
         {
-            "Name": "reverse/3",
-            "Valence": "{b0:in, as:in, b:out}",
-            "Examples": "{{b0:[], as:[1,2,3], b:[3,2,1]}}",
-            "ExpectedPrograms": [ "foldl(cons)" ]
+            "Name": "decrement",
+            "Valence": "{n:in, p:out}",
+            "Examples": "{ {n:2, p:1}, {n:4, p:3} }",
+            "NegExamples": "{}",
+            "ExpectedPrograms": [
+                "proj(and(const(b, 1), -), {a->n, ab->s})",
+                "proj(and(const(b, -1), +), {a->n, ab->p})",
+                "proj(and(const(b, -1), +), {a->n, ab->p})"
+
+            ]
         },
         {
             "Name": "append",
-            "Valence": "{b0:in, as:in, b:out}",
-            "Examples": "{{b0:[], as:[1], b:[1]}, {b0:[3,4], as:[1,2], b:[1,2,3,4]}}",
-            "ExpectedPrograms": [ "foldr(cons)" ]
-        },
-        {
-            "Name": "append'",
             "Valence": "{list1:in, list2:in, list3:out}",
             "Examples": "{{list1:[], list2:[1], list3:[1]}, {list1:[1,2], list2:[3,4], list3:[1,2,3,4]}}",
+            "NegExamples": "{}",
             "ExpectedPrograms": [ "proj(foldr(cons), {as->list1, b0->list2, b->list3})" ]
+        },
+        {
+            "Name": "reverse",
+            "Valence": "{as:in, bs:out}",
+            "Examples": "{{as:['a'], bs:['a']}, {as:[1,2,3], bs:[3,2,1]}}",
+            "NegExamples": "{}",
+            "ExpectedPrograms": [ "proj(and(const(b0, []), foldl(cons)), {as->as, b->bs})" ]
+        },
+        {
+            "Name": "sum",
+            "Valence": "{list:in, sum:out}",
+            "Examples": "{{list:[], sum:0}, {list:[1,2,3,4], sum:10}}",
+            "NegExamples": "{}",
+            "ExpectedPrograms": [
+                "proj(and(const(b0, 0), foldl(+)), {as->list, b->sum})",
+                "proj(and(const(b0, 0), foldr(+)), {as->list, b->sum})"
+            ]
+        },
+        {
+            "Name": "maxlist",
+            "Valence": "{list:in, max:out}",
+            "Examples": "{ {list:[1,2,3], max:3}, {list:[0], max:0} }",
+            "NegExamples": "{}",
+            "ExpectedPrograms": [
+                "proj(and(const(b0, 0), foldl(max)), {as->list, b->max})",
+                "proj(and(const(b0, -1), foldl(max)), {as->list, b->max})",
+                "proj(and(const(b0, 0), foldr(max)), {as->list, b->max})",
+                "proj(and(const(b0, -1), foldl(max)), {as->list, b->max})"
+            ]
         }
     ]
 }

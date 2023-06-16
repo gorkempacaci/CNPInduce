@@ -1,9 +1,17 @@
+== tidy up
+- remove MAX_ELIMINATED_OUT_ARGS const from Proj. It's now a synthesis parameter, this obscures the parameter.
+- creating of program AST is messy, CreateAtFirstHole implementations are static for the operators, but instance for library. Creation should be separated to a factory without making the semantics redundant. Abstraction of the AST should be improved maybe, because when you're composing a runnable program, you can still have observations in it, which is currently handled by throwing invalidoperationexceptions.
+
+== debt
+- Parser.ParseGroundRelation uses ParseAlphaRelation internally and disposes the NameVarBindings.
+
 == scaling
 - The search queue grows too large, so maybe the threads should stop populating the queue after for example height=3 and keep working on an internal queue that doesn't grow much.
 - A theory is maybe complete search tasks do not scale but positive ones do? NO, they also stop scaling after 2nd thread.
 
 == bugs
-- proj produces universal predicates by leaving unbound vars out. Unbound vars shouldn't be able to be left out. For example, proj(and(cons, proj(cons, {n0->n1, n4->n5})), {n2->n6, n3->n7, n1->n8})
+- And manages to synthesize something like and(increment/2, increment/2) where it's actually synthesizing a /4 predicate. (probably because name differences are not working)
+- proj produces universal predicates by leaving unbound vars out. Unbound vars shouldn't be able to be left out. For example, proj(and(cons, proj(cons, {n0->n1, n4->n5})), {n2->n6, n3->n7, n1->n8}). temporarily solved this by limiting the number of unbound 'internal' vars.
 - reverse/2 isn't found. it founds a foldr variant if example is {b0:[], as:[1,2,3], b:[3,2,1]} and Stack is used instead of a Queue. 
 - static counters like argNameCounter on NameVar are not thread-safe.
 FIXED - 1 thread fails more tests than more threads

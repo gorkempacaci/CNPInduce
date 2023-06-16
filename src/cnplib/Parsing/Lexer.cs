@@ -17,6 +17,7 @@ namespace CNP.Parsing
         Identifier,
         MustacheClose,
         MustacheOpen,
+        MinusInt,
         ValueInt,
         ValueString,
         VariableName
@@ -56,6 +57,7 @@ namespace CNP.Parsing
             (TokenType.Colon, @"^\s*:"),
             (TokenType.Comma, @"^\s*,"),
             (TokenType.Pipe, @"^\s*\|"),
+            (TokenType.MinusInt, @"^\s*\-\d+"),
             (TokenType.ValueInt, @"^\s*\d+"),
             (TokenType.ValueString, @"^\s*'[^']*'"),
             (TokenType.VariableName, @"^\s*([A-Z]+[a-zA-Z0-9]*)"),

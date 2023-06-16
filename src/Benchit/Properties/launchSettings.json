@@ -1,0 +1,11 @@
+{
+  "profiles": {
+    "Benchit": {
+      "commandName": "Project",
+      "commandLineArgs": "benchmarks.json [1,2,3,4,5,6] 5",
+      "environmentVariables": {
+        "DOTNET_Thread_UseAllCpuGroups": "1"
+      }
+    }
+  }
+}

@@ -10,7 +10,7 @@ namespace CNP.Language
     /// <summary>
     /// How many out arguments is proj allowed to eliminate. (or inversely, 'introduce' during synthesis)
     /// </summary>
-    private const int MAX_ELIMINATED_OUT_ARGS = 1;
+    //private const int MAX_ELIMINATED_OUT_ARGS = 1;
     public readonly IProgram Source;
     public readonly ProjectionMap Projection;
 
@@ -27,6 +27,16 @@ namespace CNP.Language
     {
       this.Source = sourceProgram;
       this.Projection = projection;
+    }
+
+    public override int GetHashCode()
+    {
+      return 47;
+    }
+
+    public override bool Equals(object obj)
+    {
+      return obj is Proj pr && pr.Projection.Equals(this.Projection) && pr.Source.Equals(this.Source);
     }
 
     public void ReplaceFree(Free free, ITerm term)
@@ -56,9 +66,53 @@ namespace CNP.Language
       return Source.GetHeight() + 1;
     }
 
+    public int GetComplexityExponent()
+    {
+      return Source.GetComplexityExponent();
+    }
+
     public ObservedProgram FindLeftmostHole()
     {
       return Source.FindLeftmostHole();
+    }
+
+    public string[] GetGroundNames(NameVarBindings nvb)
+    {
+      string[] names = nvb.GetNamesForVars(Projection.Map.Select(kvp => kvp.Value).ToArray());
+      return names;
+    }
+
+    GroundRelation buildSourceArgs(GroundRelation projArgs, BaseEnvironment env)
+    {
+      string[] sourceAllNames = Source.GetGroundNames(env.NameBindings);
+      string[] projectedNamesOfSource = Projection.Map.Select(p => env.NameBindings.GetNameForVar(p.Key)).ToArray();
+      int?[] sourceAllIndicesToProj = new int?[sourceAllNames.Length];
+      // build the indices for looking up from the proj's terms
+      for(int i=0; i<sourceAllNames.Length; i++)
+      {
+        int pi = Array.IndexOf(projectedNamesOfSource, sourceAllNames[i]);
+        sourceAllIndicesToProj[i] = (pi == -1) ? null : pi;
+      }
+      ITerm[][] sourceTerms = new ITerm[projArgs.TuplesCount][];
+      for(int ti=0; ti<sourceTerms.Length; ti++)
+      {
+        sourceTerms[ti] = new ITerm[sourceAllNames.Length];
+        for(int ci=0; ci<sourceAllNames.Length; ci++)
+        {
+          if (sourceAllIndicesToProj[ci] is null)
+            sourceTerms[ti][ci] = env.Frees.NewFree();
+          else sourceTerms[ti][ci] = projArgs.Tuples[ti][sourceAllIndicesToProj[ci].Value];
+        }
+      }
+      var sourceRel = new GroundRelation(sourceAllNames, sourceTerms);
+      return sourceRel;
+    }
+
+    public RunResult _Run(ExecutionEnvironment env, GroundRelation args)
+    {
+      var sourceRel = buildSourceArgs(args, env);
+      var sourceResult = Source.Run(env, sourceRel);
+      return sourceResult;
     }
 
     public static IEnumerable<ProgramEnvironment> CreateAtFirstHole(ProgramEnvironment origEnv)
@@ -72,7 +126,9 @@ namespace CNP.Language
       for (int oi = 0; oi < origObservation.Observations.Length; oi++)
       {
         // if proj has no outs, it cannot have a source with outs. Otherwise proj(id, {a->a}) is produced as a universal relation.
-        int max_elim_outs = origObservation.Observations[oi].Valence.Outs.Length == 0 ? 0 : Math.Min(origObservation.RemainingUnboundArguments, MAX_ELIMINATED_OUT_ARGS);     // if proj is 3i1o, source can be 3i1o, 3i2o, 3i3o. all inputs should be projected, and at least one output should be projected, if there are any outputs.
+        int max_elim_outs = origObservation.Observations[oi].Valence.Outs.Length == 0 ? 0 : Math.Min(1, origObservation.RemainingUnboundArguments);
+        //int max_elim_outs = Math.Min(1, origObservation.RemainingUnboundArguments); // max only one at a time.
+        // if proj is 3i1o, source can be 3i1o, 3i2o, 3i3o. all inputs should be projected, and at least one output should be projected, if there are any outputs.
         for (int elim_outs = 0; elim_outs <= max_elim_outs; elim_outs++)
         {
           var env = origEnv.Clone();
@@ -115,6 +171,7 @@ namespace CNP.Language
           (newProj as IProgram).SetDebugInformation(debugInfo);
           var newEnv = env.Clone((obs, newProj));
           programs.Add(newEnv);
+
         }
       }
       return programs;

@@ -39,6 +39,28 @@ namespace CNP.Language
       throw new ArgumentOutOfRangeException();
     }
 
+    public override int GetHashCode()
+    {
+      return 53;
+    }
+
+    public override bool Equals([NotNullWhen(true)] object obj)
+    {
+      if (obj is ProjectionMap pm)
+      {
+        if (Map.Length != pm.Map.Length)
+          return false;
+        for(int i=0; i<Map.Length; i++)
+        {
+          var OtherTargetNameForI = pm.GetTargetName(Map[i].Key);
+          if (OtherTargetNameForI is null || OtherTargetNameForI.Value.Index != Map[i].Value.Index)
+            return false;
+        }
+        return true;
+      }
+      else return false;
+    }
+
     public string Accept(ICNPVisitor ps)
     {
       return ps.Visit(this);
@@ -49,18 +71,26 @@ namespace CNP.Language
       return cc.Clone(this);
     }
 
+    public NameVar? GetTargetName(NameVar from)
+    {
+      for (int i = 0; i < Map.Length; i++)
+      {
+        if (Map[i].Key.Index == from.Index)
+        {
+          return Map[i].Value;
+        }
+      }
+      return null;
+    }
+
     public NameVar this[NameVar from]
     {
       get
       {
-        for(int i=0; i<Map.Length; i++)
-        {
-          if (Map[i].Key.Index == from.Index)
-          {
-            return Map[i].Value;
-          }
-        }
-        throw new ArgumentOutOfRangeException();
+        var res = GetTargetName(from);
+        if (res.HasValue)
+          return res.Value;
+        else throw new ArgumentOutOfRangeException();
       }
     }
   }

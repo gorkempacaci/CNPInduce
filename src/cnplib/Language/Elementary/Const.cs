@@ -6,19 +6,10 @@ using System.Linq;
 namespace CNP.Language
 {
   //TODO: if straight semantics are implemented, const(a, 5) should unify with proj(a, id), or any tuple that has {a:5}.
-  public class Const : IProgram
+  public class Const : ElementaryProgram
   {
     public readonly NameVar ArgumentName;
     public readonly ITerm Value;
-
-    /// <summary>
-    /// The valence that lead to this program.
-    /// </summary>
-    public string DebugValenceString { get; set; } = "";
-    /// <summary>
-    /// The observations that lead to this program.
-    /// </summary>
-    public string DebugObservationString { get; set; } = "";
 
     public Const(NameVar argName, ITerm groundTerm)
     {
@@ -31,12 +22,11 @@ namespace CNP.Language
       Value = groundTerm;
     }
 
-    public bool IsClosed => true;
-
     public override int GetHashCode()
     {
       return this.Value.GetHashCode();
     }
+
     public override bool Equals(object obj)
     {
       if (obj is null || !(obj is Const constProgram))
@@ -46,24 +36,21 @@ namespace CNP.Language
       return sameName && sameValue;
     }
 
+    public override string Accept(ICNPVisitor ps) => ps.Visit(this);
 
-    public void ReplaceFree(Free _, ITerm __) { }
+    public override IProgram Clone(CloningContext cc) => cc.Clone(this);
 
-    public string Accept(ICNPVisitor ps)
+    public override string[] GetGroundNames(NameVarBindings nvb)
     {
-      return ps.Visit(this);
+      string n = nvb.GetNameForVar(ArgumentName);
+      return new string[] { n };
     }
 
-    public IProgram Clone(CloningContext cc)
+    protected override bool RunElementary(BaseEnvironment env, GroundRelation args)
     {
-      return cc.Clone(this);
+      //TODO: What happens to the ArgumentName while executing? Should it be verified?
+      return env.UnifyInPlaceAllTuples(args.Tuples, _ => new[] { this.Value }, args.Tuples);
     }
-
-    public ObservedProgram FindLeftmostHole() => null;
-
-    public int GetHeight() => 0;
-
-    public string GetTreeQualifier() => "p";
 
     /// <summary>
     /// Does not modify the given program, returns alternative cloned programs if they exist.

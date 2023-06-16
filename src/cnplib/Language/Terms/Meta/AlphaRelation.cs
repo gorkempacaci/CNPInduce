@@ -6,71 +6,46 @@ using CNP.Helper.EagerLinq;
 using System.Collections.ObjectModel;
 using CommunityToolkit.HighPerformance;
 using CommunityToolkit.HighPerformance.Enumerables;
-using System.Linq;
 
 namespace CNP.Language
 {
+
   /// <summary>
   /// A set of tuples where each position in the set of tuples is associated with a name. Like a table but column names are NameVar s.
   /// </summary>
   /// OPTIMIZE: Terms can be united into a single union struct so they're not boxed as ITerms when they lay in the AlphaRelation
-  public class AlphaRelation
+  public class AlphaRelation : RelationBase
   {
     public readonly NameVar[] Names;
-    /// <summary>
-    /// ITerm[NumberOfTuples, NumberOfDomains]
-    /// </summary>
-    public readonly ITerm[][] Tuples;
-
-    public readonly int TuplesCount;
-    public readonly int ColumnsCount;
-    /// <summary>
-    /// Would be equivalent to rows * counts
-    /// </summary>
-    public readonly int CountOfElements;
 
     /// <summary>
     /// Stores given arrays as is. Terms are given as ITerm[NumberOfTuples][NumberOfDomains]. Assumes NumberOfTuples to be non-zero. 
     /// </summary>
-    public AlphaRelation(NameVar[] _names, ITerm[][] _tuples)
+    public AlphaRelation(NameVar[] _names, ITerm[][] _tuples) : base(_tuples)
     {
       this.Names = _names;
-      this.Tuples = _tuples;
-      this.TuplesCount = this.Tuples.Length;
-      this.ColumnsCount = this.Tuples[0].Length;
-      this.CountOfElements = TuplesCount * ColumnsCount;
     }
 
-    /// <summary>
-    /// Crops columns of this relation to the colums given by protoValence's LH and RH parts. ProtoAndValence's modes need to be in the same order as this alpharelation's names.
-    /// </summary>
-    public ITerm[][] GetCroppedByIndices(short[] indices)
+    public static AlphaRelation Empty = new AlphaRelation(Array.Empty<NameVar>(), new ITerm[][] { });
+
+    public bool IsEmpty()
     {
-      var tuples = new ITerm[Tuples.Length][];
-      for(int tupi=0; tupi<Tuples.Length; tupi++)
-      {
-        tuples[tupi] = new ITerm[indices.Length];
-        for (int termi = 0; termi < indices.Length; termi++)
-          tuples[tupi][termi] = Tuples[tupi][indices[termi]];
-      }
-      return tuples;
+      return Tuples.Length == 0 && Names.Length == 0;
     }
 
-    /// <summary>
-    /// Replaces all given frees <paramref name="free"/> in this with the given term <paramref name="term"/>. Applies recursively to all terms and their subterms (through lists)
-    /// </summary>
-    public void ReplaceFreeInPlace(Free free, ITerm term)
+    public override AlphaRelation GetCroppedByIndices(short[] indices)
     {
-      for(int ri=0; ri<Tuples.Length; ri++)
-      {
-        for(int ci=0; ci < Tuples[ri].Length; ci++)
-        {
-          Tuples[ri][ci] = Tuples[ri][ci].GetFreeReplaced(free, term);
-        }
-      }
+      var (newNames, tups) = _getCroppedByIndices(this.Names, indices);
+      return new AlphaRelation(newNames, tups);
     }
 
-    public AlphaRelation Clone(CloningContext cc)
+    public override string[] GetGroundNames(NameVarBindings nvb)
+    {
+      var names = nvb.GetNamesForVars(this.Names);
+      return names;
+    }
+
+    public override AlphaRelation Clone(CloningContext cc)
     {
       return cc.Clone(this);
     }

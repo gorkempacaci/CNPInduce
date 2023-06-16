@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using CNP.Helper.EagerLinq;
 using CNP.Helper;
+using System.Linq;
 
 namespace CNP.Language
 {
@@ -9,9 +10,9 @@ namespace CNP.Language
   /// <summary>
   /// Identity program. Immutable object.
   /// </summary>
-  public struct Id : IProgram
+  public class Id : ElementaryProgram
   {
-    private static ElementaryValenceSeries IdValences =
+    internal static ElementaryValenceSeries IdValences =
       ElementaryValenceSeries.SeriesFromArrays(new[] { "a", "b" },
                                     new[]
                                     {
@@ -20,38 +21,26 @@ namespace CNP.Language
                                       new[]{  Mode.Out, Mode.In}
                                     });
 
-    /// <summary>
-    /// The valence that lead to this program.
-    /// </summary>
-    public string DebugValenceString { get; set; }
-    /// <summary>
-    /// The observations that lead to this program.
-    /// </summary>
-    public string DebugObservationString { get; set; }
-
-    public bool IsClosed => true;
-
-    public override int GetHashCode() => 19;
-
     public override bool Equals(object obj) => obj is Id;
 
-    public void ReplaceFree(Free _, ITerm __) { }
+    public override int GetHashCode() => 29;
 
-    public string Accept(ICNPVisitor ps)
+    public override string Accept(ICNPVisitor ps) => ps.Visit(this);
+
+    public override IProgram Clone(CloningContext cc) => cc.Clone(this);
+
+    public override string[] GetGroundNames(NameVarBindings nvb) => IdValences.Names;
+
+    protected override bool RunElementary(BaseEnvironment env, GroundRelation args)
     {
-      return ps.Visit(this);
+      return RunStatic(env, args);
     }
 
-    public IProgram Clone(CloningContext cc)
+    private static bool RunStatic(BaseEnvironment env, RelationBase rel)
     {
-      return cc.Clone(this);
+      //TODO: unifier should be {[1], null} instead of {[1], [0]} for efficiency.
+      return env.UnifyInPlaceAllTuples(rel.Tuples, tuple => new[] { tuple[1], tuple[0] }, rel.Tuples);
     }
-
-    public ObservedProgram FindLeftmostHole() => null;
-
-    public int GetHeight() => 0;
-
-    public string GetTreeQualifier() => "p";
 
     /// <summary>
     /// Does not modify the given program, returns alternative cloned programs if they exist.
@@ -64,29 +53,24 @@ namespace CNP.Language
       {
         if (oldObs.Observations[oi].Examples.TuplesCount == 0)
           throw new ArgumentException("Id: Observation is empty.");
-
-        IdValences.GroundingAlternatives(oldObs.Observations[oi].Valence, oldEnv.NameBindings, out var alts);
+        if (oldObs.Observations[oi].Examples.ColumnsCount != 2)
+          return Array.Empty<ProgramEnvironment>();
+        if (!RunStatic(oldEnv, oldObs.Observations[oi].Examples))
+          return Array.Empty<ProgramEnvironment>();
         // at this point we know all rows unified like 'id' should.
+        IdValences.GroundingAlternatives(oldObs.Observations[oi].Valence, oldEnv.NameBindings, out var alts);
         foreach (var alt in alts)
         {
-          var currEnv = oldEnv.Clone();
+#if DEBUG
+          if (alts.Count > 2)
+            throw new ArgumentOutOfRangeException("There should only be max 2 alts for id.");
+#endif
+            var currEnv = oldEnv.Clone();
           var currObs = currEnv.Root.FindHole();
-          // first try unifying the terms since names don't matter for id
-          for (int ri = 0; ri < currObs.Observations[oi].Examples.TuplesCount; ri++)
-          {
-            var tuple = currObs.Observations[oi].Examples.Tuples[ri];
-            var unifier = new ITerm[2] { tuple[1], tuple[0] };
-            if (!currEnv.UnifyInPlace(tuple, unifier))
-              return Array.Empty<ProgramEnvironment>();
-          }
           if (currEnv.NameBindings.TryBindingAllNamesToGround(currObs.Observations[oi].Valence, alt))
           {
             ProgramEnvironment newEnv = currEnv.Clone((currObs, new Id()));
             programs.Add(newEnv);
-            if (newEnv.Root is And and && and.LHOperand is Const c)
-            {
-              ;
-            }
           }
         }
       }

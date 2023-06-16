@@ -19,6 +19,18 @@ namespace CNP.Parsing
       return ReadNameModeMap(it, names);
     }
 
+    /// <summary>
+    /// Uses an internal NameVarBindings parses an AlphaTuple first before making it ground
+    /// </summary>
+    public static GroundRelation ParseGroundRelation(string groundRelString, FreeFactory frees)
+    {
+      NameVarBindings nvb = new NameVarBindings();
+      var arel = ParseAlphaTupleSet(groundRelString, nvb, frees);
+      var names = nvb.GetNamesForVars(arel.Names);
+      var grel = new GroundRelation(names, arel.Tuples);
+      return grel;
+    }
+
     public static AlphaRelation ParseAlphaTupleSet(string alphaSetString, NameVarBindings namevars, FreeFactory frees)
     {
       var lexems = Lexer.Tokenize(alphaSetString);
@@ -88,6 +100,13 @@ namespace CNP.Parsing
       List<ITerm[]> _tuples = new();
       GetType(it, TokenType.MustacheOpen);
       Move(it);
+      var firstTokenAfterOpen = GetType(it, new[] { TokenType.MustacheOpen, TokenType.MustacheClose });
+      if (firstTokenAfterOpen == TokenType.MustacheClose)
+      {
+        // empty relation
+        rel = AlphaRelation.Empty;
+        return true;
+      }
       NameVar[] nameVarsControl = null;
       // context is shared among tuples but the scope of term-level variables is the alpha tuple.
       while (ReadAlphaTuple(it, namevars, freeDict, out var at))
@@ -114,6 +133,7 @@ namespace CNP.Parsing
           Move(it);
         }
       }
+      
       rel = default;
       return false;
     }
@@ -165,7 +185,7 @@ namespace CNP.Parsing
     }
     static ITerm ReadTerm(IEnumerator<Lexem> it, FreeDictionary freeDict)
     {
-      if (it.Current.Type == TokenType.ValueInt)
+      if (it.Current.Type == TokenType.ValueInt || it.Current.Type == TokenType.MinusInt)
       {
         return new ConstantTerm(int.Parse(it.Current.Content));
       }

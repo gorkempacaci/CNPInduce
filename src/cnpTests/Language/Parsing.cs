@@ -7,7 +7,7 @@ using CNP.Parsing;
 using CNP;
 using System.Collections.Generic;
 
-namespace Language
+namespace Tests.Language
 {
 
   [TestClass]

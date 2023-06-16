@@ -72,9 +72,15 @@ namespace CNP
     }
 
 
-    
+
 
     // PROGRAM TERMS
+
+
+    public string Visit(LibraryProgram libraryProgram)
+    {
+      return libraryProgram.Name;
+    }
 
     public string Visit(Cons _)
     {
@@ -123,7 +129,6 @@ namespace CNP
       {
         return $"({op.Observations.Length} obrvs, RD={op.RemainingSearchDepth}, RU={op.RemainingUnboundArguments})";
       }
-
     }
 
     // META TERMS
@@ -131,6 +136,11 @@ namespace CNP
     public string Visit(AlphaRelation at)
     {
       return Visit(at.Tuples, names.GetNamesForVars(at.Names));
+    }
+
+    public string Visit(GroundRelation gt)
+    {
+      return Visit(gt.Tuples, gt.Names);
     }
 
     public string Visit(ITerm[][] tuples, string[] colNames)
@@ -191,5 +201,6 @@ namespace CNP
       var rhModes = "[" + string.Join(", ", pav.RHModesArr.First().Select(m => m is null ? "_" : m.ToString())) + "],...";
       return opModes + "(" + lhModes + ", " + rhModes + ")";
     }
+
   }
 }

@@ -70,6 +70,8 @@ namespace CNP
       return $"{{ \"name\": \"{operatorName}\", {debugInfo(program)}, \"components\": [{componentsInnerStr}] }}";
     }
 
+    public string Visit(LibraryProgram lib) => withDebugInfo(lib.Name, lib);
+
     public string Visit(Cons cns) => withDebugInfo("cons", cns);
     public string Visit(Id id) => withDebugInfo("id", id);
     public string Visit(Const cnst)
@@ -99,6 +101,11 @@ namespace CNP
     public string Visit(AlphaRelation at)
     {
       return Visit(at.Tuples, names.GetNamesForVars(at.Names));
+    }
+
+    public string Visit(GroundRelation gt)
+    {
+      return Visit(gt.Tuples, gt.Names);
     }
 
     public string Visit(ITerm[][] tuples, string[] colNames)

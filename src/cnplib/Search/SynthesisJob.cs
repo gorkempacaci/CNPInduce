@@ -20,17 +20,17 @@ namespace CNP.Search
 
     public static void PreInitialize()
     {
-      var foldlval = FoldL.FoldLValences.FoldModesByModeNumber.ToString();
-      var foldrval = FoldR.FoldRValences.FoldModesByModeNumber.ToString();
+      var foldlval = FoldL.Valences.FoldModesByModeNumber.ToString();
+      var foldrval = FoldR.Valences.FoldModesByModeNumber.ToString();
       var andval = And.AndValences.ToString();
     }
 
     /// <param name="tuples">Tuples of the program observation.</param>
     /// <param name="valence">Valence of the program</param>
     /// <param name="maxTreeDepth">Depth=1 only gives elementary programs. Depth=2 gives programs like foldr(cons, id), and so on. </param>
-    public SynthesisJob(ProgramEnvironment env, ThreadCount tCount = default, SearchOptions sOpt = SearchOptions.FindOnlyFirstProgram)
+    public SynthesisJob(ProgramEnvironment env, GroundRelation negExamples, ThreadCount tCount = default, SearchOptions sOpt = SearchOptions.FindOnlyFirstProgram)
     {
-      search = new ProgramSearch(env, this, tCount);
+      search = new ProgramSearch(env, negExamples, this, tCount);
       searchOptions = sOpt;
     }
 
@@ -42,15 +42,14 @@ namespace CNP.Search
     public IEnumerable<ProgramEnvironment> FindPrograms(Action<ProgramEnvironment> SolutionObserver = null)
     {
       this.solutionObserver = SolutionObserver;
-      search.StartThreads();
-      search.WaitUntilDone();
+      search.StartThreadsAndWait();
       return solutions;
     }
 
     public bool FoundNewSolution(ProgramEnvironment p)
     {
-      solutions.Enqueue(p);
       solutionObserver?.Invoke(p);
+      solutions.Enqueue(p);
       if (searchOptions == SearchOptions.FindOnlyFirstProgram)
         return true;
       else return false; // false means do not stop searching

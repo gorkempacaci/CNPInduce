@@ -4,7 +4,7 @@ using CNP.Language;
 using System.Linq;
 using System.Text;
 
-namespace Language
+namespace Tests.Language
 {
   [TestClass]
   public class ValenceSeriesTests

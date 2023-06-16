@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net7.0</TargetFramework>
+    <TargetFramework>net6.0</TargetFramework>
 
     <IsPackable>false</IsPackable>
     <AssemblyName>tests</AssemblyName>
@@ -25,9 +25,11 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Synthesis\" />
+    <Folder Include="Execution\" />
   </ItemGroup>
   <ItemGroup>
     <None Remove="Search\" />
+    <None Remove="Execution\" />
   </ItemGroup>
   <ProjectExtensions>
     <MonoDevelop>

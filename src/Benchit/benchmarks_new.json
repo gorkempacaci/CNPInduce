@@ -1,23 +1,18 @@
 {
     "SearchDepth": 6,
-    "MaxUnboundArguments": 1,
-    "WaitBetweenRunsMaxms": 3000,
+    "MaxUnboundArguments": 2,
+    "WaitBetweenRunsMaxms": 100,
     "Tasks": [
         {
-            "Name": "sort",
-            "Valence": "{list:in, sorted:out}",
-            "Examples": "{ {list:[2,1,3], sorted:[1,2,3]}, {list:[5,4,1], sorted:[1,4,5]} }",
+            "Name": "length",
+            "Valence": "{as:in, b:out}",
+            "Examples": "{ {as:[6,9], b:2}, {as:[8], b:1} }",
+            "NegExamples": "{ {as:[2,1], b:1} }",
             "ExpectedPrograms": [
-                "dunno"
-            ]
-        },
-        {
-            "Name": "minlist",
-            "Valence": "{list:in, min:out}",
-            "Examples": "{{list:[1,2,3], min:1}, {list:[5,3,6], min:3}}",
-            "ExpectedPrograms": [
-                "proj(and(const(b, 0), foldl(proj(and(const(b, 0), min), {a->a, ab->b, b->ab}))), {as->list, b0->min})",
-                "proj(and(const(b, 0), foldl(and(const(ab, 0), proj(min, {a->a, ab->b, b->ab})))), {as->list, b0->min})"
+                "proj(and(const(b0, 0), foldl(proj(and(id, increment), {a->a, n->b, s->ab}))), {as->as, b->b})",
+                "proj(and(const(b0, 0), foldr(proj(and(id, increment), {a->a, n->b, s->ab}))), {as->as, b->b})",
+                "proj(and(const(b0, 0), foldl(proj(and(id, increment), {b->a, n->b, s->ab}))), {as->as, b->b})",
+                "proj(and(const(b0, 0), foldr(proj(and(id, increment), {b->a, n->b, s->ab}))), {as->as, b->b})"
             ]
         }
     ]

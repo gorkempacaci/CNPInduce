@@ -4,7 +4,7 @@ using CNP.Helper;
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace Helpers
+namespace Tests.Helpers
 {
   [TestClass]
   public class Iterators

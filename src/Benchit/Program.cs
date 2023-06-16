@@ -3,19 +3,25 @@ using System.Text.Json;
 using CNP.Search;
 using CNP.Parsing;
 using CNP.Language;
-using CNP.Helper;
 using System.Text;
 using CNP;
 using System.Diagnostics.CodeAnalysis;
+using System.Data.Common;
 
 namespace Benchit
 {
-
+  /*
+   To use all cpu cores, these env variables have to be set.
+    set DOTNET_GCCpuGroup=1
+    set DOTNET_gcConcurrent=1
+    set DOTNET_Thread_UseAllCpuGroups=1
+    set COMPlus_Thread_UseAllCpuGroups=1
+    set COMPlus_GCCpuGroup=1
+    set COMPlus_gcServer=1
+   */
 
   public class Program
   {
-    const int WAIT_BETWEEN_RUNS_MS = 100;
-    const int WAIT_BETWEEN_TASKS_MS = 1000;
 
     [RequiresAssemblyFiles()]
     public static int Main(string[] args)
@@ -57,9 +63,8 @@ namespace Benchit
 
     static int Run(SynTask[] tasks, int[] threadCounts, int repeats, int maxWaitMSBetweenRuns)
     {
-      StringBuilder errors = new StringBuilder();
-      StringBuilder pgfCoordinates = new();
-      StringBuilder texTabularData = new();
+      DataExporter dataExport = new();
+      StringBuilder errors = new();
       Console.WriteLine();
       Console.Write("{0,-12}{1,6}", "Name", "Thrds");
       for (int ri = 1; ri <= repeats; ri++)
@@ -69,20 +74,27 @@ namespace Benchit
       bool theVeryFirstRun = true;
       foreach (SynTask bench in tasks ?? Array.Empty<SynTask>())
       {
+        var exCount = (bench.ProgramEnv.Root as ObservedProgram)!.Observations[0].Examples.TuplesCount;
+        var negExCount = bench.NegativeExamples.TuplesCount;
         Console.WriteLine(bench.Name + ": " + bench.ExpectedPrograms[0] + (bench.ExpectedPrograms.Length > 1 ? ",..." : ""));
         (int, double)[] averages = new (int, double)[threadCounts.Length];
-        for (int thci = 0; thci < threadCounts.Length; thci++)
+        for (int thci = 0; thci < threadCounts.Length; thci++) //thread count
         {
+          int progHeight = -1;
+          int progComplexityExponent = -1;
           int thCount = threadCounts[thci];
           Console.Write("{0,-12}{1,6}", bench.Name.Substring(0, Math.Min(12, bench.Name.Length)), thCount);
           double[] durationsRpt = new double[repeats];
           bool succeess = true;
+
           for (int r = 0; r < repeats; r++)
           {
           beginning:
-            SynthesisJob job = new SynthesisJob(bench.ProgramEnv, new ThreadCount(thCount), SearchOptions.FindOnlyFirstProgram);
+            SynthesisJob job = new SynthesisJob(bench.ProgramEnv, bench.NegativeExamples, new ThreadCount(thCount), SearchOptions.FindOnlyFirstProgram);
             DateTime t0 = DateTime.UtcNow, t1 = DateTime.UtcNow;
-            var programs = job.FindPrograms(p => { t1 = DateTime.UtcNow; });
+            //Console.WriteLine("\nNum of neg examples:" + bench.NegativeExamples.TuplesCount);
+            var programs = job.FindPrograms(p => { t1 = DateTime.UtcNow;
+               });
             if (theVeryFirstRun)
             {
               theVeryFirstRun = false;
@@ -96,6 +108,8 @@ namespace Benchit
               if (bench.ExpectedPrograms.Contains(foundProgramString))
               {
                 durationsRpt[r] = (t1 - t0).TotalSeconds;
+                progHeight = firstProgram.Root.GetHeight();
+                progComplexityExponent = firstProgram.Root.GetComplexityExponent();
                 Console.Write("{0,8:F3}", durationsRpt[r]);
               }
               else
@@ -110,17 +124,16 @@ namespace Benchit
             {
               succeess = false;
               Console.Write("{0,8}", "F");
-              errors.Append($"({bench.Name}), Threads {thCount}, Repeat {r + 1}, Program not found.");
+              errors.AppendLine($"({bench.Name}), Threads {thCount}, Repeat {r + 1}, Program not found.");
             }
             GC.Collect(2, GCCollectionMode.Forced, true);
-            int howMuchToWait = Math.Min((int)(durationsRpt[r] * 1000), maxWaitMSBetweenRuns);
-            //Thread.Sleep(howMuchToWait);
+            int howMuchToWait = Math.Min((int)(durationsRpt[r] * 1000 * 3), maxWaitMSBetweenRuns);
+            Thread.Sleep(howMuchToWait);
           }
           if (succeess)
           {
-            double avgRepeats = durationsRpt.Average();
-            Console.WriteLine("{0,8:F3}", avgRepeats);
-            averages[thci] = (threadCounts[thci], avgRepeats);
+            dataExport.Add(bench.Name, progHeight+1, progComplexityExponent, exCount, negExCount, thci, durationsRpt);
+            Console.WriteLine("{0,8:F3}", durationsRpt.Average());
           }
           else
           {
@@ -130,19 +143,18 @@ namespace Benchit
         }
         string coordsStr = string.Join(" ", averages.Select(a => $"({a.Item1},{a.Item2:F2})"));
         string dataStr = string.Join(" & ", averages.Select(a => $"{a.Item2:F2}"));
-        pgfCoordinates.AppendLine(bench.Name + ": " + coordsStr);
-        texTabularData.AppendLine(dataStr);
         Console.WriteLine();
       }
-      Console.WriteLine("For PGF:");
-      Console.WriteLine(pgfCoordinates);
-      Console.WriteLine("For Tabular:");
-      Console.WriteLine(texTabularData);
       if (errors.Length != 0)
       {
         Console.WriteLine("Errors:");
         Console.Write(errors);
       }
+      Console.WriteLine("For Tabular:");
+      Console.WriteLine(dataExport.ExportToTEX());
+      Console.WriteLine();
+      Console.WriteLine(dataExport.ExportToMarkdown());
+      Console.WriteLine();
       Console.WriteLine("Done.");
       return 0;
     }

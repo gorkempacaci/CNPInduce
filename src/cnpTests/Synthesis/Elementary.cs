@@ -10,7 +10,7 @@ using CNP.Language;
 using CNP.Search;
 using CNP.Helper;
 
-namespace Synthesis
+namespace Tests.Synthesis
 {
   [TestClass]
   public class Elementary : TestBase

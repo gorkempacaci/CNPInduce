@@ -7,7 +7,7 @@ using CNP.Language;
 using CNP.Parsing;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace Synthesis
+namespace Tests.Synthesis
 {
   [TestClass]
   public class AndTests : TestBase

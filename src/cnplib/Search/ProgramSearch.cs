@@ -17,38 +17,34 @@ namespace CNP.Search
     ConcurrentQueue<ProgramEnvironment> searchQueue = new();
     CancellationTokenSource CancellationSource = new();
     List<SearchBrancher> threadObjects;
-    List<Thread> systemThreads;
+    Thread[] systemThreads;
     IProgramSearchReceiver searchReceiver;
+    GroundRelation negativeExamples;
 
-    public ProgramSearch(ProgramEnvironment initialProgram, IProgramSearchReceiver receiver, ThreadCount tCount = default)
+    public ProgramSearch(ProgramEnvironment initialProgram, GroundRelation negativeExamples, IProgramSearchReceiver receiver, ThreadCount tCount = default)
     {
       searchReceiver = receiver;
       ThreadCount = tCount.GetNumberOfThreads();
       searchQueue.Enqueue(initialProgram);
+      this.negativeExamples = negativeExamples;
     }
     
-    public void WaitUntilDone()
-    {
-      foreach (Thread t in systemThreads)
-      {
-        t.Join();
-      }
-    }
-    public void StartThreads()
+    public void StartThreadsAndWait()
     {
       threadObjects = new List<SearchBrancher>(ThreadCount);
-      systemThreads = new List<Thread>(ThreadCount);
+      systemThreads = new Thread[ThreadCount];
       //Terminator hungerTracker = new Terminator(CancellationSource, ThreadCount);
       CountdownEvent cde = new CountdownEvent(1);
       for (int i = 0; i < ThreadCount; i++)
       {
-        SearchBrancher pst = new SearchBrancher(this, searchQueue, cde, CancellationSource, searchReceiver, i);
+        SearchBrancher pst = new SearchBrancher(this, negativeExamples, searchQueue, cde, CancellationSource, searchReceiver, i);
         threadObjects.Add(pst);
-        Thread t = new Thread(pst.ConsumeProduceLoop);
-        t.Priority = ThreadPriority.Highest;
-        t.Name = "Synth" + i;
-        systemThreads.Add(t);
-        t.Start();
+        systemThreads[i] = new Thread(pst.ConsumeProduceLoop);
+        systemThreads[i].Start();
+      }
+      for (int i = 0; i < ThreadCount; i++)
+      {
+        systemThreads[i].Join();
       }
     }
 

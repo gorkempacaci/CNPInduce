@@ -6,7 +6,7 @@ using System.Linq;
 using System;
 using CNP;
 
-namespace Language
+namespace Tests.Language
 {
   [TestClass]
   public class Unification : TestBase
@@ -56,7 +56,7 @@ namespace Language
       var obs2Val = new ValenceVar(new[] { nB }, new[] { nA });
       var obs2 = new ObservedProgram(obs2Rel, obs2Val, 1, 0, ObservedProgram.Constraint.None);
 
-      var and = new And(proj(obs1, (nA, nU), (nB, nV)), proj(obs2, (nB, nU), (nA, nV)));
+      var and = new And(proj(obs1, new[] { (nA, nU), (nB, nV) }), proj(obs2, new[] { (nB, nU), (nA, nV) }));
 
       var penv = new ProgramEnvironment(and, names, frees);
 
@@ -148,7 +148,7 @@ namespace Language
       ValenceVar vv = new ValenceVar(new[] { a }, Array.Empty<NameVar>());
       ObservedProgram obs = new ObservedProgram(rel, vv, 2, 1, ObservedProgram.Constraint.None);
 
-      Proj projProg = proj(obs, (a, a));
+      Proj projProg = proj(obs, new[] { (a, a) });
 
       ProgramEnvironment penv = new ProgramEnvironment(projProg, nms, fact);
 
@@ -172,7 +172,7 @@ namespace Language
       ValenceVar vv = new ValenceVar(new[] { a }, Array.Empty<NameVar>());
       ObservedProgram obs = new ObservedProgram(rel, vv, 2, 0, ObservedProgram.Constraint.None);
 
-      Proj projProg = proj(obs, (a, a));
+      Proj projProg = proj(obs, new[] { (a, a) });
       And andProg = and(projProg, projProg);
 
       ProgramEnvironment penv = new ProgramEnvironment(andProg, nms, fact);

@@ -105,6 +105,8 @@ namespace CNP.Language
 
     public ProtoAndValence[] GetValencesForOpMode(Mode[] opModeList)
     {
+      if (opModeList.Length > And.AND_MAX_ARITY)
+        return Array.Empty<ProtoAndValence>();
       int arityIndex = opModeList.Length - 1; // for 1-ary opModeList, the list is stored at index 0.
       int modePosIndex = ProtoAndValence.CalculatePositionalModeNumber(opModeList);
       return ProtoValencesByArityAndPositionalModeNumber[arityIndex][modePosIndex];
@@ -118,7 +120,6 @@ namespace CNP.Language
     /// <returns></returns>
     public static AndValenceSeries Generate(int maxArity)
     {
-      Console.WriteLine("Generating AND valences.");
       var opModeListsByArity = AndOpModeLists(maxArity);      
       ProtoAndValence[][][] allProtoAndValences = new ProtoAndValence[maxArity][][];
       for(int arityIndex=0; arityIndex < opModeListsByArity.Length; arityIndex++)
@@ -189,16 +190,31 @@ namespace CNP.Language
         {
           bool isLastStage = i == opModes.Length - 1;
           bool allArgsSoFarOnlyLorR = prevProto.OnlyLHIndices.Count() + prevProto.OnlyRHIndices.Count() == i;
+          int lArgsSoFar = prevProto.LHModes.Count(m => m is not null);
+          int rArgsSoFar = prevProto.RHModes.Count(m => m is not null);
           if (opModes.Length > 1) // if arity=1, no component can have an argument bound only to that component.
           {
-            // if all args so far has been bound to only LH or RH, then this one can't be only-LH or only-RH if it's the last stage
-            if (!(isLastStage && allArgsSoFarOnlyLorR))
+            //// if all args so far has been bound to only LH or RH, then this one can't be only-LH or only-RH if it's the last stage
+            //if (!(isLastStage && allArgsSoFarOnlyLorR))
+            //{
+            //  if (opModes[i] == Mode.In)
+            //    newProtos.Add(MakeNewProtoAtI(prevProto, i, Mode.In, null));
+            //  newProtos.Add(MakeNewProtoAtI(prevProto, i, Mode.Out, null));
+            //  if (opModes[i] == Mode.In)
+            //    newProtos.Add(MakeNewProtoAtI(prevProto, i, null, Mode.In));
+            //  newProtos.Add(MakeNewProtoAtI(prevProto, i, null, Mode.Out));
+            //}
+
+            // if we want disjoint operands in and
+            if (!isLastStage || (isLastStage && rArgsSoFar != 0))
             {
-              // i is only in LH
               if (opModes[i] == Mode.In)
                 newProtos.Add(MakeNewProtoAtI(prevProto, i, Mode.In, null));
               newProtos.Add(MakeNewProtoAtI(prevProto, i, Mode.Out, null));
-              // i is only in RH
+            }
+            // i is only in RH
+            if (!isLastStage || (isLastStage && lArgsSoFar != 0))
+            {
               if (opModes[i] == Mode.In)
                 newProtos.Add(MakeNewProtoAtI(prevProto, i, null, Mode.In));
               newProtos.Add(MakeNewProtoAtI(prevProto, i, null, Mode.Out));

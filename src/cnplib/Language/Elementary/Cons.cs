@@ -4,13 +4,15 @@ using System.Net.Http;
 using CNP.Helper.EagerLinq;
 using CNP.Helper;
 using System.Diagnostics;
+using System.Runtime.InteropServices;
+using CommunityToolkit.HighPerformance;
 
 namespace CNP.Language
 {
 
-  public class Cons : IProgram
+  public class Cons : ElementaryProgram
   {
-    private static ElementaryValenceSeries ConsValences =
+    internal static ElementaryValenceSeries ConsValences =
   ElementaryValenceSeries.SeriesFromArrays(new[] { "a", "b", "ab" },
                                 new[]
                                 {
@@ -21,41 +23,37 @@ namespace CNP.Language
                                       new[]{  Mode.Out, Mode.Out, Mode.In},
                                 });
 
-    /// <summary>
-    /// The valence that lead to this program.
-    /// </summary>
-    public string DebugValenceString { get; set; }
-    /// <summary>
-    /// The observations that lead to this program.
-    /// </summary>
-    public string DebugObservationString { get; set; }
-
-    public bool IsClosed => true;
 
     public override int GetHashCode() => 31;
 
     public override bool Equals(object obj) => obj is Cons;
 
-    public void ReplaceFree(Free _, ITerm __) { }
+    public override string Accept(ICNPVisitor ps) => ps.Visit(this);
 
-    public string Accept(ICNPVisitor ps)
+    public override IProgram Clone(CloningContext cc) => cc.Clone(this);
+
+    public override string[] GetGroundNames(NameVarBindings nvb)
     {
-      return ps.Visit(this);
+      return ConsValences.Names;
     }
 
-    public IProgram Clone(CloningContext cc)
+    protected override bool RunElementary(BaseEnvironment env, GroundRelation args)
     {
-      return cc.Clone(this);
+      (int a, int b, int ab) nameIndices = args.GetNameIndices(env.NameBindings, "a", "b", "ab");
+      return RunStatic(env, args.Tuples, nameIndices);
     }
 
-
-    public ObservedProgram FindLeftmostHole() => null;
-
-    public int GetHeight() => 0;
-
-    public string GetTreeQualifier() => "p";
-
-
+    private static bool RunStatic(BaseEnvironment env, ITerm[][] tuples, (int a, int b, int ab) nameIndices)
+    {
+      foreach (var tuple in tuples)
+      {
+        var unifier = new ITerm[tuple.Length];
+        unifier[nameIndices.ab] = new TermList(tuple[nameIndices.a], tuple[nameIndices.b]);
+        if (!env.UnifyInPlaceIncludingGoal(tuple, unifier, tuples))
+          return false;
+      }
+      return true;
+    }
 
     /// <summary>
     /// Does not modify the given program, returns alternative cloned programs if they exist.
@@ -75,26 +73,14 @@ namespace CNP.Language
           var obsAlt = observ.Observations[oi];
           if (currEnv.NameBindings.TryBindingAllNamesToGround(obsAlt.Valence, altNames))
           { // then all names for valence are ground
-            string[] obsNames = currEnv.NameBindings.GetNamesForVars(obsAlt.Examples.Names);
-            int a = Array.IndexOf(obsNames, "a");
-            int b = Array.IndexOf(obsNames, "b");
-            int ab = Array.IndexOf(obsNames, "ab");
-            var debugInfo = obsAlt.GetDebugInformation(currEnv);
-            debugInfo.valenceString += $" [{obsNames[a]}|{obsNames[b]}]={obsNames[ab]}";
-            bool unificationSuccess = true;
-            for (int ri = 0; ri < obsAlt.Examples.TuplesCount; ri++)
+            var rel = obsAlt.Examples;
+            (int a, int b, int ab) = rel.GetNameIndices(currEnv.NameBindings, "a", "b", "ab");
+
+            var success = RunStatic(currEnv, obsAlt.Examples.Tuples, (a, b, ab)); 
+            if (success && obsAlt.IsAllOutArgumentsGround())
             {
-              var tuple = obsAlt.Examples.Tuples[ri];
-              var unifier = new ITerm[tuple.Length];
-              unifier[ab] = new TermList(tuple[a], tuple[b]);
-              if (!currEnv.UnifyInPlace(tuple, unifier))
-              {
-                unificationSuccess = false;
-                break;
-              }
-            }
-            if (unificationSuccess && obsAlt.IsAllOutArgumentsGround())
-            {
+              var debugInfo = obsAlt.GetDebugInformation(currEnv);
+              debugInfo.valenceString += $" [{a}|{b}]={ab}";
               Cons cns = new Cons();
               (cns as IProgram).SetDebugInformation(debugInfo);
               programs.Add(currEnv.Clone((observ, cns)));
