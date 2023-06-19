@@ -1,7 +1,7 @@
 {
     "SearchDepth": 6,
     "MaxUnboundArguments": 2,
-    "WaitBetweenRunsMaxms": 3000,
+    "WaitBetweenRunsMaxms": 10000,
     "Tasks": [
         {
             "Name": "head",
@@ -59,7 +59,7 @@
             ]
         },
         {
-            "Name": "len",
+            "Name": "length",
             "Valence": "{as:in, b:out}",
             "Examples": "{ {as:[6,9], b:2}, {as:[8], b:1} }",
             "NegExamples": "{ {as:[2,1], b:1} }",

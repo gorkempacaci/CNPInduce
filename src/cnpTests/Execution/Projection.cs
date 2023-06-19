@@ -62,7 +62,7 @@ namespace Tests.Execution
       IProgram prog =
         and(constant(b0_outer, constterm(0)),
             proj(and(constant(b0_inner, zero),
-                     foldl(plus)),
+                     foldl(lt)),
                  new[] { (b0_inner, b0_outer), (as_inner, as_outer) }));
       GroundRelation args = Parser.ParseGroundRelation("{{b0:0, as:[2,1,3]}}", frees);
       ExecutionEnvironment exenv = new ExecutionEnvironment(prog, nvb, frees);

@@ -12,12 +12,18 @@ namespace Benchit
 {
   /*
    To use all cpu cores, these env variables have to be set.
+
+  windows (temporary effect)
+
     set DOTNET_GCCpuGroup=1
     set DOTNET_gcConcurrent=1
     set DOTNET_Thread_UseAllCpuGroups=1
-    set COMPlus_Thread_UseAllCpuGroups=1
-    set COMPlus_GCCpuGroup=1
-    set COMPlus_gcServer=1
+
+  mac (temporary effect)
+
+    export DOTNET_GCCpuGroup=1
+    export DOTNET_gcConcurrent=1
+    export DOTNET_Thread_UseAllCpuGroups=1
    */
 
   public class Program

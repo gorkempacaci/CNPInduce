@@ -1,7 +1,7 @@
 {
     "SearchDepth": 6,
     "MaxUnboundArguments": 2,
-    "WaitBetweenRunsMaxms": 3000,
+    "WaitBetweenRunsMaxms": 10000,
     "Tasks": [
         {
             "Name": "head",

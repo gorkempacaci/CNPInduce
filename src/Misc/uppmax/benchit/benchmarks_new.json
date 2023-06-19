@@ -4,12 +4,15 @@
     "WaitBetweenRunsMaxms": 100,
     "Tasks": [
         {
-            "Name": "flatten",
-            "Valence": "{as:in, bs:out}",
-            "Examples": "{{as:[[1,2], [], [3]], bs:[1,2,3]}, {as:[[9]], bs:[9]}}",
-            "NegExamples": "{}",
+            "Name": "length",
+            "Valence": "{as:in, b:out}",
+            "Examples": "{ {as:[6,9], b:2}, {as:[8], b:1} }",
+            "NegExamples": "{ {as:[2,1], b:1} }",
             "ExpectedPrograms": [
-                "proj(and(const(b0, []), foldr(proj(foldr(cons), {as->a, b0->b, b->ab}))), {as->as, b->bs})"
+                "proj(and(const(b0, 0), foldl(proj(and(id, increment), {a->a, n->b, s->ab}))), {as->as, b->b})",
+                "proj(and(const(b0, 0), foldr(proj(and(id, increment), {a->a, n->b, s->ab}))), {as->as, b->b})",
+                "proj(and(const(b0, 0), foldl(proj(and(id, increment), {b->a, n->b, s->ab}))), {as->as, b->b})",
+                "proj(and(const(b0, 0), foldr(proj(and(id, increment), {b->a, n->b, s->ab}))), {as->as, b->b})"
             ]
         }
     ]

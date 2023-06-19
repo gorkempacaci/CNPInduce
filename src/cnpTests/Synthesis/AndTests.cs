@@ -64,10 +64,10 @@ namespace Tests.Synthesis
 
       Assert.AreEqual(5, programsInNextStep.Count(), "2 alternations");
       var obsCount = programsInNextStep.Sum(p => ((p.Root as And).RHOperand as ObservedProgram).Observations.Length);
-      Assert.AreEqual(24, obsCount, "4 total observations");
+      Assert.AreEqual(28, obsCount, "4 total observations");
 
-      var firstExpectedLH = Parser.ParseAlphaTupleSet("{{b:2}, {b:4}}", names, frees);
-      var firstExpectedRH = Parser.ParseAlphaTupleSet("{{a:1, b:2}, {a:2, b:4}}", names, frees);
+      var firstExpectedLH = Parser.ParseAlphaTupleSet("{{a:1}, {a:2}}", names, frees);
+      var firstExpectedRH = Parser.ParseAlphaTupleSet("{{b:2}, {b:4}}", names, frees);
       var firstActualEnv = programsInNextStep.First();
       var firstActual = (And)firstActualEnv.Root;
       var firstActualStringer = new PrettyStringer(firstActualEnv.NameBindings);

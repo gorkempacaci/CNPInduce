@@ -5,17 +5,17 @@ namespace Benchit
 {
   public class DataExporter
   {
-    public Dictionary<string, (int depth, int complexityExponent, int pex, int nex, List<(int threads, double avg, double stdErr)> durations)> results = new();
+    public Dictionary<string, (int depth, int complexityExponent, int pex, int nex, List<(int threads, double avg, double stdDev)> durations)> results = new();
     public void Add(string programName, int depth, int complexityExponent, int pex, int nex, int threadCount, double[] runs)
     {
       var avg = runs.Average();
       var sDev = Math.Sqrt(runs.Sum(r => Math.Pow(r - avg, 2)) / runs.Length);
-      var sErr = sDev / Math.Sqrt(runs.Count());
+      //var sErr = sDev / Math.Sqrt(runs.Count());
       var record = results.GetOrAdd(programName, () => (depth, complexityExponent, pex, nex, new()));
       if (record.depth != depth)
         throw new InvalidOperationException("Depth does not match.");
       var list = record.durations;
-      list.Add((threads: threadCount, avg:avg, stdErr: sErr));
+      list.Add((threads: threadCount, avg:avg, stdDev: sDev));
     }
 
     private string toBigO(int complexityExponent)
@@ -41,9 +41,9 @@ namespace Benchit
         sb.Append($"& {p.Value.nex}");
         var t1 = p.Value.durations.First();
         var t6 = p.Value.durations.Last();
-        sb.Append("& " + t1.avg.ToString("F3") + " $\\pm$" + t1.stdErr.ToString("F3"));
+        sb.Append("& " + t1.avg.ToString("F3") + " $\\pm$" + t1.stdDev.ToString("F3"));
         double speedUp = t1.avg / t6.avg;
-        sb.Append("& " + t6.avg.ToString("F3")+ " $\\pm$"  + t6.stdErr.ToString("F3"));
+        sb.Append("& " + t6.avg.ToString("F3")+ " $\\pm$"  + t6.stdDev.ToString("F3"));
         sb.Append("& " + speedUp.ToString("F1") + "x");
         sb.AppendLine("  \\\\");
       }
@@ -63,8 +63,8 @@ namespace Benchit
         sb.Append($" | {p.Value.nex,3}");
         var t1 = p.Value.durations.First();
         var t6 = p.Value.durations.Last();
-        sb.Append($" | {t1.avg.ToString("F3") + " ±" + t1.stdErr.ToString("F3"),15}");
-        sb.Append($" | {t6.avg.ToString("F3") + " ±" + t6.stdErr.ToString("F3"),14}");
+        sb.Append($" | {t1.avg.ToString("F3") + " ±" + t1.stdDev.ToString("F3"),15}");
+        sb.Append($" | {t6.avg.ToString("F3") + " ±" + t6.stdDev.ToString("F3"),14}");
         double speedUp = t1.avg / t6.avg;
         sb.Append($" | {speedUp.ToString("F1") + "x",7}");
         sb.AppendLine(" |");

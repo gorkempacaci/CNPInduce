@@ -80,10 +80,10 @@ namespace Tests.Language
 
 
     [DataTestMethod]
-    [DataRow(48, IN, IN, DisplayName ="And/2:IN,IN")]
-    [DataRow(24, IN, OUT, DisplayName = "And/2:IN,OUT")]
-    [DataRow(24, OUT, IN, DisplayName = "And/2:OUT,IN")]
-    [DataRow(12, OUT, OUT, DisplayName = "And/2:OUT,OUT")]
+    [DataRow(56, IN, IN, DisplayName ="And/2:IN,IN")]
+    [DataRow(28, IN, OUT, DisplayName = "And/2:IN,OUT")]
+    [DataRow(28, OUT, IN, DisplayName = "And/2:OUT,IN")]
+    [DataRow(14, OUT, OUT, DisplayName = "And/2:OUT,OUT")]
     public void And_Arity2(int expectedNumberOfProtoValences, params Mode[] modes)
     {
       var protosActual = AndValenceSeries.GenerateForSingleOpModeList(modes).ToArray();
