@@ -6,6 +6,20 @@ Load the solution and run the Benchit project. Tested on .Net 7.
 
 Runs the suite in `benchmarks.json` with 1, 2, 3, 4 threads, each with 3 repeats, reporting the average of these 3 repeats.
 
+Benhmark results on a Macbook Pro 2019 with 6-core 2.6Ghz i7
+
+| Name       | AST Depth | Complexity | Ex+ | Ex- | Single-threaded | Multi-threaded | Speedup |
+| ---------- | --------- | ---------- | --- | --- | --------------- | -------------- | ------- |
+| head       |         2 |       O(1) |   2 |   0 |    0.001 ±0.000 |   0.001 ±0.000 |    1.0x |
+| decrement  |         3 |       O(1) |   2 |   0 |    0.011 ±0.001 |   0.004 ±0.000 |    2.5x |
+| append     |         3 |       O(n) |   2 |   0 |    0.017 ±0.001 |   0.007 ±0.000 |    2.3x |
+| reverse    |         4 |       O(n) |   2 |   0 |    0.054 ±0.000 |   0.023 ±0.002 |    2.4x |
+| sum        |         4 |       O(n) |   2 |   0 |    0.057 ±0.000 |   0.022 ±0.003 |    2.6x |
+| maxlist    |         4 |       O(n) |   2 |   0 |    0.057 ±0.000 |   0.023 ±0.002 |    2.5x |
+| length     |         6 |       O(n) |   2 |   1 |    5.347 ±0.085 |   2.696 ±0.051 |    2.0x |
+| sumall     |         6 |     O(n^2) |   2 |   0 |    2.384 ±0.038 |   1.190 ±0.029 |    2.0x |
+| flatten    |         6 |     O(n^2) |   2 |   0 |    2.677 ±0.055 |   1.707 ±0.121 |    1.6x |
+
 # Disclaimer
 
 **Parallel CombInduce** is under active development, and there may be times the main branch is not healthy. Check under 'Actions' that the version you're checking out is 'green', meaning all the tests have passed for that version. 
