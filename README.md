@@ -22,7 +22,7 @@ Benhmark results on a Macbook Pro 2019 with 6-core 2.6Ghz i7
 
 # Disclaimer
 
-**Parallel CombInduce** is under active development, and there may be times the main branch is not healthy. Check under 'Actions' that the version you're checking out is 'green', meaning all the tests have passed for that version. 
+**Parallel CombInduce** is under active development, so there may be times the main branch is not healthy. Check under 'Actions' that the version you're checking out is 'green', meaning all the tests have passed for that version. 
 
 # Parallel CombInduce
 
