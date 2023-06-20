@@ -24,8 +24,15 @@ Benhmark results on a Macbook Pro 2019 with 6-core 2.6Ghz i7, run with 1 vs 6 th
 
 **Parallel CombInduce** is under active development, so there may be times the main branch is not healthy. Check under 'Actions' that the version you're checking out is 'green', meaning all the tests have passed for that version. 
 
-# Parallel CombInduce
+# Known bugs
+- After the and-valence work, the multithreading speedup reduced from 4x to 2x. There's no blocking happening, and it doesn't help to add more threads, so it may be due to cache misses.
 
+# Backlog
+- In order to eliminate symmetry (for example happens for `len` with and(increment, increment) a post-synthesis symmetry check had to be added. This would be better handled by introducing constraints on program variables (observations). There's already a preliminary implementation of this for reducing the double applications of `proj`, which is rather ugly currently.
+- Integrate the type lookup for all operands and primitives, so that it's a single hashmap lookup instead of one lookup for each.
+- NameVar constraint check isn't efficient. 
+
+# Parallel CombInduce
 CNP synthesizer implemented in C#.
 - Object-level mutable unification for efficiency
 - Paralellizable on a single machine with multi-threading
