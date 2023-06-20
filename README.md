@@ -2,11 +2,11 @@
 
 Load the solution and run the Benchit project. Tested on .Net 7. 
 
-> `./benchit benchmarks.json [1,2,3,4] 3`
+> `./benchit benchmarks.json [1,6] 10`
 
-Runs the suite in `benchmarks.json` with 1, 2, 3, 4 threads, each with 3 repeats, reporting the average of these 3 repeats.
+Runs the suite in `benchmarks.json` with 1 and 6 threads, each with 10 repeats, reporting the average of all repeats with standard deviation. 
 
-Benhmark results on a Macbook Pro 2019 with 6-core 2.6Ghz i7
+Benhmark results on a Macbook Pro 2019 with 6-core 2.6Ghz i7, run with 1 vs 6 threads:
 
 | Name       | AST Depth | Complexity | Ex+ | Ex- | Single-threaded | Multi-threaded | Speedup |
 | ---------- | --------- | ---------- | --- | --- | --------------- | -------------- | ------- |
