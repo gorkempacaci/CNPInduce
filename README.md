@@ -81,6 +81,20 @@ The names that appear in the tuples of a relation are the 'names' of that relati
 
 - proj(P, M) is projection of a predicate expression P, where names are changed according to the projection map given in M. For example, proj(cons, {a:head, b:tail, ab:list}) succeeds for any list in the form {head:1, tail:[2,3], list:[1,2,3]}, because cons succeeds for {a:1, b:[2,3], ab:[1,2,3]}.
 
+### A simple math library
+
+The following math functions and predicates are available to the synthesis:
+
+`lt {a:A, b:B} :- A < B`
+`lte {a:A, b:B} :- A <= B`
+`plus {a:A, b:B, ab:AB} :- AB is A+B`
+`mul {a:A, b:B, ab:AB} :- AB is A*B`
+`min {a:A, b:B, ab:AB} :- AB is Math.Min(A,B)`
+`max {a:A, b:B, ab:AB} :- AB is Math.Max(A,B)`
+`increment {n:N, s:S} :- S is N + 1`
+
+Adding more is straightforward by changing `MathLib.cs`.
+
 ## Searchable-CNP, Searchable language
 
 Searchable-CNP, as CNP implemented in the accompanying code, is an extended version of CNP to carry along search parameters in the syntax tree. 
