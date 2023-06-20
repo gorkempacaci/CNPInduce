@@ -86,11 +86,17 @@ The names that appear in the tuples of a relation are the 'names' of that relati
 The following math functions and predicates are available to the synthesis:
 
 `lt {a:A, b:B} :- A < B`
+
 `lte {a:A, b:B} :- A <= B`
+
 `plus {a:A, b:B, ab:AB} :- AB is A+B`
+
 `mul {a:A, b:B, ab:AB} :- AB is A*B`
+
 `min {a:A, b:B, ab:AB} :- AB is Math.Min(A,B)`
+
 `max {a:A, b:B, ab:AB} :- AB is Math.Max(A,B)`
+
 `increment {n:N, s:S} :- S is N + 1`
 
 Adding more is straightforward by changing `MathLib.cs`.
