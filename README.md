@@ -1,3 +1,12 @@
+# CombInduce 
+
+CombInduce is a program synthesizer that synthesizes CNP programs (see description below). CNP is a language equivalent to definite clauses (like Prolog), but CombInduce as a methodology can be extended to any language with well-defined semantics. The efficiency of CombInduce depends on the language, specifically by how exploitable the reversed semantics are. The more higher-level recursive operators language has, the better. Some candidates for this are SQL (aggregates like MAX, AVG, etc), C# (Query Operators like WHERE, SELECT, ORDERBY), or Spreadsheet Formulas (like COUNTIF)
+
+For more information on CombInduce and its applications:
+- Paper that defines CNP language and CombInduce's general algorithm: [Compositional Relational Programming with Name Projection and Compositional Synthesis](http://uu.diva-portal.org/smash/record.jsf?pid=diva2%3A1168847&dswid=855)
+- Application of CombInduce to ExplainableAI: ["Why did you do that?": Explaining black box models with inductive synthesis](https://arxiv.org/abs/1904.09273)
+- PhD Thesis that describes the synthesis and the accompanying proofs of CNP being equivalent to definite clauses: [Representations of Compositional Relational Programs](https://uu.diva-portal.org/smash/record.jsf?pid=diva2%3A1080366&dswid=2983)
+
 # How to run the benchmarks
 
 Load the solution and run the Benchit project. Tested on .Net 7. 
