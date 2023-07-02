@@ -1,12 +1,21 @@
+# CombInduce 
+
+CombInduce is a program synthesizer that synthesizes CNP programs (see description below). CNP is a language equivalent to definite clauses (like Prolog), but CombInduce as a methodology can be extended to any language with well-defined semantics. The efficiency of CombInduce depends on the language, specifically by how exploitable the reversed semantics are. The more higher-level recursive operators language has, the better. Some candidates for this are SQL (aggregates like MAX, AVG, etc), C# (Query Operators like WHERE, SELECT, ORDERBY), or Spreadsheet Formulas (like COUNTIF)
+
+For more information on CombInduce and its applications:
+- Paper that defines CNP language and CombInduce's general algorithm: [Compositional Relational Programming with Name Projection and Compositional Synthesis](http://uu.diva-portal.org/smash/record.jsf?pid=diva2%3A1168847&dswid=855)
+- Application of CombInduce to ExplainableAI: ["Why did you do that?": Explaining black box models with inductive synthesis](https://arxiv.org/abs/1904.09273)
+- PhD Thesis that describes the synthesis and the accompanying proofs of CNP being equivalent to definite clauses: [Representations of Compositional Relational Programs](https://uu.diva-portal.org/smash/record.jsf?pid=diva2%3A1080366&dswid=2983)
+
 # How to run the benchmarks
 
 Load the solution and run the Benchit project. Tested on .Net 7. 
 
-> `./benchit benchmarks.json [1,2,3,4] 3`
+> `./benchit benchmarks.json [1,6] 10`
 
-Runs the suite in `benchmarks.json` with 1, 2, 3, 4 threads, each with 3 repeats, reporting the average of these 3 repeats.
+Runs the suite in `benchmarks.json` with 1 and 6 threads, each with 10 repeats, reporting the average of all repeats with standard deviation. 
 
-Benhmark results on a Macbook Pro 2019 with 6-core 2.6Ghz i7
+Benhmark results on a Macbook Pro 2019 with 6-core 2.6Ghz i7, run with 1 vs 6 threads:
 
 | Name       | AST Depth | Complexity | Ex+ | Ex- | Single-threaded | Multi-threaded | Speedup |
 | ---------- | --------- | ---------- | --- | --- | --------------- | -------------- | ------- |
@@ -24,8 +33,15 @@ Benhmark results on a Macbook Pro 2019 with 6-core 2.6Ghz i7
 
 **Parallel CombInduce** is under active development, so there may be times the main branch is not healthy. Check under 'Actions' that the version you're checking out is 'green', meaning all the tests have passed for that version. 
 
-# Parallel CombInduce
+# Known bugs
+- After the and-valence work, the multithreading speedup reduced from 4x to 2x. There's no blocking happening, and it doesn't help to add more threads, so it may be due to cache misses.
 
+# Backlog
+- In order to eliminate symmetry (for example happens for `len` with and(increment, increment) a post-synthesis symmetry check had to be added. This would be better handled by introducing constraints on program variables (observations). There's already a preliminary implementation of this for reducing the double applications of `proj`, which is rather ugly currently.
+- Integrate the type lookup for all operands and primitives, so that it's a single hashmap lookup instead of one lookup for each.
+- NameVar constraint check isn't efficient. 
+
+# Parallel CombInduce
 CNP synthesizer implemented in C#.
 - Object-level mutable unification for efficiency
 - Paralellizable on a single machine with multi-threading
@@ -73,6 +89,26 @@ The names that appear in the tuples of a relation are the 'names' of that relati
 - map(P) takes a single P as an operand, and succeeds for a tuple {as:X, bs:Y} where X and Y are lists of the same length, and P succeeds for each pair of corresponding elements. For example, map(id) succeeds for {as:[1,2,3], bs:[1,2,3]}, because id succeeds for {a:1, b:1}, {a:2, b:2}, {a:3, b:3}.
 
 - proj(P, M) is projection of a predicate expression P, where names are changed according to the projection map given in M. For example, proj(cons, {a:head, b:tail, ab:list}) succeeds for any list in the form {head:1, tail:[2,3], list:[1,2,3]}, because cons succeeds for {a:1, b:[2,3], ab:[1,2,3]}.
+
+### A simple math library
+
+The following math functions and predicates are available to the synthesis:
+
+`lt {a:A, b:B} :- A < B`
+
+`lte {a:A, b:B} :- A <= B`
+
+`plus {a:A, b:B, ab:AB} :- AB is A+B`
+
+`mul {a:A, b:B, ab:AB} :- AB is A*B`
+
+`min {a:A, b:B, ab:AB} :- AB is Math.Min(A,B)`
+
+`max {a:A, b:B, ab:AB} :- AB is Math.Max(A,B)`
+
+`increment {n:N, s:S} :- S is N + 1`
+
+Adding more is straightforward by changing `MathLib.cs`.
 
 ## Searchable-CNP, Searchable language
 
