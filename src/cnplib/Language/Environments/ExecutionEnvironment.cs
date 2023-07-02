@@ -64,18 +64,15 @@ namespace CNP.Language
 
     public static bool NegativeExamplesFailAsTheyShould(ProgramEnvironment synEnv, GroundRelation negExamples)
     {
+      ExecutionEnvironment exenv = synEnv.ToExecutionEnvironment();
       foreach (ITerm[] tuple in negExamples.Tuples)
       {
         GroundRelation relPerTuple = new GroundRelation(negExamples.Names, new[] { tuple });
-        ExecutionEnvironment exenv = synEnv.ToExecutionEnvironment();
-        var runres = exenv.Run(relPerTuple);
-        if (runres is RunResult.Success)
+        if (exenv.Run(relPerTuple) is RunResult.Success)
         {
-          //Console.WriteLine("Negatives FALSE");
           return false;
         }
       }
-      //Console.WriteLine("Negatives TRUE");
       return true;
     }
   }

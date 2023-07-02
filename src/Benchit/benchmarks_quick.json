@@ -1,5 +1,5 @@
 {
-    "SearchDepth": 4,
+    "SearchDepth": 6,
     "MaxUnboundArguments": 1,
     "WaitBetweenRunsMaxms": 3000,
     "Tasks": [
@@ -53,9 +53,9 @@
             "NegExamples": "{}",
             "ExpectedPrograms": [
                 "proj(and(const(b0, 0), foldl(max)), {as->list, b->max})",
-                "proj(and(const(b0, -1), foldl(max)), {as->list, b->max})",
                 "proj(and(const(b0, 0), foldr(max)), {as->list, b->max})",
-                "proj(and(const(b0, -1), foldl(max)), {as->list, b->max})"
+                "proj(and(const(b0, -1), foldl(max)), {as->list, b->max})",
+                "proj(and(const(b0, -1), foldr(max)), {as->list, b->max})"
             ]
         }
     ]

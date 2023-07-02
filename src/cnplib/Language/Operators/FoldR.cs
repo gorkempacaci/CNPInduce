@@ -53,55 +53,59 @@ namespace CNP.Language
 
     static Fold.CreateFold factoryFoldR = (rec) => new FoldR(rec);
 
+    /*
+     
+    foldr(cons)([3,4], [1,2], R).
 
-    public static bool UnFoldR(RelationBase foldRel, (short b0, short @as, short b) nameIndices, FreeFactory freeFac, out ITerm[][] pTuples)
+    // procedurally:
+
+    cons(2, [3,4], X1),
+    cons(1, X1, R)
+
+     
+     */
+    public static bool UnFoldR(RelationBase foldRel, (short b0, short @as, short b) nameIndices, BaseEnvironment env, out ITerm[][] pTuples)
     {
       List<ITerm[]> pTuplesList = new();
       for (int ri = 0; ri < foldRel.TuplesCount; ri++)
       {
-        List<ITerm[]> pTuplesPerFoldTuple = new List<ITerm[]>();
-        ITerm seed = foldRel.Tuples[ri][nameIndices.b0];
+        ITerm bVal = foldRel.Tuples[ri][nameIndices.b0];
         ITerm list = foldRel.Tuples[ri][nameIndices.@as];
         ITerm result = foldRel.Tuples[ri][nameIndices.b];
-        while (list is TermList termList)
-        {
-          ITerm head = termList.Head;
-          ITerm tail = termList.Tail;
-          if (tail is NilTerm)
-          {
-            pTuplesPerFoldTuple.Add(new ITerm[] { head, seed, result });
-          }
-          else
-          {
-            var acc = freeFac.NewFree();
-            pTuplesPerFoldTuple.Add(new ITerm[] { head, acc, result });
-            result = acc;
-          }
-          list = tail;
-        }
         if (list is NilTerm)
         {
           ITerm[] site = foldRel.Tuples[ri];
           ITerm[] unifier = new ITerm[] { null, null, null };
-          unifier[nameIndices.b0] = site[nameIndices.b];
-        }
-        else
+          unifier[nameIndices.b0] = result;
+          unifier[nameIndices.b] = bVal;
+          if (!env.UnifyInPlace(site, unifier))
+          {
+            pTuples = null;
+            return false;
+          }
+        } else if (list is TermList termList)
+        {
+          List<ITerm> terms = new(termList.ToEnumerable());
+          terms.Reverse(); // in the order foldr executes
+          for(int i=0; i<terms.Count; i++)
+          {
+            if (i<terms.Count-1) // not last executed
+            {
+              var acc = env.Frees.NewFree();
+              pTuplesList.Add(new ITerm[] { terms[i], bVal, acc });
+              bVal = acc;
+            } else // last executed
+            {
+              pTuplesList.Add(new ITerm[] { terms[i], bVal, result });
+            }
+          }
+        } else // list is not [] or [X|L]
         {
           pTuples = null;
           return false;
-        }
-        pTuplesPerFoldTuple.Reverse();
-        pTuplesList.AddRange(pTuplesPerFoldTuple);
-      }
-      if (pTuplesList.Any())
-      {
-        pTuples = pTuplesList.ToArray();
-        return true;
-      } else
-      {
-        pTuples = null;
-        return false;
-      }
+        }      }
+      pTuples = pTuplesList.ToArray();
+      return pTuples.Any();
     }
   }
 }

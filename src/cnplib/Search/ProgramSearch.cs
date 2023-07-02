@@ -40,6 +40,8 @@ namespace CNP.Search
         SearchBrancher pst = new SearchBrancher(this, negativeExamples, searchQueue, cde, CancellationSource, searchReceiver, i);
         threadObjects.Add(pst);
         systemThreads[i] = new Thread(pst.ConsumeProduceLoop);
+        systemThreads[i].Name = "CombInduce_Worker_" + i.ToString();
+        systemThreads[i].Priority = ThreadPriority.Highest;
         systemThreads[i].Start();
       }
       for (int i = 0; i < ThreadCount; i++)

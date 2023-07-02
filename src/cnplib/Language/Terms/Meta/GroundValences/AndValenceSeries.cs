@@ -85,7 +85,7 @@ namespace CNP.Language
     }
   }
 
-  public class AndValenceSeries
+  public readonly struct AndValenceSeries
   {
     private const Mode IN = Mode.In;
     private const Mode OUT = Mode.Out;

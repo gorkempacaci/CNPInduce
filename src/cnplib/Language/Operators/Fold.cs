@@ -1,4 +1,6 @@
-﻿using System;using System.Collections.Generic;using System.Reflection;using CNP.Parsing;using CNP.Helper;using System.Linq;namespace CNP.Language{  public abstract class Fold : IProgram  {
+﻿using System;using System.Collections.Generic;using System.Reflection;using CNP.Parsing;using CNP.Helper;using System.Linq;using System.Threading;
+
+namespace CNP.Language{  public abstract class Fold : IProgram  {
     private const Mode In = Mode.In;
     private const Mode Out = Mode.Out;    public IProgram Recursive { get; init; }
 
@@ -7,9 +9,27 @@
       Recursive = rec;
     }
 
-    static Fold()
-    {
-      Valences = FoldValenceSeries.FoldSerieFromArrays(
+    //static Fold()
+    //{
+    //  Valences = FoldValenceSeries.FoldSerieFromArrays(
+    //  new[] { "b0", "as", "b" }, new[] { "a", "b", "ab" },
+    //  new[] {
+    //    (new[]{In, In, Out}, new[]{In, In, Out }),
+    //    (new[]{In, In, Out}, new[]{In, Out, Out }),
+    //    (new[]{In, In, Out}, new[]{Out, In, Out }),
+    //    (new[]{In, In, Out}, new[]{Out, Out, Out }),
+
+    //    (new[]{Out,In,Out}, new[]{In,Out,Out}),
+    //    (new[]{Out,In,Out}, new[]{Out,Out,Out}),
+
+    //    (new[]{In, Out, Out}, new[]{Out, In, Out}),
+    //    (new[]{In, Out, Out}, new[]{Out, Out, Out}),
+
+    //    (new[]{Out, Out, Out}, new[]{Out, Out, Out})
+    //  });
+    //}
+
+    public static FoldValenceSeries Valences =  FoldValenceSeries.FoldSerieFromArrays(
       new[] { "b0", "as", "b" }, new[] { "a", "b", "ab" },
       new[] {
         (new[]{In, In, Out}, new[]{In, In, Out }),
@@ -25,9 +45,6 @@
 
         (new[]{Out, Out, Out}, new[]{Out, Out, Out})
       });
-    }
-
-    public readonly static FoldValenceSeries Valences;
 
 
     /// <summary>
@@ -70,14 +87,14 @@
     {
       (short b0, short @as, short b) indices = args.GetNameIndices(env.NameBindings, "b0", "as", "b");
       var unfolder = GetUnfolder();
-      if (unfolder(args, indices, env.Frees, out var unfoldedTuples))
+      if (unfolder(args, indices, env, out var unfoldedTuples))
       {
         var recursiveArgs = new GroundRelation(Valences.RecursiveCaseNames, unfoldedTuples);
         var result = Recursive.Run(env, recursiveArgs);
         return result;
       }
       else throw new Exception("Cannot execute foldX for some reason.");
-    }    protected delegate Fold CreateFold(IProgram recursive);    protected delegate bool UnFold(RelationBase foldRel, (short b0, short @as, short b) nameIndices, FreeFactory freeFac, out ITerm[][] pRelation);
+    }    protected delegate Fold CreateFold(IProgram recursive);    protected delegate bool UnFold(RelationBase foldRel, (short b0, short @as, short b) nameIndices, BaseEnvironment env, out ITerm[][] pRelation);
 
     protected static IEnumerable<ProgramEnvironment> CreateAtFirstHole(ProgramEnvironment oldEnv, CreateFold newFold, UnFold unfolder)    {      ObservedProgram origObservation = oldEnv.Root.FindHole();      if (origObservation.RemainingSearchDepth<2)        return Array.Empty<ProgramEnvironment>();
       var newPrograms = new List<ProgramEnvironment>();      for (int oi = 0; oi < origObservation.Observations.Length; oi++)
@@ -98,7 +115,7 @@
             short b = (short)Array.IndexOf(groundNames, "b");
 
             var nameIndices = (b0: b0, @as: @as, b: b);
-            if (unfolder(newObs.Observations[oi].Examples, nameIndices, newEnv.Frees, out var pTuples))
+            if (unfolder(newObs.Observations[oi].Examples, nameIndices, newEnv, out var pTuples))
             {
               // build p-observation
               NameVar[] pNames = new[] { newEnv.NameBindings.AddNameVar(Valences.RecursiveCaseNames[0]), newEnv.NameBindings.AddNameVar(Valences.RecursiveCaseNames[1]), newEnv.NameBindings.AddNameVar(Valences.RecursiveCaseNames[2]) };
@@ -106,11 +123,16 @@
               ValenceVar pVal = ValenceVar.FromModeIndices(pNames, alt.rec);
               Observation obs = new Observation(pRelation, pVal);
               ObservedProgram pObs = new ObservedProgram(new[] { obs }, newObs.RemainingSearchDepth - 1, newObs.RemainingUnboundArguments, ObservedProgram.Constraint.None);
+
+              //TODO: This happens for negative examples when they're being synthesized. GroundingAlternatives should be smarter to avoid this check.
+              if (!obs.IsAllINArgumentsGroundForFirstTuple())
+                throw new Exception("Some INs are not ground after unfolding.");
+              
               // build fold
               Fold fld = newFold(pObs);
               (fld as IProgram).SetDebugInformation((debugInfo.valenceString, debugInfo.observationString + $" with order (b0={b0}, as={@as}, b={b})"));
               var outEnv = newEnv.Clone((newObs, fld));
               newPrograms.Add(outEnv);
-            }
+            } // else env is dirty.
           }
         }      }      return newPrograms;    }  }  }

@@ -15,6 +15,7 @@ namespace Benchit
 
   windows (temporary effect)
 
+    set gcserver?
     set DOTNET_GCCpuGroup=1
     set DOTNET_gcConcurrent=1
     set DOTNET_Thread_UseAllCpuGroups=1
@@ -43,14 +44,14 @@ namespace Benchit
       // PRINTING CNP VERSION
       try
       {
-        string cnpTimeString = System.IO.File.GetCreationTime(typeof(CNP.Language.IProgram).Assembly.Location).ToString();
+        string cnpTimeString = System.IO.File.GetLastWriteTime(typeof(CNP.Language.IProgram).Assembly.Location).ToString();
         Console.WriteLine("Using CNP: " + cnpTimeString);
       } catch (Exception)
       {
         Console.WriteLine("Printing CNP version failed. (possibly single executable)");
       }
       Console.WriteLine("Preinitializing. ");
-      SynthesisJob.PreInitialize();
+      //SynthesisJob.PreInitialize();
       //Thread.Sleep(1000);
       // INITIALIZING ARGUMENTS
       string filename = args[0];
@@ -133,8 +134,8 @@ namespace Benchit
               errors.AppendLine($"({bench.Name}), Threads {thCount}, Repeat {r + 1}, Program not found.");
             }
             GC.Collect(2, GCCollectionMode.Forced, true);
-            int howMuchToWait = Math.Min((int)(durationsRpt[r] * 1000 * 3), maxWaitMSBetweenRuns);
-            Thread.Sleep(howMuchToWait);
+            //int howMuchToWait = Math.Min((int)(durationsRpt[r] * 1000 * 3), maxWaitMSBetweenRuns);
+            //Thread.Sleep(howMuchToWait);
           }
           if (succeess)
           {

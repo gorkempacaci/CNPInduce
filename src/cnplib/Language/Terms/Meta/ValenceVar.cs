@@ -65,14 +65,13 @@ namespace CNP.Language
     public (short[] ins, short[] outs) GetIndicesOfInsOrOutsIn(in NameVar[] allNames)
     {
       var indices = (ins: new short[Ins.Length], outs: new short[Outs.Length]);
-      int ii = 0, oi = 0;
-      for (short i=0; i<allNames.Length; i++)
+      for(int ii=0; ii<Ins.Length; ii++)
       {
-        if (ii<Ins.Length && allNames[i].Index == Ins[ii].Index)
-          indices.ins[ii++] = i;
-        else if (oi<Outs.Length && allNames[i].Index == Outs[oi].Index)
-          indices.outs[oi++] = i;
-        else throw new ArgumentException("Valence names are not in the same order as observation.");
+        indices.ins[ii] = (short)Array.IndexOf(allNames, Ins[ii]);
+      }
+      for(int oi=0; oi<Outs.Length; oi++)
+      {
+        indices.outs[oi] = (short)Array.IndexOf(allNames, Outs[oi]);
       }
       return indices;
     }

@@ -49,52 +49,54 @@ namespace CNP.Language
 
     static Fold.CreateFold factoryFoldL = (rec) => new FoldL(rec);
 
-    public static bool UnFoldL(RelationBase foldRel, (short b0, short @as, short b) nameIndices, FreeFactory freeFac, out ITerm[][] pTuples)
+    public static bool UnFoldL(RelationBase foldRel, (short b0, short @as, short b) nameIndices, BaseEnvironment env, out ITerm[][] pTuples)
     {
       List<ITerm[]> pTuplesList = new();
+      pTuples = null;
       for (int ri = 0; ri < foldRel.TuplesCount; ri++)
       {
-        ITerm seed = foldRel.Tuples[ri][nameIndices.b0];
+        ITerm bVal = foldRel.Tuples[ri][nameIndices.b0];
         ITerm list = foldRel.Tuples[ri][nameIndices.@as];
         ITerm result = foldRel.Tuples[ri][nameIndices.b];
-        while (list is TermList termList)
-        {
-          ITerm head = termList.Head;
-          ITerm tail = termList.Tail;
-          if (tail is NilTerm)
-          {
-            pTuplesList.Add(new ITerm[] { head, seed, result }); // a, b, ab
-          }
-          else
-          {
-            Free carry = freeFac.NewFree();
-            pTuplesList.Add(new ITerm[] { head, seed, carry }); // a, b, ab
-            seed = carry;
-          }
-          list = tail;
-        }
         if (list is NilTerm)
         {
           ITerm[] site = foldRel.Tuples[ri];
           ITerm[] unifier = new ITerm[] { null, null, null };
-          unifier[nameIndices.b0] = site[nameIndices.b];
+          unifier[nameIndices.b0] = result;
+          unifier[nameIndices.b] = bVal;
+          if (!env.UnifyInPlace(site, unifier))
+          {
+            pTuples = null;
+            return false;
+          }
         }
-        else
+        else if (list is TermList)
+        {
+          while (list is TermList termList)
+          {
+            ITerm head = termList.Head;
+            ITerm tail = termList.Tail;
+            if (tail is not NilTerm)
+            {
+              Free carry = env.Frees.NewFree();
+              pTuplesList.Add(new ITerm[] { head, bVal, carry }); // a, b, ab
+              bVal = carry;
+            }
+            else // tail is nil
+            {
+              pTuplesList.Add(new ITerm[] { head, bVal, result }); // a, b, ab
+            }
+            list = tail;
+          }
+        }
+        else // list is not [] or [X|L]
         {
           pTuples = null;
           return false;
         }
       }
-      if (pTuplesList.Any())
-      {
-        pTuples = pTuplesList.ToArray();
-        return true;
-      }
-      else
-      {
-        pTuples = null;
-        return false;
-      }
+      pTuples = pTuplesList.ToArray();
+      return pTuples.Any();
     }
   }
 }

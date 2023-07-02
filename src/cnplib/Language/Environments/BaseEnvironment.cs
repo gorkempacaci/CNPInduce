@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using CNP.Language;
 
 namespace CNP.Language
@@ -51,7 +52,7 @@ namespace CNP.Language
     /// Takes a tuple and applies the unifier tuple.
     /// Also, applies the substitutions to the given goalTuples (since they're not a part of the ExecutionEnvironment)
     /// </summary>
-    public bool UnifyInPlaceIncludingGoal(ITerm[] siteRow, ITerm[] unifierRow, ITerm[][] goalTuples)
+    public bool UnifyInPlaceIncludingGoal(ITerm[] siteRow, ITerm[] unifierRow, IEnumerable<ITerm[]> goalTuples)
     {
       for (int ei = 0; ei < siteRow.Length; ei++)
       {
@@ -69,8 +70,8 @@ namespace CNP.Language
             ReplaceFreesInPlaceInTuple(unifierRow, suggSubstitution.Value);
             // for the goal relation
             if (goalTuples != null)
-              for (int i = 0; i < goalTuples.Length; i++)
-                ReplaceFreesInPlaceInTuple(goalTuples[i], suggSubstitution.Value);
+              foreach(var goalTuple in goalTuples)
+                ReplaceFreesInPlaceInTuple(goalTuple, suggSubstitution.Value);
           }
           else
           { // no way for unification for this tuple, therefore no way for the whole relation.

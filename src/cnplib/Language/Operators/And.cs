@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using CNP.Helper;
 using System.Linq;
+using System.Threading;
 
 namespace CNP.Language
 {
@@ -9,12 +10,12 @@ namespace CNP.Language
   {
     public const int AND_MAX_ARITY = 5;
 
-    static And()
-    {
-      AndValences = AndValenceSeries.Generate(AND_MAX_ARITY);
-    }
+    //static And()
+    //{
+    //  AndValences = AndValenceSeries.Generate(AND_MAX_ARITY);
+    //}
 
-    public readonly static AndValenceSeries AndValences;
+    public static readonly AndValenceSeries AndValences = AndValenceSeries.Generate(AND_MAX_ARITY);
 
     public readonly IProgram LHOperand, RHOperand;
 

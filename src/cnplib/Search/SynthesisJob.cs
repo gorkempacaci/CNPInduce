@@ -18,12 +18,11 @@ namespace CNP.Search
     ConcurrentQueue<ProgramEnvironment> programs = new ConcurrentQueue<ProgramEnvironment>();
     ConcurrentQueue<ProgramEnvironment> solutions = new ConcurrentQueue<ProgramEnvironment>();
 
-    public static void PreInitialize()
-    {
-      var foldlval = FoldL.Valences.FoldModesByModeNumber.ToString();
-      var foldrval = FoldR.Valences.FoldModesByModeNumber.ToString();
-      var andval = And.AndValences.ToString();
-    }
+    //public static void PreInitialize()
+    //{
+    //  var foldval = Fold.Valences.FoldModesByModeNumber.ToString();
+    //  var andval = And.AndValences.ToString();
+    //}
 
     /// <param name="tuples">Tuples of the program observation.</param>
     /// <param name="valence">Valence of the program</param>

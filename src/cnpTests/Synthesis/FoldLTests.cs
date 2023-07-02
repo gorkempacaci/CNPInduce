@@ -24,8 +24,8 @@ namespace Tests.Synthesis
       var foldrel = new AlphaRelation(names, tups);
       ValenceVar vv = new ValenceVar(new[] { b0, @as }, new[] { b });
       ObservedProgram obs = new ObservedProgram(foldrel, vv, 2, 0, ObservedProgram.Constraint.None);
-      //ProgramEnvironment env = new ProgramEnvironment(obs, nvb, freeFact);
-      FoldL.UnFoldL(foldrel, (0, 1, 2), freeFact, out var pTuples);
+      ProgramEnvironment env = new ProgramEnvironment(obs, nvb, freeFact);
+      FoldL.UnFoldL(foldrel, (0, 1, 2), env, out var pTuples);
       var stringer = new PrettyStringer(nvb);
       var pTuplesString = stringer.Visit(pTuples, FoldL.Valences.RecursiveCaseNames);
       Assert.AreEqual("{{a:1, b:[], ab:F0}, {a:2, b:F0, ab:F1}, {a:3, b:F1, ab:[3, 2, 1]}}", pTuplesString, "Recursive case tuples should match");

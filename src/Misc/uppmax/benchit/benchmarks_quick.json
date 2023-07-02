@@ -1,5 +1,5 @@
 {
-    "SearchDepth": 4,
+    "SearchDepth": 6,
     "MaxUnboundArguments": 1,
     "WaitBetweenRunsMaxms": 3000,
     "Tasks": [
@@ -56,6 +56,15 @@
                 "proj(and(const(b0, -1), foldl(max)), {as->list, b->max})",
                 "proj(and(const(b0, 0), foldr(max)), {as->list, b->max})",
                 "proj(and(const(b0, -1), foldl(max)), {as->list, b->max})"
+            ]
+        },
+        {
+            "Name": "flatten",
+            "Valence": "{as:in, bs:out}",
+            "Examples": "{{as:[[1,2], [], [3]], bs:[1,2,3]}, {as:[[9]], bs:[9]}}",
+            "NegExamples": "{}",
+            "ExpectedPrograms": [
+                "proj(and(const(b0, []), foldr(proj(foldr(cons), {as->a, b0->b, b->ab}))), {as->as, b->bs})"
             ]
         }
     ]
