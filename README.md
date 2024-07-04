@@ -29,6 +29,7 @@ Benhmark results on a Macbook Pro 2019 with 6-core 2.6Ghz i7, run with 1 vs 6 th
 | flatten    |         6 |     O(n^2) |   2 |   0 |    4,286 ±0,260 |   2,173 ±0,094 |    2,0x |
 | sumall     |         6 |     O(n^2) |   2 |   0 |    3,839 ±0,207 |   1,541 ±0,061 |    2,5x |
 
+For program definitions see Example Programs section.
 
 # Disclaimer
 
@@ -41,6 +42,89 @@ Benhmark results on a Macbook Pro 2019 with 6-core 2.6Ghz i7, run with 1 vs 6 th
 - In order to eliminate symmetry (for example happens for `len` with and(increment, increment) a post-synthesis symmetry check had to be added. This would be better handled by introducing constraints on program variables (observations). There's already a preliminary implementation of this for reducing the double applications of `proj`, which is rather ugly currently.
 - Integrate the type lookup for all operands and primitives, so that it's a single hashmap lookup instead of one lookup for each.
 - NameVar constraint check isn't efficient. 
+
+# Program Examples
+
+## head 
+CNP:
+`proj(cons, {ab->list, a->h})`
+Prolog:
+```
+cons(A, B, [A|B]).
+head(List, H) :- cons(H, _, List).
+```
+
+## decrement
+CNP:
+`proj(and(const(b, 1), -), {a->n, ab->s})`
+Prolog:
+```
+and(A, B, AB) :- B=1, AB is A - B.
+decrement(N, P) :- and(N, _, P).
+```
+
+## append 
+CNP:
+`proj(foldr(cons), {as->list1, b0->list2, b->list3})`
+Prolog:
+```
+foldr_(B0, [], B0).
+foldr_(B0, [A|As], B) :- foldr_(B0, As, Bi), cons(A, Bi, B).
+append_my(List1, List2, List3) :-  foldr_(List2, List1, List3).
+```
+
+## reverse
+CNP:
+`proj(and(const(b0, []), foldl(cons)), {as->as, b->bs})`
+Prolog:
+```
+foldl_(B0, [], B0).
+foldl_(B0, [A|As], B) :-
+  cons(A, B0, Bi),
+  foldl_(Bi, As, B).
+and_(B0, As, B) :-
+  B0=[],
+  foldl_(B0, As, B).
+reverse_my(As, Bs) :- 
+  and_(_, As, Bs).
+```
+
+## sum
+CNP: `proj(and(const(b0, 0), foldl(+)), {as->list, b->sum})`
+
+## maxlist 
+CNP: `proj(and(const(b0, 0), foldl(max)), {as->list, b->max})`
+
+## length 
+CNP:
+`proj(and(const(b0, 0), foldl(proj(and(id, increment), {a->a, n->b, s->ab}))), {as->as, b->b})`
+Prolog:
+```
+and_2(A, B, N, S) :- id(A, B), increment(N, S).
+proj_2(A, B, AB) :- and_2(A, _, B, AB).
+foldl_(B0, [], B0).
+foldl_(B0, [A|As], B) :- proj_2(A, B0, Bi), foldl_(Bi, As, B).
+and_1(B0, As, B) :- B0=0, foldl_(B0, As, B).
+length_my(As, B) :- and_1(_, As, B).
+```
+
+## flatten 
+CNP:
+`proj(and(const(b0, []), foldr(proj(foldr(cons), {as->a, b0->b, b->ab}))), {as->as, b->bs})`
+Prolog:
+```
+foldr_2(B0, [], B0).
+foldr_2(B0, [A|As], B) :- foldr_2(B0, As, Bi), cons(A, Bi, B).
+proj_2(A, B, AB) :- foldr_2(B, A, AB).
+foldr_1(B0, [], B0).
+foldr_1(B0, [A|As], B) :- foldr_1(B0, As, Bi), proj_2(A, Bi, B).
+and_(B0, As, B) :- B0=[], foldr_1(B0, As, B).
+flatten_my(As, Bs) :- and_(_, As, Bs).
+```
+
+## sumall
+CNP:
+`proj(and(const(b0, 0), foldl(proj(foldl(+), {as->a, b0->b, b->ab}))), {as->lists, b->sum})`
 
 # Parallel CombInduce
 CNP synthesizer implemented in C#.
