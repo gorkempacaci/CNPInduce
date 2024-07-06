@@ -47,23 +47,19 @@ For program definitions see Example Programs section.
 
 ## head 
 CNP:
-
 `proj(cons, {ab->list, a->h})`
 
-Prolog:
-
+Prolog equivalent:
 ```
-cons(A, B, [A|B]).
+cons(A, B, [A|B]). % elementary predicate
 head(List, H) :- cons(H, _, List).
 ```
 
 ## decrement
 CNP:
-
 `proj(and(const(b, 1), -), {a->n, ab->s})`
 
-Prolog:
-
+Prolog equivalent:
 ```
 and(A, B, AB) :- B=1, AB is A - B.
 decrement(N, P) :- and(N, _, P).
@@ -71,12 +67,11 @@ decrement(N, P) :- and(N, _, P).
 
 ## append 
 CNP:
-
 `proj(foldr(cons), {as->list1, b0->list2, b->list3})`
 
-Prolog:
-
+Prolog equivalent:
 ```
+cons(A, B, [A|B]). % elementary predicate
 foldr_(B0, [], B0).
 foldr_(B0, [A|As], B) :- foldr_(B0, As, Bi), cons(A, Bi, B).
 append_my(List1, List2, List3) :-  foldr_(List2, List1, List3).
@@ -84,12 +79,11 @@ append_my(List1, List2, List3) :-  foldr_(List2, List1, List3).
 
 ## reverse
 CNP:
-
 `proj(and(const(b0, []), foldl(cons)), {as->as, b->bs})`
 
-Prolog:
-
+Prolog equivalent:
 ```
+cons(A, B, [A|B]). % elementary predicate
 foldl_(B0, [], B0).
 foldl_(B0, [A|As], B) :-
   cons(A, B0, Bi),
@@ -103,22 +97,46 @@ reverse_my(As, Bs) :-
 
 ## sum
 CNP:
-
 `proj(and(const(b0, 0), foldl(+)), {as->list, b->sum})`
+Prolog equivalent:
+```
++(A, B, AB) :- AB is A + B. % elementary predicate
+foldl_(B0, [], B0).
+foldl_(B0, [A|As], B) :-
+  +(A, B0, Bi),
+  foldl_(Bi, As, B).
+and_(B0, As, B) :-
+  B0=0,
+  foldl_(B0, As, B).
+sum(As, Bs) :- 
+  and_(_, As, Bs).
+```
 
 ## maxlist 
 CNP:
-
 `proj(and(const(b0, 0), foldl(max)), {as->list, b->max})`
+Prolog equivalent:
+```
+max(A, B, AB) :- AB is max(A, B). % elementary predicate
+foldl_(B0, [], B0).
+foldl_(B0, [A|As], B) :-
+  max(A, B0, Bi),
+  foldl_(Bi, As, B).
+and_(B0, As, B) :-
+  B0=0,
+  foldl_(B0, As, B).
+maxlist(As, Bs) :- 
+  and_(_, As, Bs).
+```
 
 ## length 
 CNP:
-
 `proj(and(const(b0, 0), foldl(proj(and(id, increment), {a->a, n->b, s->ab}))), {as->as, b->b})`
 
-Prolog:
-
+Prolog equivalent:
 ```
+id(A, B) :- A=B. % elementary predicate
+increment(N, S) :- S is N+1. % elementary predicate
 and_2(A, B, N, S) :- id(A, B), increment(N, S).
 proj_2(A, B, AB) :- and_2(A, _, B, AB).
 foldl_(B0, [], B0).
@@ -129,12 +147,11 @@ length_my(As, B) :- and_1(_, As, B).
 
 ## flatten 
 CNP:
-
 `proj(and(const(b0, []), foldr(proj(foldr(cons), {as->a, b0->b, b->ab}))), {as->as, b->bs})`
 
-Prolog:
-
+Prolog equivalent:
 ```
+cons(A, B, [A|B]). % elementary predicate
 foldr_2(B0, [], B0).
 foldr_2(B0, [A|As], B) :- foldr_2(B0, As, Bi), cons(A, Bi, B).
 proj_2(A, B, AB) :- foldr_2(B, A, AB).
@@ -146,8 +163,18 @@ flatten_my(As, Bs) :- and_(_, As, Bs).
 
 ## sumall
 CNP:
-
 `proj(and(const(b0, 0), foldl(proj(foldl(+), {as->a, b0->b, b->ab}))), {as->lists, b->sum})`
+Prolog equivalent:
+```
++(A, B, AB) :- AB is A+B. % elementary predicate
+foldr_2(B0, [], B0).
+foldr_2(B0, [A|As], B) :- foldr_2(B0, As, Bi), +(A, Bi, B).
+proj_2(A, B, AB) :- foldr_2(B, A, AB).
+foldr_1(B0, [], B0).
+foldr_1(B0, [A|As], B) :- foldr_1(B0, As, Bi), proj_2(A, Bi, B).
+and_(B0, As, B) :- B0=0, foldr_1(B0, As, B).
+sumall_my(As, Bs) :- and_(_, As, Bs).
+```
 
 # Parallel CombInduce
 CNP synthesizer implemented in C#.
