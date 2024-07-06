@@ -98,6 +98,7 @@ reverse_my(As, Bs) :-
 ## sum
 CNP:
 `proj(and(const(b0, 0), foldl(+)), {as->list, b->sum})`
+
 Prolog equivalent:
 ```
 +(A, B, AB) :- AB is A + B. % elementary predicate
@@ -115,6 +116,7 @@ sum(As, Bs) :-
 ## maxlist 
 CNP:
 `proj(and(const(b0, 0), foldl(max)), {as->list, b->max})`
+
 Prolog equivalent:
 ```
 max(A, B, AB) :- AB is max(A, B). % elementary predicate
@@ -164,6 +166,7 @@ flatten_my(As, Bs) :- and_(_, As, Bs).
 ## sumall
 CNP:
 `proj(and(const(b0, 0), foldl(proj(foldl(+), {as->a, b0->b, b->ab}))), {as->lists, b->sum})`
+
 Prolog equivalent:
 ```
 +(A, B, AB) :- AB is A+B. % elementary predicate
