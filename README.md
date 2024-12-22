@@ -29,6 +29,19 @@ Benhmark results on a Macbook Pro 2019 with 6-core 2.6Ghz i7, run with 1 vs 6 th
 | flatten    |         6 |     O(n^2) |   2 |   0 |    4,286 ±0,260 |   2,173 ±0,094 |    2,0x |
 | sumall     |         6 |     O(n^2) |   2 |   0 |    3,839 ±0,207 |   1,541 ±0,061 |    2,5x |
 
+Some environment variables have to be set for multi-threading to be enabled for .Net. Do this over the terminal, do:
+On Windows:
+```
+  set DOTNET_GCCpuGroup=1
+  set DOTNET_gcConcurrent=1
+  set DOTNET_Thread_UseAllCpuGroups=1
+```
+On MacOS:
+```
+  export DOTNET_GCCpuGroup=1
+  export DOTNET_gcConcurrent=1
+  export DOTNET_Thread_UseAllCpuGroups=1
+```
 For program definitions see Example Programs section.
 
 # Disclaimer
