@@ -1,10 +1,10 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net6.0</TargetFramework>
+    <TargetFramework>net9.0</TargetFramework>
     <LangVersion>9.0</LangVersion>
     <AssemblyVersion>1.0.1</AssemblyVersion>
-    <ThreadPoolMinThreads>6</ThreadPoolMinThreads>
+    <ThreadPoolMinThreads>10</ThreadPoolMinThreads>
     <!-- On Macos/Intel, export DOTNET_Thread_UseAllCpuGroups=1 helps to use more of the CPU (temporarily, or same parameter in bash_profile to use more of the CPU -->
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
