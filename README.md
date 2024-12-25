@@ -26,8 +26,8 @@ Benhmark results on a Macbook Pro M3 Max 36GB, 1 vs 5 threads, average of 5 runs
 | sum        |         4 |       O(n) |   2 |   0 |    0.117 ±0.000 |   0.019 ±0.001 |     6.3 |
 | maxlist    |         4 |       O(n) |   2 |   0 |    0.123 ±0.000 |   0.019 ±0.001 |     6.4 |
 | length     |         6 |       O(n) |   2 |   1 |    7.696 ±0.013 |   2.282 ±0.213 |     3.4 |
-| flatten    |         6 |     O(n^2) |   2 |   0 |    4.614 ±0.054 |   1.538 ±0.115 |     3.0 |
-| sumall     |         6 |     O(n^2) |   2 |   0 |    4.026 ±0.057 |   1.347 ±0.195 |     3.0 |
+| flatten    |         6 |   $O(n^2)$ |   2 |   0 |    4.614 ±0.054 |   1.538 ±0.115 |     3.0 |
+| sumall     |         6 |   $O(n^2)$ |   2 |   0 |    4.026 ±0.057 |   1.347 ±0.195 |     3.0 |
 
 Some environment variables have to be set for multi-threading to be enabled for .Net.
 
