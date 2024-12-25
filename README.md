@@ -15,7 +15,7 @@ Load the solution and run the Benchit project. Tested on .Net 7.
 
 Runs the suite in `benchmarks.json` with 1 and 5 threads, each with 5 repeats, reporting the average of all repeats with standard deviation. Ideal number of threads may depend on the machine.
 
-Benhmark results on a Macbook Pro M3 Max 36GB:
+Benhmark results on a Macbook Pro M3 Max 36GB, 1 vs 5 threads, average of 5 runs:
 
 | Name       | AST Depth | Complexity | Ex+ | Ex- | Single-threaded | Multi-threaded | Speedup | 
 | ---------- | --------- | ---------- | --- | --- | --------------- | -------------- | ------- | 
