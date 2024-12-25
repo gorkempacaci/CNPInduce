@@ -4,6 +4,9 @@ using CNP.Language;
 using CNP.Helper;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Runtime.InteropServices;
+using System.Threading;
+using System.Net.Http.Headers;
 
 namespace CNP.Language
 {
@@ -25,6 +28,27 @@ namespace CNP.Language
 
     public readonly int NumberOfLHArguments = getNumberOfNonNullArguments(LHModes);
 
+    public float GetLHFlowNumber()
+    {
+        int outs = LHModes.Count(m => m is not null && m == Mode.Out);
+        int ins = LHModes.Count(m => m is not null && m == Mode.In);
+        return (float)outs/(float)ins;
+    }
+
+    public float GetLHInDominant()
+    {
+        int outs = LHModes.Count(m => m is not null && m == Mode.Out);
+        int ins = LHModes.Count(m => m is not null && m == Mode.In);
+        return (float)ins/(float)outs;
+    }
+
+    public float GetInDominant()
+    {
+        int outs = OpModes.Count(m => m == Mode.Out);
+        int ins = OpModes.Count(m => m == Mode.In);
+        return (float)ins/(float)outs;
+    }
+
     private static readonly int[] twosPow = new int[] { 1, 2, 4, 8, 16, 32, 64, 128, 256 };
 
     private static int getNumberOfNonNullArguments(Mode?[] modes)
@@ -34,6 +58,7 @@ namespace CNP.Language
         throw new InvalidOperationException();
       return n;
     }
+    
     /// <summary>
     /// Gives a unique number depending on number of arguments and each arguments mode (in or out)
     /// </summary>
@@ -90,14 +115,12 @@ namespace CNP.Language
     private const Mode IN = Mode.In;
     private const Mode OUT = Mode.Out;
 
-    
-
     /// <summary>
     /// First dimension is opMode's arity-1, second dimension is the positionalModeNumber, third dimension is the array of valences.
     /// For example, [in, in] valences are found at [1][CalculatePositionalMode([in,in])][*]
     /// </summary>
-    public readonly ProtoAndValence[][][] ProtoValencesByArityAndPositionalModeNumber;
-
+    private readonly ProtoAndValence[][][] ProtoValencesByArityAndPositionalModeNumber;
+    
     private AndValenceSeries(ProtoAndValence[][][] valences)
     {
       this.ProtoValencesByArityAndPositionalModeNumber = valences;
@@ -120,6 +143,7 @@ namespace CNP.Language
     /// <returns></returns>
     public static AndValenceSeries Generate(int maxArity)
     {
+      Random r = new();
       var opModeListsByArity = AndOpModeLists(maxArity);      
       ProtoAndValence[][][] allProtoAndValences = new ProtoAndValence[maxArity][][];
       for(int arityIndex=0; arityIndex < opModeListsByArity.Length; arityIndex++)
@@ -128,23 +152,24 @@ namespace CNP.Language
         for (int i = 0; i < opModeListsByArity[arityIndex].Length; i++)
         {
           int modeIndex = ProtoAndValence.CalculatePositionalModeNumber(opModeListsByArity[arityIndex][i]);
-          #region DEBUG
-#if DEBUG
-          // [IN, IN] and [IN, IN, IN, IN] have the same modeIndex
-          if (allProtoAndValences[arityIndex][modeIndex] != null)
-            throw new ArgumentOutOfRangeException("AndValenceSeries.Generate: one position is overwritten twice in the ProtoAndValence[] array.");
-#endif
-          #endregion DEBUG
           var opModes = opModeListsByArity[arityIndex][i];
           var valencesForArityAndModeIndex = GenerateForSingleOpModeList(opModes);
           var sorted = valencesForArityAndModeIndex
             .GroupBy(pavs => pavs.LHModes, new SequenceEqualityComparer<Mode?>())
-            .Select(g => ProtoAndValence.FromSingles(opModes, g.Key.ToArray(), g))
-            .OrderBy(pav => pav.NumberOfLHArguments);
+            .Select(g => ProtoAndValence.FromSingles(opModes, g.Key.ToArray(), g)) 
+            //.OrderByDescending(pav => pav.OnlyRHIndices.Count() / pav.OnlyLHIndices.Count()); // 4x append, 9x reverse, 7x sum, 7x maxlist, 4x length, 3x sum
+            //.OrderBy(pav => pav.OnlyRHIndices.Count() / pav.OnlyLHIndices.Count()); // 4x append, 9x reverse, 7x sum, 7x maxlist, 4x length, 3x sum
+            //.OrderByDescending(pav => pav.OnlyLHIndices.Count() / pav.OnlyRHIndices.Count()); // 4x append, 6x reverse, 7x maxlist, 3.5x length, 2.5x flatten
+            //.OrderBy(pav => pav.OnlyLHIndices.Count() / pav.OnlyRHIndices.Count()); // 4x append, 5x reverse, 5x maxlist, 4x length
+            //.OrderByDescending(pav => pav.OnlyLHIndices.Count()); //6x sum, 6x maxlist, 3x length
+            .OrderBy(pav => 1/pav.GetInDominant() + pav.GetLHFlowNumber()/3);
+            //.OrderBy(pav => pav.GetLHFlowNumber()); // 7.5x reverse, 7x sum, 6x maxlist, 4x length, 3x flatten
+            // .OrderBy(pav => pav.GetLHFlowNumber()).ThenBy(pav => pav.OnlyLHIndices.Count()); // 5threads: 6x maxlist, 3x length
+            //.OrderBy(pav => pav.OnlyLHIndices.Count()).ThenBy(pav => pav.GetLHFlowNumber()); // 5threads: 6x append, 2.5x length
           allProtoAndValences[arityIndex][modeIndex] = sorted.ToArray();
         }
       }
-
+      //Console.WriteLine("And valence size:" + (allProtoAndValences.Length*allProtoAndValences[0].Length*allProtoAndValences[0][0].Length));
       return new AndValenceSeries(allProtoAndValences);
     }
 

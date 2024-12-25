@@ -11,23 +11,23 @@ For more information on CNPInduce and its applications:
 
 Load the solution and run the Benchit project. Tested on .Net 7. 
 
-> `./Benchit benchmarks.json "[1,5]" 3`
+`> ./Benchit benchmarks.json "[1,5]" 5`
 
-Runs the suite in `benchmarks.json` with 1 and 5 threads, each with 3 repeats, reporting the average of all repeats with standard deviation. Ideal number of threads may depend on the machine.
+Runs the suite in `benchmarks.json` with 1 and 5 threads, each with 5 repeats, reporting the average of all repeats with standard deviation. Ideal number of threads may depend on the machine.
 
 Benhmark results on a Macbook Pro M3 Max 36GB:
 
 | Name       | AST Depth | Complexity | Ex+ | Ex- | Single-threaded | Multi-threaded | Speedup | 
 | ---------- | --------- | ---------- | --- | --- | --------------- | -------------- | ------- | 
-| head       |         2 |       O(1) |   2 |   0 |    0,001 ±0,000 |   0,001 ±0,000 |    1,0x |
-| decrement  |         3 |       O(1) |   2 |   0 |    0,013 ±0,001 |   0,007 ±0,000 |    1,8x |
-| append     |         3 |       O(n) |   2 |   0 |    0,020 ±0,001 |   0,008 ±0,001 |    2,5x |
-| reverse    |         4 |       O(n) |   2 |   0 |    0,077 ±0,009 |   0,034 ±0,009 |    2,3x |
-| sum        |         4 |       O(n) |   2 |   0 |    0,047 ±0,001 |   0,020 ±0,002 |    2,4x |
-| maxlist    |         4 |       O(n) |   2 |   0 |    0,051 ±0,000 |   0,020 ±0,001 |    2,6x |
-| length     |         6 |       O(n) |   2 |   1 |    6,449 ±0,084 |   1,982 ±0,042 |    3,3x |
-| flatten    |         6 |     O(n^2) |   2 |   0 |    3,477 ±0,014 |   1,470 ±0,060 |    2,4x |
-| sumall     |         6 |     O(n^2) |   2 |   0 |    3,061 ±0,002 |   1,179 ±0,030 |    2,6x |
+| head       |         2 |       O(1) |   2 |   0 |    0.001 ±0.000 |   0.001 ±0.000 |     0.8 |
+| decrement  |         3 |       O(1) |   2 |   0 |    0.021 ±0.001 |   0.007 ±0.001 |     2.8 |
+| append     |         3 |       O(n) |   2 |   0 |    0.015 ±0.000 |   0.004 ±0.000 |     3.7 |
+| reverse    |         4 |       O(n) |   2 |   0 |    0.184 ±0.035 |   0.027 ±0.002 |     6.9 |
+| sum        |         4 |       O(n) |   2 |   0 |    0.117 ±0.000 |   0.019 ±0.001 |     6.3 |
+| maxlist    |         4 |       O(n) |   2 |   0 |    0.123 ±0.000 |   0.019 ±0.001 |     6.4 |
+| length     |         6 |       O(n) |   2 |   1 |    7.696 ±0.013 |   2.282 ±0.213 |     3.4 |
+| flatten    |         6 |     O(n^2) |   2 |   0 |    4.614 ±0.054 |   1.538 ±0.115 |     3.0 |
+| sumall     |         6 |     O(n^2) |   2 |   0 |    4.026 ±0.057 |   1.347 ±0.195 |     3.0 |
 
 Some environment variables have to be set for multi-threading to be enabled for .Net. Do this over the terminal, do:
 On Windows:

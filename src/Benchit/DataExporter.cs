@@ -12,8 +12,6 @@ namespace Benchit
       var sDev = Math.Sqrt(runs.Sum(r => Math.Pow(r - avg, 2)) / runs.Length);
       //var sErr = sDev / Math.Sqrt(runs.Count());
       var record = results.GetOrAdd(programName, () => (depth, complexityExponent, pex, nex, new()));
-      if (record.depth != depth)
-        throw new InvalidOperationException("Depth does not match.");
       var list = record.durations;
       list.Add((threads: threadCount, avg:avg, stdDev: sDev));
     }
@@ -66,7 +64,7 @@ namespace Benchit
         sb.Append($" | {t1.avg.ToString("F3") + " ±" + t1.stdDev.ToString("F3"),15}");
         sb.Append($" | {t6.avg.ToString("F3") + " ±" + t6.stdDev.ToString("F3"),14}");
         double speedUp = t1.avg / t6.avg;
-        sb.Append($" | {speedUp.ToString("F1") + "x",7}");
+        sb.Append($" | {speedUp.ToString("F1"),7}");
         sb.AppendLine(" |");
       }
       return sb.ToString();

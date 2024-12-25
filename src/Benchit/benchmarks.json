@@ -33,7 +33,9 @@
             "Valence": "{as:in, bs:out}",
             "Examples": "{{as:['a'], bs:['a']}, {as:[1,2,3], bs:[3,2,1]}}",
             "NegExamples": "{}",
-            "ExpectedPrograms": [ "proj(and(const(b0, []), foldl(cons)), {as->as, b->bs})" ]
+            "ExpectedPrograms": [ "proj(and(const(b0, []), foldl(cons)), {as->as, b->bs})",
+                                  "proj(and(const(b, []), foldr(proj(cons, {a->a, ab->b, b->ab}))), {b0->as, as->bs})",
+                                  "proj(and(foldr(proj(cons, {a->a, ab->b, b->ab})), const(b, [])), {b0->as, as->bs})" ]
         },
         {
             "Name": "sum",

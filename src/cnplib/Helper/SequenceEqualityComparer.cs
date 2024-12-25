@@ -18,10 +18,13 @@ namespace CNP.Helper
 
     public int GetHashCode([DisallowNull] IEnumerable<T> obj)
     {
-      T a = obj.FirstOrDefault();
-      if (a is null)
-        return 0;
-      else return a.GetHashCode();
+      var en = obj.GetEnumerator(); 
+      int hash = 97;
+      if (en.MoveNext())
+        hash += en.Current.GetHashCode();
+      if (en.MoveNext())
+        hash += en.Current.GetHashCode();
+      return hash;
     }
   }
 }

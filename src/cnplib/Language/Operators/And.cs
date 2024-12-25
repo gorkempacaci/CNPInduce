@@ -10,11 +10,6 @@ namespace CNP.Language
   {
     public const int AND_MAX_ARITY = 5;
 
-    //static And()
-    //{
-    //  AndValences = AndValenceSeries.Generate(AND_MAX_ARITY);
-    //}
-
     public static readonly AndValenceSeries AndValences = AndValenceSeries.Generate(AND_MAX_ARITY);
 
     public readonly IProgram LHOperand, RHOperand;
@@ -36,7 +31,7 @@ namespace CNP.Language
 
     public override int GetHashCode()
     {
-      return 31;
+      return LHOperand.GetHashCode() + RHOperand.GetHashCode();
     }
 
     public override bool Equals(object obj)
@@ -120,24 +115,22 @@ namespace CNP.Language
       if ((origObservation.Constraints & ObservedProgram.Constraint.NotAnd) == ObservedProgram.Constraint.NotAnd)
         return Array.Empty<ProgramEnvironment>();
       List<ProgramEnvironment> programs = new List<ProgramEnvironment>();
-      for (int oi = 0; oi < origObservation.Observations.Length; oi++)
+      var constraint = ObservedProgram.Constraint.NotAnd;
+      foreach (var obsOI in origObservation.Observations)
       {
-        var debugInfo = origObservation.Observations[oi].GetDebugInformation(origEnv);
-        Mode[] modes = origObservation.Observations[oi].Valence.GetModesOrderedByNames(origObservation.Observations[oi].Examples.Names);
+        //var debugInfo = origObservation.Observations[oi].GetDebugInformation(origEnv);
+        Mode[] modes = obsOI.Valence.GetModesOrderedByNames(obsOI.Examples.Names);
         ProtoAndValence[] valences = AndValences.GetValencesForOpMode(modes);
-        NameVar[] opNames = origObservation.Observations[oi].Examples.Names;
-        for (int i = 0; i < valences.Length; i++)
+        NameVar[] opNames = obsOI.Examples.Names;
+        int remSearchDepth = origObservation.RemainingSearchDepth - 1;
+        int remUnbound = origObservation.RemainingUnboundArguments;
+        foreach (var protVal in valences)
         {
-          int remSearchDepth = origObservation.RemainingSearchDepth - 1;
-          int remUnbound = origObservation.RemainingUnboundArguments;
-          var constraint = ObservedProgram.Constraint.NotAnd;
-          ProtoAndValence protVal = valences[i];
-
           var (lhNames, lhIndices, lhNamesOfIns, lhNamesOfOuts) = getNamesIndicesModesForNames(protVal.LHModes, opNames);
-          var lhRel = origObservation.Observations[oi].Examples.GetCroppedByIndices(lhIndices);
+          var lhRel = obsOI.Examples.GetCroppedByIndices(lhIndices);
 
           var rhNamesIndicesModesList = protVal.RHModesArr.Select(RHModes => getNamesIndicesModesForNames(RHModes, opNames));
-          var rhTuplesList = rhNamesIndicesModesList.Select(rh => origObservation.Observations[oi].Examples.GetCroppedByIndices(rh.indices));
+          var rhTuplesList = rhNamesIndicesModesList.Select(rh => obsOI.Examples.GetCroppedByIndices(rh.indices));
           
           var lhVal = new ValenceVar(lhNamesOfIns, lhNamesOfOuts);
           var lhObs = new Observation(lhRel, lhVal);
@@ -149,7 +142,7 @@ namespace CNP.Language
           var lhObsP = new ObservedProgram(new[] { lhObs }, remSearchDepth, remUnbound, constraint);
           var rhObsP = new ObservedProgram(rhObsList.ToArray() , remSearchDepth, remUnbound, constraint);
           var andProg = new And(lhObsP, rhObsP);
-          (andProg as IProgram).SetDebugInformation(debugInfo);
+          //(andProg as IProgram).SetDebugInformation(debugInfo);
           //BUG after and-valence grouping this name difference bit needs to be done differently
 
           //var diffs = new List<(NameVar[], NameVar[])>();

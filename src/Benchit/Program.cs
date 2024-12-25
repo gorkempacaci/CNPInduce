@@ -7,6 +7,7 @@ using System.Text;
 using CNP;
 using System.Diagnostics.CodeAnalysis;
 using System.Data.Common;
+using System.Globalization;
 
 namespace Benchit
 {
@@ -50,6 +51,7 @@ namespace Benchit
       {
         Console.WriteLine("Printing CNP version failed. (possibly single executable)");
       }
+      //Console.WriteLine("CurrentCulture is {0}.", CultureInfo.CurrentCulture.Name);
       Console.WriteLine("Preinitializing. ");
       //SynthesisJob.PreInitialize();
       //Thread.Sleep(1000);
@@ -71,7 +73,7 @@ namespace Benchit
     static int Run(SynTask[] tasks, int[] threadCounts, int repeats, int maxWaitMSBetweenRuns)
     {
       DataExporter dataExport = new();
-      StringBuilder errors = new();
+      HashSet<string> errors = new();
       Console.WriteLine();
       Console.Write("{0,-12}{1,6}", "Name", "Thrds");
       for (int ri = 1; ri <= repeats; ri++)
@@ -124,14 +126,15 @@ namespace Benchit
                 succeess = false;
                 Console.Write("{0,8}", "F");
                 string expecting = bench.ExpectedPrograms[0] + (bench.ExpectedPrograms.Length > 1 ? "(or similar)" : "");
-                errors.AppendLine($"({bench.Name}) \n Expecting: {expecting} \n Found: {foundProgramString}");
+                string errorLine = $"({bench.Name}) \n Expecting: {expecting} \n Found: {foundProgramString}";
+                errors.Add(errorLine);
               }
             }
             else
             {
               succeess = false;
               Console.Write("{0,8}", "F");
-              errors.AppendLine($"({bench.Name}), Threads {thCount}, Repeat {r + 1}, Program not found.");
+              errors.Add($"({bench.Name}), Threads {thCount}, Repeat {r + 1}, Program not found.");
             }
             GC.Collect(2, GCCollectionMode.Forced, true);
             //int howMuchToWait = Math.Min((int)(durationsRpt[r] * 1000 * 3), maxWaitMSBetweenRuns);
@@ -152,10 +155,11 @@ namespace Benchit
         string dataStr = string.Join(" & ", averages.Select(a => $"{a.Item2:F2}"));
         Console.WriteLine();
       }
-      if (errors.Length != 0)
+      if (errors.Count != 0)
       {
         Console.WriteLine("Errors:");
-        Console.Write(errors);
+        foreach(var e in errors)
+          Console.WriteLine(e);
       }
       Console.WriteLine("For Tabular:");
       Console.WriteLine(dataExport.ExportToTEX());
