@@ -29,7 +29,8 @@ Benhmark results on a Macbook Pro M3 Max 36GB:
 | flatten    |         6 |     O(n^2) |   2 |   0 |    4.614 ±0.054 |   1.538 ±0.115 |     3.0 |
 | sumall     |         6 |     O(n^2) |   2 |   0 |    4.026 ±0.057 |   1.347 ±0.195 |     3.0 |
 
-Some environment variables have to be set for multi-threading to be enabled for .Net. Do this over the terminal, do:
+Some environment variables have to be set for multi-threading to be enabled for .Net.
+
 On Windows:
 ```
   set DOTNET_GCCpuGroup=1
